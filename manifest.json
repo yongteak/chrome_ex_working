@@ -1,0 +1,37 @@
+{  
+    "manifest_version": 2,  
+    "name": "스카우터 앱1",  
+    // "default_locale": "ko",
+    "description": "Working!",  
+    "version": "1.0",  
+    "browser_action": {  
+        "default_icon": "images/icon.png",  
+        // "default_popup": "popup.html"  
+        "default_title": "Inject!"
+    },  
+    // "permissions": ["activeTab"],
+    // "*://*.google.com/"
+    
+    "permissions": [
+        "browserAction",
+        "contextMenus",
+        "cookies",
+        "history",
+        "webRequest",
+        "webRequestBlocking",
+        "*://*/*",
+        "tabs"
+      ],
+    // "background": {
+    //     "scripts": ["background.js"],
+    //     "persistent": false
+    // },
+    // "background_page": "background.html", 
+    // "scripts": ["jquery.3.3.1min.js","background.js"]
+    
+    "content_scripts": [{
+        "matches": [ "*://*/*" ],
+        "css": ["styles.css"],
+        "js": ["jquery.3.3.1min.js","background.js","content.js"]
+      }]
+}  

@@ -1,0 +1,32 @@
+function ClienAgent() {
+	var _this = this;
+	
+	// PC일 경우 : 익스플로러 체크 
+	_this.checkAgent = function() {
+		var agent = navigator.userAgent.toLowerCase();
+		
+		// 익스플로러 에이전트
+		if ((navigator.appName == 'Netscape' && navigator.userAgent.search('Trident') != -1) || (agent.indexOf("msie") != -1) ) {
+			var sideBanner = $('#side_banner');
+			// IE Banner 이동 관련 함수
+			$(function () {
+				$('#side_banner').addClass('ie');
+				$(window).scroll(function () {
+					if ($(this).scrollTop() > 199) {
+						sideBanner.removeClass('down').addClass('up');
+					} else {
+						sideBanner.removeClass('up').addClass('down');
+					}
+				});
+			});
+		}
+	}
+
+	// Init
+	_this.init = function() {
+		_this.checkAgent();
+	}();
+	
+};
+
+var clienAgent = new ClienAgent();
