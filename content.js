@@ -13,7 +13,7 @@ function test() {
     alert('test!');
 }
 // $(".board_nav").prepend('<input id="TestButton" class="report_label radius" title="메모 목록 공유하기" type="button" name="sync_memo"" value="메모 목록 공유하기"" data-runtime-disabled="runtime.Disabled" data-runtime-aria-label="runtime.ariaLabel" data-runtime-hide="runtime.Hide" aria-label="Test Button">');
-$("body").prepend('<input class="sync_memo report_label radius" title="메모 목록 공유하기" type="button" value="메모 목록 공유하기"" data-runtime-disabled="runtime.Disabled" data-runtime-aria-label="runtime.ariaLabel" data-runtime-hide="runtime.Hide" aria-label="Test Button">');
+// $("body").prepend('<input class="sync_memo report_label radius" title="메모 목록 공유하기" type="button" value="메모 목록 공유하기"" data-runtime-disabled="runtime.Disabled" data-runtime-aria-label="runtime.ariaLabel" data-runtime-hide="runtime.Hide" aria-label="Test Button">');
 
 
 $('.sync_memo').on('click', function (e) {
