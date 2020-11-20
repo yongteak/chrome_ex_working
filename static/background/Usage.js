@@ -127,6 +127,7 @@ function updateView(tabId, url, [timesCurrentlyDoing, timesAlreadyDone]) {
     var views = URL_MAP.get("views");
     if (views.hasOwnProperty(key)){
         if (timesAlreadyDone >= views[key]) {
+            //
         } else {
             // model값 변경시 map데이터도 참조되어 같이 변경됨, 따로 걍신 코드 필요없음
             var data = URL_MAP.get("data");
@@ -251,18 +252,26 @@ function getFormatDate(){
 }
 
 function getDomain(url) {
-	var hostName = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i)[2];
-    var domain = hostName;    
-    if (hostName != null) {
-        var parts = hostName.split('.').reverse();
-        
-        if (parts != null && parts.length > 1) {
-            domain = parts[1] + '.' + parts[0];
-                
-            if (hostName.toLowerCase().indexOf('.co.uk') != -1 && parts.length > 2) {
-              domain = parts[2] + '.' + domain;
+    // console.log(url);
+    try {
+        var hostName = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i)[2];
+        var domain = hostName;    
+        if (hostName != null) {
+            var parts = hostName.split('.').reverse();
+            
+            if (parts != null && parts.length > 1) {
+                domain = parts[1] + '.' + parts[0];
+                    
+                if (hostName.toLowerCase().indexOf('.co.uk') != -1 && parts.length > 2) {
+                domain = parts[2] + '.' + domain;
+                }
             }
         }
+        return domain;
+    } catch (e) {
+        return null;
+        // error
     }
-    return domain;
+
+        
 }
