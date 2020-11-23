@@ -5,3 +5,17 @@
 [LINK]
 https://developer.chrome.com/apps/storage
 https://gyuyeon.tistory.com/6
+
+[WORK]
+[11/20]
+ - Time tracker 코드 추가 
+ - https://chrome.google.com/webstore/detail/web-activity-time-tracker/hhfnghjdeddcfegfekjeihfmbjenlomm/related
+
+[11/19]
+ - web traffic 코드 추가
+ - 일정시간마다 누적된 데이터 merge코드 필요
+
+
+[TODO]
+슬라이드 기능 구현
+- https://www.similarweb.com/corp/extension-welcome/
