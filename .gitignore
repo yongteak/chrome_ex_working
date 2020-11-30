@@ -1,0 +1,8 @@
+### Bower ###
+.bower-cache
+.bower-registry
+.bower-tmp
+static/vendor/* 
+
+### etc ###
+.DS_Store

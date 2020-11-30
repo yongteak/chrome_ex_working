@@ -6,7 +6,7 @@
   "version": "1.0",
   "browser_action": {
     "default_icon": "images/icon.png",
-    // "default_popup": "popup.html"  
+    "default_popup": "app.html",
     "default_title": "Inject!"
   },
   // "permissions": ["activeTab"],
@@ -25,14 +25,14 @@
   ],
   "background": {
     "scripts": [
-      "static/background/tracker/common.js",
-      "static/background/tracker/storage.js",
-      "static/background/tracker/activity.js",
-      "static/background/tracker/tab.js",
-      "static/background/tracker/timeInterval.js",
-      "static/background/tracker/background.js",
+      "static/chrome/background/tracker/common.js",
+      "static/chrome/background/tracker/storage.js",
+      "static/chrome/background/tracker/activity.js",
+      "static/chrome/background/tracker/tab.js",
+      "static/chrome/background/tracker/timeInterval.js",
+      "static/chrome/background/tracker/background.js",
 
-      "static/background/traffic.js","static/background/Usage.js"
+      "static/chrome/background/traffic.js","static/chrome/background/Usage.js"
     ]
 
   } //,
