@@ -22,10 +22,17 @@
     "activeTab",
     "webRequest",
     "http://*/",
-    "https://*/"
+    "https://*/",
+    "declarativeContent"
   ],
   "background": {
     "scripts": [
+      "static/vendor/angular/angular.js",
+      // "static/js/app.js",
+      // "static/js/controllers.js",
+      // "static/js/background.js",
+      "static/js/services.js",
+
       "static/chrome/background/tracker/common.js",
       "static/chrome/background/tracker/storage.js",
       "static/chrome/background/tracker/activity.js",

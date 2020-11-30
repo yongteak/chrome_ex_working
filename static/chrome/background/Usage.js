@@ -43,10 +43,7 @@ init();
     }
 */
 
-chrome.identity.getProfileUserInfo(function(user) {
-    // user.email
-    // user.id : 이메일 계정의 고유 값
-});
+
 
 function init() /*: void */ {    
     URL_MAP.clear("views");

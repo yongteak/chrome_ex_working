@@ -14,6 +14,9 @@
     <script src="static/vendor/angular-moment/angular-moment.min.js"></script>
     <script src="static/js/app.js"></script>
     <script src="static/js/controllers.js"></script>
+    <script src="static/js/services.js"></script>
+
+    <script src="static/chrome/background/tracker/storage.js"></script>
 </head>
 
 <body>
@@ -23,7 +26,7 @@
   </script>
         <div uib-alert ng-repeat="alert in alerts" ng-class="'alert-' + (alert.type || 'warning')" close="closeAlert($index)">{{alert.msg}}</div>
         <div uib-alert template-url="alert.html" style="background-color:#fa39c3;color:white">A happy alert!</div>
-        <button type="button" class='btn btn-default' ng-click="addAlert()">Add Alert</button>
+        <button type="button" class='btn btn-default' ng-click="addAlert()">Add Alert @ {{ retryMessage }}</button>
     </div>
 </body>
 
