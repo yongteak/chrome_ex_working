@@ -12,6 +12,7 @@
   // "permissions": ["activeTab"],
   // "*://*.google.com/"
   "permissions": [
+    "identity", "identity.email",
     "tabs",
     "idle",
     "chrome://favicon/*",

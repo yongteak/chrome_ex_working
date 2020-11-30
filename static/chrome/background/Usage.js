@@ -42,7 +42,13 @@ init();
         }
     }
 */
-function init() /*: void */ {
+
+chrome.identity.getProfileUserInfo(function(user) {
+    // user.email
+    // user.id : 이메일 계정의 고유 값
+});
+
+function init() /*: void */ {    
     URL_MAP.clear("views");
     if (!URL_MAP.has("views")) URL_MAP.set("views",{});
     if (!URL_MAP.has("summary")) URL_MAP.set("summary",{});
