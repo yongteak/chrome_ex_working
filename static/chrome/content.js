@@ -19,11 +19,11 @@ let reportObject = {
     performance_timings: performance.timing,
     lastreporttime: null,
     origin: window.location.origin,
-    beforeSize:0,
-    increasedSize:0,
-    isObserved:false,
-    isFlush:false,
-    status:"idle"
+    beforeSize: 0,
+    increasedSize: 0,
+    isObserved: false,
+    isFlush: false,
+    status: "idle"
 };
 // Returns size of the data in following formats: Bytes, KB, MB, GB & TB
 function bytesToSize(bytes) {
@@ -40,7 +40,6 @@ function millisToMinutesAndSeconds(duration) {
         , minutes = parseInt((duration / (1000 * 60)) % 60)
         , hours = parseInt((duration / (1000 * 60 * 60)) % 24);
 
-    // console.log(duration,milliseconds,)
     hours = (hours < 10) ? "0" + hours : hours;
     minutes = (minutes < 10) ? "0" + minutes : minutes;
     seconds = (seconds < 10) ? "0" + seconds : seconds;
@@ -51,21 +50,19 @@ function millisToMinutesAndSeconds(duration) {
 function updateReport(entries) {
     reportObject.isFlush = false;
     // 상태 복사
-    reportObject.beforeSize = parseInt(reportObject.transferSize+"".repeat(1));
+    reportObject.beforeSize = parseInt(reportObject.transferSize + "".repeat(1));
     try {
         for (let i = 0, l = entries.length; i < l; i++) {
             // transferSize += (!isNaN(entries[i].transferSize)) ? (entries[i].transferSize) : 0;
             reportObject.transferSize += (!isNaN(entries[i].transferSize)) ? (entries[i].transferSize) : 0;
         }
-        
+
         const diff = reportObject.transferSize - reportObject.beforeSize;
         if (!reportObject.isFlush && reportObject.isObserved && diff > 0) {
             reportObject.increasedSize += diff
-            console.log(reportObject.beforeSize,reportObject.transferSize,diff,reportObject.increasedSize);
         }
         reportObject.status = "active";
 
-        
     } catch (err) {
         console.error("Unable to extract entries -- " + err);
     }
@@ -93,7 +90,7 @@ chrome.runtime.onMessage.addListener(
             // 이벤트 발송후 증감값 다시 계산
             reportObject.isFlush = true;
             reportObject.increasedSize = 0;
-            
+
             return true; // sendResponse was called synchronously. If you want to send asynchronously use sendResponse, add return true; to the onMessage event handler.
         }
     }
