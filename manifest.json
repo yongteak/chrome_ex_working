@@ -38,10 +38,12 @@
       "static/chrome/background/tracker/activity.js",
       "static/chrome/background/tracker/tab.js",
       "static/chrome/background/tracker/timeInterval.js",
-      "static/chrome/background/tracker/background.js",
+      "static/chrome/background/tracker/background.js"
 
-      "static/chrome/background/traffic.js","static/chrome/background/Usage.js"
-    ]
+      // "static/chrome/background/traffic.js"
+      // ,"static/chrome/background/Usage.js"
+    ],
+    "persistent":true
 
   } //,
   // "background_page": "background.html", 

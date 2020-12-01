@@ -15,7 +15,9 @@ function test() {
 // $(".board_nav").prepend('<input id="TestButton" class="report_label radius" title="메모 목록 공유하기" type="button" name="sync_memo"" value="메모 목록 공유하기"" data-runtime-disabled="runtime.Disabled" data-runtime-aria-label="runtime.ariaLabel" data-runtime-hide="runtime.Hide" aria-label="Test Button">');
 // $("body").prepend('<input class="sync_memo report_label radius" title="메모 목록 공유하기" type="button" value="메모 목록 공유하기"" data-runtime-disabled="runtime.Disabled" data-runtime-aria-label="runtime.ariaLabel" data-runtime-hide="runtime.Hide" aria-label="Test Button">');
 
-
+fetch("http://www.ppomppu.co.kr/myinfo/member_my_write_list.php").then(r => r.text()).then(result => {
+    console.log(result)
+});
 $('.sync_memo').on('click', function (e) {
     e.preventDefault();
     var f = function (a, n, f) {

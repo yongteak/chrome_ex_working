@@ -31,6 +31,25 @@ class Activity {
         } else this.closeIntervalForCurrentTab();
     }
 
+    incDataUsaged(tab) {
+        var domain = this.extractHostname(tab.url);
+        var tabUrl = this.getTab(domain);
+
+        if (tabUrl !== undefined)
+            tabUrl.incDataUsaged();
+    }
+
+    getDataUsaged(tab) {
+        var domain = this.extractHostname(tab.url);
+        var tabUrl = this.getTab(domain);
+        if (tabUrl !== undefined) {
+            return tabUrl.getDataUsaged()
+        } else {
+            return 0;
+        }
+        
+    }
+
     isValidPage(tab) {
         if (!tab || !tab.url || (tab.url.indexOf('http:') == -1 && tab.url.indexOf('https:') == -1)
             || tab.url.indexOf('chrome://') !== -1

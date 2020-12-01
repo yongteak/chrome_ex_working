@@ -27,6 +27,9 @@ var TypeListEnum = {
     ByDays: 3,
 };
 
+
+// chrome.storage.local.remove("tabs", function () {});
+// });
 var STORAGE_TABS = 'tabs';
 var STORAGE_BLACK_LIST = 'black_list';
 var STORAGE_RESTRICTION_LIST = 'restriction_list';
@@ -219,5 +222,5 @@ function formatDate() {
     month = month >= 10 ? month : '0' + month;
     var day = date.getDate();
     day = day >= 10 ? day : '0' + day;
-    return  year + '' + month + '' + day;
+    return  parseInt(year + '' + month + '' + day);
 }
