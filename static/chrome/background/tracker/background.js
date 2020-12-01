@@ -54,13 +54,27 @@ function backgroundCheck() {
                     if (currentTab !== tab.url) {
                         activity.setCurrentActiveTab(tab.url);
                     }
-                    chrome.idle.queryState(parseInt(setting_interval_inactivity), function (state) {
+                    // activeTab : title, url 수집필요
+                    getCurrentlyViewedTabId()
+                        .then(({ id, _url }) => {
+                            chrome.tabs.sendMessage(id, { req: EVENT_GENERATE_REPORT }, response => {
+                                if (response !== undefined) {
+                                    activity.incDataUsaged(tab,
+                                        response.isObserved ? response.increasedSize : response.transferSize);
+                                }
+                            });
+
+                            var data = bytesToSize(activity.getDataUsaged(tab));
+                            chrome.browserAction.setBadgeText({ text: data.size + "" + data.unit });
+                        })
+
+
+                    chrome.idle.queryState(parseInt(setting_interval_inactivity), state => {
                         if (state === 'active') {
                             mainTRacker(activeUrl, tab, activeTab);
                         } else checkDOM(state, activeUrl, tab, activeTab);
                     });
                 }
-                // }
             }
         } else activity.closeIntervalForCurrentTab();
     });
@@ -272,6 +286,8 @@ function addListener() {
     chrome.tabs.onActivated.addListener(onTabSwitch);
     // 요청이 발생하려고 할 때 발생, 이 이벤트는 TCP 연결이 이루어지기 전에 전송되며 요청을 취소하거나 리디렉션하는 데 사용가능
     chrome.webRequest.onBeforeRequest.addListener(onBeforeRequest, filter);
+    chrome.webRequest.onResponseStarted.addListener(onResponseStarted, filter);
+
     // 요청이 성공적으로 처리
     // chrome.webRequest.onCompleted.addListener(onRequestCompletedOrErrored, filter);
     // 요청을 성공적으로 처리 할 수 ​​없을 때 
@@ -285,40 +301,35 @@ function addListener() {
 
 // $$
 // Tab 변경시 해당 Tab의 KB 데이터 표현을 위함, 
-function onTabSwitch({ tabId /*: number */ }) {
+function onTabSwitch({ tabId }) {
     // const tabData = getTabData(tabId);
     // updateView(tabData);
     getCurrentlyViewedTabId()
         .then(({ id, url }) => {
             if (id === tabId) {
-                // const tabData = getTabData(tabId);
-                // updateView(tabId, url, tabData);
                 chrome.tabs.get(tabId, tab => {
                     var timesAlreadyDone = activity.getDataUsaged(tab);
-                    console.log("getDataUsaged > ", timesAlreadyDone);
-                    chrome.browserAction.setBadgeText({ text: String(timesAlreadyDone) });
+                    var data = bytesToSize(timesAlreadyDone);
+                    chrome.browserAction.setBadgeText({ text: data.size + "" + data.unit });
                 });
             }
         });
 }
 
+
+function onResponseStarted(_info) {
+    // console.log('onResponseStarted');
+}
+
 // 다운로드 진행중
 function onBeforeRequest(info) {//{ tabId }) {
-    // console.log("onBeforeRequest");
     try {
-        // console.log(info.tabId);
-        chrome.tabs.get(info.tabId, tab => {
-            activity.incDataUsaged(tab);
-        });
+        // chrome.tabs.get(info.tabId, tab => {
+        //     activity.incDataUsaged(tab);
+        // });
     } catch (error) {
         // console.error(error);
     }
-
-    
-    // tab.incSummaryTime();
-    // incrementTabTimesCurrentlyDoing(tabId);
-    // incrementTabTimesAlreadyDone(tabId);
-    // conditionallyUpdateView(tabId);
 }
 
 function getCurrentlyViewedTabId() {

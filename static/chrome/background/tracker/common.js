@@ -28,8 +28,6 @@ var TypeListEnum = {
 };
 
 
-// chrome.storage.local.remove("tabs", function () {});
-// });
 var STORAGE_TABS = 'tabs';
 var STORAGE_BLACK_LIST = 'black_list';
 var STORAGE_RESTRICTION_LIST = 'restriction_list';
@@ -51,6 +49,8 @@ var SETTINGS_INTERVAL_SAVE_STORAGE = 'interval_save_in_storage';
 var SETTINGS_INTERVAL_RANGE = 'range_days';
 var SETTINGS_VIEW_TIME_IN_BADGE = 'view_time_in_badge';
 var SETTINGS_SHOW_HINT = 'show_hint';
+
+var EVENT_GENERATE_REPORT = 'performance_report';
 
 function isEmpty(obj) {
     for (var prop in obj) {
@@ -212,6 +212,13 @@ function treatAsUTC(date) {
 function daysBetween(startDate, endDate) {
     var millisecondsPerDay = 24 * 60 * 60 * 1000;
     return ((treatAsUTC(endDate) - treatAsUTC(startDate)) / millisecondsPerDay) + 1;
+}
+
+function bytesToSize(bytes) {
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes == 0) return { size: 0, unit: sizes[0] };
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return { size: Math.round(bytes / Math.pow(1024, i), 2), unit: sizes[i] };
 }
 
 // YYYYMMDD

@@ -25,6 +25,17 @@
     "https://*/",
     "declarativeContent"
   ],
+  "content_scripts": [
+    {
+        "matches": [
+            "https://*/*",
+            "http://*/"
+        ],
+        "js": [
+            "static/chrome/content.js"
+        ]
+    }
+],
   "background": {
     "scripts": [
       "static/vendor/angular/angular.js",

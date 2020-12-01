@@ -1,3 +1,6 @@
 [manifest 필드 설명]
 https://www.letmecompile.com/chrome-extension-with-react/
 https://joshuajangblog.wordpress.com/tag/%ED%81%AC%EB%A1%AC-%ED%94%8C%EB%9F%AC%EA%B7%B8%EC%9D%B8-content-script/
+
+[git]
+git reset --hard origin/master

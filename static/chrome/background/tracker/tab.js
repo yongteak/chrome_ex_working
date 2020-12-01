@@ -45,7 +45,6 @@ class Tab {
     getDataUsaged() {
         var today = formatDate();
         var data = this.days.find(x => x.date == today).dataUsage;
-        // console.log("getDataUsaged > ", data);
         if (isNaN(data)) {
             this.incDataUsaged(true);
             return 0;
@@ -54,11 +53,14 @@ class Tab {
         }
     }
 
-    incDataUsaged(init) {
+    incDataUsaged(init,increasedSize) {
         init = init || false;
-        this.dataUsage += 1;
+        increasedSize = increasedSize || 1;
+
+        this.dataUsage += increasedSize;
         var today = formatDate();
         var day = this.days.find(x => x.date == today);
+
         if (day === undefined) {
             this.addNewDay(today);
         }
@@ -67,10 +69,11 @@ class Tab {
                 day['dataUsage'] = 0;
                 this.dataUsage = 0;
             } else {
-                day['dataUsage'] += 1
+                day['dataUsage'] += increasedSize;
             }
         };
-        this.getDataUsaged();
+        // 순환참조?
+        // this.getDataUsaged();
     }
 
     incCounter() {

@@ -31,12 +31,11 @@ class Activity {
         } else this.closeIntervalForCurrentTab();
     }
 
-    incDataUsaged(tab) {
+    incDataUsaged(tab,increasedSize) {
         var domain = this.extractHostname(tab.url);
         var tabUrl = this.getTab(domain);
-
         if (tabUrl !== undefined)
-            tabUrl.incDataUsaged();
+            tabUrl.incDataUsaged(false,increasedSize);
     }
 
     getDataUsaged(tab) {
