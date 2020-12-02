@@ -9,6 +9,7 @@
     "default_popup": "app.html",
     "default_title": "Inject!"
   },
+  "options_page": "static/options/options.html",
   // "permissions": ["activeTab"],
   // "*://*.google.com/"
   "permissions": [
