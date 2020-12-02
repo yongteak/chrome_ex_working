@@ -223,7 +223,7 @@ function setDefaultSettings() {
 }
 
 function checkSettingsImEmpty() {
-    chrome.storage.local.getBytesInUse(['inactivity_interval'], function (item) {
+    chrome.storage.local.getBytesInUse(['inactivity_interval'], item => {
         if (item == 0) {
             setDefaultSettings();
         }
@@ -235,18 +235,18 @@ function setDefaultValueForNewSettings() {
 }
 
 function addListener() {
-    chrome.tabs.onActivated.addListener(function (info) {
-        chrome.tabs.get(info.tabId, function (tab) {
+    chrome.tabs.onActivated.addListener(info => {
+        chrome.tabs.get(info.tabId, tab => {
             activity.addTab(tab);
         });
     });
 
-    chrome.webNavigation.onCompleted.addListener(function (details) {
-        chrome.tabs.get(details.tabId, function (tab) {
+    chrome.webNavigation.onCompleted.addListener( details => {
+        chrome.tabs.get(details.tabId, tab => {
             activity.updateFavicon(tab);
         });
     });
-    chrome.runtime.onInstalled.addListener(function (details) {
+    chrome.runtime.onInstalled.addListener( details => {
         if (details.reason == 'install') {
             storage.saveValue(SETTINGS_SHOW_HINT, SETTINGS_SHOW_HINT_DEFAULT);
             setDefaultSettings();
@@ -258,7 +258,7 @@ function addListener() {
             isNeedDeleteTimeIntervalFromTabs = true;
         }
     });
-    chrome.storage.onChanged.addListener(function (changes, namespace) {
+    chrome.storage.onChanged.addListener( (changes, namespace) => {
         for (var key in changes) {
             if (key === STORAGE_BLACK_LIST) {
                 loadBlackList();
@@ -273,10 +273,10 @@ function addListener() {
                 loadNotificationMessage();
             }
             if (key === SETTINGS_INTERVAL_INACTIVITY) {
-                storage.getValue(SETTINGS_INTERVAL_INACTIVITY, function (item) { setting_interval_inactivity = item; });
+                storage.getValue(SETTINGS_INTERVAL_INACTIVITY, item => { setting_interval_inactivity = item; });
             }
             if (key === SETTINGS_VIEW_TIME_IN_BADGE) {
-                storage.getValue(SETTINGS_VIEW_TIME_IN_BADGE, function (item) { setting_view_in_badge = item; });
+                storage.getValue(SETTINGS_VIEW_TIME_IN_BADGE, item => { setting_view_in_badge = item; });
             }
         }
     });
@@ -351,9 +351,14 @@ function loadTabs() {
         tabs = [];
         if (items != undefined) {
             for (var i = 0; i < items.length; i++) {
-                tabs.push(new Tab(items[i].url, items[i].favicon, items[i].days, items[i].dataUsage, items[i].summaryTime, items[i].counter));
+                tabs.push(new Tab(items[i].url, 
+                    items[i].favicon, 
+                    items[i].days, 
+                    items[i].dataUsage, 
+                    items[i].summaryTime, 
+                    items[i].counter));
             }
-            console.log(tabs);
+            // console.log(tabs);
             if (isNeedDeleteTimeIntervalFromTabs)
                 deleteTimeIntervalFromTabs();
         }
@@ -398,13 +403,13 @@ function loadRestrictionList() {
 }
 
 function loadNotificationList() {
-    storage.getValue(STORAGE_NOTIFICATION_LIST, function (items) {
+    storage.getValue(STORAGE_NOTIFICATION_LIST, items => {
         setting_notification_list = items;
     });
 }
 
 function loadNotificationMessage() {
-    storage.getValue(STORAGE_NOTIFICATION_MESSAGE, function (item) {
+    storage.getValue(STORAGE_NOTIFICATION_MESSAGE, item => {
         setting_notification_message = item;
         if (isEmpty(setting_notification_message)) {
             storage.saveValue(STORAGE_NOTIFICATION_MESSAGE, STORAGE_NOTIFICATION_MESSAGE_DEFAULT);
@@ -414,8 +419,8 @@ function loadNotificationMessage() {
 }
 
 function loadSettings() {
-    storage.getValue(SETTINGS_INTERVAL_INACTIVITY, function (item) { setting_interval_inactivity = item; });
-    storage.getValue(SETTINGS_VIEW_TIME_IN_BADGE, function (item) { setting_view_in_badge = item; });
+    storage.getValue(SETTINGS_INTERVAL_INACTIVITY, item => { setting_interval_inactivity = item; });
+    storage.getValue(SETTINGS_VIEW_TIME_IN_BADGE, item => { setting_view_in_badge = item; });
 }
 
 function loadAddDataFromStorage() {
@@ -438,7 +443,7 @@ function checkPermissionsForYT(callbackIfTrue, callbackIfFalse, ...props) {
     chrome.permissions.contains({
         permissions: ['tabs'],
         origins: ["https://www.youtube.com/*"]
-    }, function (result) {
+    }, result => {
         if (callbackIfTrue != undefined && result)
             callbackIfTrue(...props);
         if (callbackIfFalse != undefined && !result)
@@ -451,7 +456,7 @@ function checkPermissionsForNetflix(callbackIfTrue, callbackIfFalse, ...props) {
     chrome.permissions.contains({
         permissions: ['tabs'],
         origins: ["https://www.netflix.com/*"]
-    }, function (result) {
+    }, result => {
         if (callbackIfTrue != undefined && result)
             callbackIfTrue(...props);
         if (callbackIfFalse != undefined && !result)
@@ -463,7 +468,7 @@ function checkPermissionsForNetflix(callbackIfTrue, callbackIfFalse, ...props) {
 function checkPermissionsForNotifications(callback, ...props) {
     chrome.permissions.contains({
         permissions: ["notifications"]
-    }, function (result) {
+    }, result => {
         if (callback != undefined && result)
             callback(...props);
         isHasPermissioForNotification = result;
