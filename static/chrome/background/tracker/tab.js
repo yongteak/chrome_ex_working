@@ -44,13 +44,19 @@ class Tab {
 
     getDataUsaged() {
         var today = formatDate();
-        var data = this.days.find(x => x.date == today).dataUsage;
-        if (isNaN(data)) {
+        try {
+            var data = this.days.find(x => x.date == today).dataUsage;
+            if (isNaN(data)) {
+                this.incDataUsaged(true);
+                return 0;
+            } else {
+                return data;
+            }    
+        } catch (_error) {
             this.incDataUsaged(true);
             return 0;
-        } else {
-            return data;
         }
+        
     }
 
     incDataUsaged(init,increasedSize) {
@@ -78,7 +84,7 @@ class Tab {
 
     incCounter() {
         this.counter += 1;
-
+        console.log('this.counter > ',this.counter);
         var today = formatDate();
         var day = this.days.find(x => x.date == today);
         if (day === undefined) {

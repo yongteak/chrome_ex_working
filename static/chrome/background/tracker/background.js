@@ -43,6 +43,7 @@ function backgroundCheck() {
                     activity.addTab(activeTab);
                 }
 
+                //  블랙 리스트 사이트 접근 횟수 기록
                 // if (activity.isInBlackList(activeUrl)) {
                 //     chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000' })
                 //     chrome.browserAction.setBadgeText({
@@ -54,11 +55,13 @@ function backgroundCheck() {
                     if (currentTab !== tab.url) {
                         activity.setCurrentActiveTab(tab.url);
                     }
+                    // console.log(activeTab.title,activeTab.url);
                     // activeTab : title, url 수집필요
                     getCurrentlyViewedTabId()
                         .then(({ id, _url }) => {
                             chrome.tabs.sendMessage(id, { req: EVENT_GENERATE_REPORT }, response => {
                                 if (response !== undefined) {
+                                    console.log('performance > ',Math.floor(response.performance/1000), tab);
                                     activity.incDataUsaged(tab,
                                         response.isObserved ? response.increasedSize : response.transferSize);
                                 }
@@ -235,6 +238,8 @@ function setDefaultValueForNewSettings() {
 }
 
 function addListener() {
+    // chrome.tabs.onUpdated.addListener(function(tabId,changeInfo,tab){        
+    // });
     chrome.tabs.onActivated.addListener(info => {
         chrome.tabs.get(info.tabId, tab => {
             activity.addTab(tab);
@@ -295,10 +300,14 @@ function addListener() {
     // onBeforeNavigate -> onCommitted -> onDOMContentLoaded -> onCompleted
     // 화면 수신중
     // chrome.webNavigation.onCommitted.addListener(resetTabState, filter);
+    chrome.webNavigation.onBeforeNavigate.addListener(webNavigation, filter);
 
     // chrome.runtime.setUninstallURL("https://docs.google.com/forms/d/e/1FAIpQLSdImHtvey6sg5mzsQwWfAQscgZOOV52blSf9HkywSXJhuQQHg/viewform");
 }
 
+function webNavigation(e) {
+    // console.log(e);
+}
 // $$
 // Tab 변경시 해당 Tab의 KB 데이터 표현을 위함, 
 function onTabSwitch({ tabId }) {
@@ -346,8 +355,6 @@ function getCurrentlyViewedTabId() {
 // $$
 function loadTabs() {
     storage.loadTabs(STORAGE_TABS, items => {
-        // console.log("loadTabs > ", STORAGE_TABS);
-        // chrome.storage.local.remove(STORAGE_TABS, function () { });
         tabs = [];
         if (items != undefined) {
             for (var i = 0; i < items.length; i++) {
@@ -358,7 +365,6 @@ function loadTabs() {
                     items[i].summaryTime, 
                     items[i].counter));
             }
-            // console.log(tabs);
             if (isNeedDeleteTimeIntervalFromTabs)
                 deleteTimeIntervalFromTabs();
         }

@@ -24,6 +24,8 @@ class LocalStorage {
         });
     }
 
+    // [2020-12-03 04:59:13]
+    // 동기화할려면 최적화 필요
     saveTabs(value, callback) {
         chrome.storage.local.set({ tabs: value });
         if (callback !== undefined)

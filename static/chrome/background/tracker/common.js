@@ -34,6 +34,17 @@ var STORAGE_RESTRICTION_LIST = 'restriction_list';
 var STORAGE_NOTIFICATION_LIST = 'notification_list';
 var STORAGE_NOTIFICATION_MESSAGE = 'notification_message';
 var STORAGE_TIMEINTERVAL_LIST = 'time_interval';
+// 시간당 소비 페이지 정보 5초이상 머물렀던 URL 페이지 목록 관리, daily관리
+/*
+    day: {
+        fav:icon,
+        title:string,
+        url:string,
+        second:int,
+        count:int
+    }
+*/
+var STORAGE_TIME_TO_URL = 'time_to_url';
 
 var SETTINGS_INTERVAL_INACTIVITY_DEFAULT = InactivityInterval.second30;
 var SETTINGS_INTERVAL_CHECK_DEFAULT = 1000;

@@ -53,7 +53,6 @@ function updateReport(entries) {
     reportObject.beforeSize = parseInt(reportObject.transferSize + "".repeat(1));
     try {
         for (let i = 0, l = entries.length; i < l; i++) {
-            // transferSize += (!isNaN(entries[i].transferSize)) ? (entries[i].transferSize) : 0;
             reportObject.transferSize += (!isNaN(entries[i].transferSize)) ? (entries[i].transferSize) : 0;
         }
 
@@ -61,7 +60,7 @@ function updateReport(entries) {
         if (!reportObject.isFlush && reportObject.isObserved && diff > 0) {
             reportObject.increasedSize += diff
         }
-        reportObject.status = "active";
+        // reportObject.status = "active";
 
     } catch (err) {
         console.error("Unable to extract entries -- " + err);
@@ -80,11 +79,12 @@ function updateReport(entries) {
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         // pushAnalyticsEvents(window.location.href, request.req); // Pushing google analyticts info
-        if (request.req === "performance_report" && reportObject.status == "active") {
+        if (request.req === "performance_report"/* && reportObject.status == "active"*/) {
             reportObject.lastreporttime = new Date();
+            reportObject.performance = performance.now();
             sendResponse(reportObject);
             // 데이터 갱신 상태가 아닌경우 이벤트 발송을 하지 않는다.
-            reportObject.status = "idle";
+            // reportObject.status = "idle";
             // 화면 로드 상태 정보
             reportObject.isObserved = true;
             // 이벤트 발송후 증감값 다시 계산

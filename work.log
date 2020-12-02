@@ -20,6 +20,14 @@ https://gyuyeon.tistory.com/6
 
 
 [TODO]
+[2020-12-03 05:56:20]
+- 마우스 우클릭, 드래그기능 활성화
+- 키워드 분석하기 요청
+
+[2020-12-03 04:34:19]
+ - 10초 이상, 5분미만 제외(원페이지 사이트 제외) 방문했던 페이지 URL 수집, 개별 URL마다 방문했던 횟수 기록
+
+
 슬라이드 기능 구현
 - https://www.similarweb.com/corp/extension-welcome/
 데이터 모델링
@@ -46,3 +54,7 @@ https://developers.google.com/web/updates/2016/06/performance-observer
 소스코드, 리뷰 결과 안좋음, 참고만 할것
 https://chrome.google.com/webstore/detail/data-usage/dopfdeikfpadofngjnjokfgmboicnppc?hl=en-GB
 https://chrome.google.com/webstore/detail/net-usage-extension/dcoehgalcmebfjgkbhbpllfhjcclkjan?hl=en-GB
+
+[Chrome]
+Firebase사용하기
+https://developers-kr.googleblog.com/2016/08/how-to-use-firebase-in-chrome-extension.html

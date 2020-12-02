@@ -383,7 +383,7 @@ footer {
       width: 100%;
       min-height: 100vh;
       padding: 1.5rem 2.5rem calc(90px + 1.5rem);
-      margin-top: 0px; }
+      margin-top: 10px; }
       .page-body .page-content-wrapper .page-content-wrapper-inner {
         max-width: 1140px;
         margin-left: auto;
