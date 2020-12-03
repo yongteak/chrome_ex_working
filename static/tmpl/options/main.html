@@ -1,0 +1,140 @@
+<div class="row">
+    <div class="col-lg-12">
+        <div class="grid">
+            <p class="grid-header">설정</p>
+            <div class="grid-body">
+                <div class="item-wrapper">
+                    <div class="row">
+                        <div class="col-md-8 mx-auto">
+                            <div class="row showcase_row_area">
+                                <div class="col-md-3 showcase_text_area">
+                                    <label>비활동 감지 시간</label>
+                                </div>
+                                <div class="col-md-9 showcase_content_area">
+                                    <select class="custom-select">
+                                        <option value="1">1분</option>
+                                        <option value="2">5분</option>
+                                        <option value="3">10분</option>
+                                        <option value="3">20분</option>
+                                        <option selected value="3">30분</option>
+                                        <option value="3">60분</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row showcase_row_area">
+                                <div class="col-md-3 showcase_text_area">
+                                    <label>아이콘 표시정보</label>
+                                </div>
+                                <div class="col-md-9 showcase_content_area">
+                                    <select class="custom-select">
+                                        <option value="1">오늘:데이터 수신량</option>
+                                        <option value="2">오늘:사이트 사용시간</option>
+                                        <option value="3">전체:데이터 수신량</option>
+                                        <option value="3">전체:사이트 사용시간</option>
+                                        <option selected value="3">표시하지 않음</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12">
+        <div class="grid">
+            <p class="grid-header">추적 금지 도메인</p>
+            <div class="grid-body">
+                <div class="item-wrapper">
+                    <form>
+                        <div class="form-row">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>적용</th>
+                                            <th>도메인</th>
+                                            <th>등록일</th>
+                                            <th>변경일</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="customSwitch1" checked="">
+                                                    <label class="custom-control-label" for="customSwitch1"></label>
+                                                </div>
+                                            </td>
+                                            <td>google.com</td>
+                                            <td>Jar 23, 2019 </td>
+                                            <td>Jar 23, 2019 </td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger btn-xs">삭제</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="customSwitch1" checked="">
+                                                    <label class="custom-control-label" for="customSwitch1"></label>
+                                                </div>
+                                            </td>
+                                            <td>google.com</td>
+                                            <td>Jar 23, 2019 </td>
+                                            <td>Jar 23, 2019 </td>
+                                            <td class="actions">
+                                                <div class="action-dropdown btn-group">
+                                                    <button type="button"
+                                                        class="btn btn-trasnparent btn-xs component-flat pr-0"
+                                                        data-toggle="dropdown" aria-haspopup="true"
+                                                        aria-expanded="false">
+                                                        <i class="mdi mdi-dots-horizontal"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu dropdown-menu-left">
+                                                        <a class="dropdown-item" href="#">Edit</a>
+                                                        <a class="dropdown-item text-danger" href="#">삭제</a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <p>
+                            <hr>
+                        </p>
+                        <div class="mx-auto form-group row showcase_row_area">
+
+                            <div class="col-md-10 showcase_content_area">
+                                <input class="form-control" maxlength="100" name="defaultconfig" id="defaultconfig"
+                                    type="text" placeholder="도메인을 입력해주세요. (예. naver.com)">
+                            </div>
+                            
+                            <button class="btn btn-primary btn-sm" type="submit">도메인 등록</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12">
+        <div class="grid">
+            <p class="grid-header">로컬 저장소 초기화</p>
+            <div class="grid-body">
+                <div class="item-wrapper">
+                    <button class="col-md-12 btn btn-danger" type="submit">
+                        현재 424일 동안, 5.6MB 로컬 데이터가 저장되어있습니다. 버튼을 누르면 모든 데이터가 초기화 삭제됩니다!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

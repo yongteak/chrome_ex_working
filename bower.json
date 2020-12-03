@@ -8,6 +8,7 @@
     "angular-animate": "^1.8.2",
     "angular-sanitize": "^1.8.2",
     "bootstrap": "4",
-    "mdi": "^5.8.55"
+    "mdi": "^5.8.55",
+    "angular-route": "^1.8.2"
   }
 }
