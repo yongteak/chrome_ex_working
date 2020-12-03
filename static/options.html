@@ -1,76 +1,77 @@
 <!doctype html>
-<html ng-app="app" ng-csp="">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>설정</title>
-  <link rel="stylesheet" href="assets/vendors/iconfonts/mdi/css/materialdesignicons.css">
-  <link rel="stylesheet" href="assets/css/demo_1/style.css">
-  <link rel="stylesheet" href="assets/css/shared/style.css">
-  <!-- <link rel="shortcut icon" href="assets/images/favicon.ico" /> -->
+<html ng-app="app" ng-csp>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>설정</title>
+<link rel="stylesheet" href="assets/vendors/iconfonts/mdi/css/materialdesignicons.css">
+<link rel="stylesheet" href="assets/css/demo_1/style.css">
+<link rel="stylesheet" href="assets/css/shared/style.css">
+<!-- <link rel="shortcut icon" href="assets/images/favicon.ico" /> -->
 
-  <script src="vendor/angular/angular.min.js"></script>
-  <script src="vendor/angular-route/angular-route.min.js"></script>
-  <script src="js/options/app.js"></script>
-  <script src="js/options/controllers.js"></script>
-  <script src="js/options/services.js"></script>
+<script src="vendor/angular/angular.min.js"></script>
+<script src="vendor/angular-route/angular-route.min.js"></script>
+<script src="js/options/app.js"></script>
+<script src="js/options/controllers.js"></script>
+<script src="js/options/services.js"></script>
 
-  <script src="js/options/options.js"></script>
+<script src="js/options/options.js"></script>
 </head>
 
-<body class="header-fixed" ng-init="init()">
+<body class="header-fixed">
   <div class="page-body">
     <div class="sidebar">
-      <ul class="navigation-menu">
-        <li class="tablink active">
-          <a href="#/v1/main">
-            <span class="link-title">설정</span>
-            <em class="mdi mdi-gauge link-icon"></em>
-          </a>
+      <ul class="navigation-menu" ng-controller="side">
+        <!-- <li class="tablink active"> -->
+        <li ng-class="{tablink, active : isCurrentPath('/v1/setting')}">
+        <a href="#/v1/setting">
+          <span class="link-title">설정</span>
+          <em class="mdi mdi-gauge link-icon"></em>
+        </a>
         </li>
 
-        <li class="tablink">
+        <li ng-class="{tablink, active : isCurrentPath('/v1/limit')}">
           <a href="#/v1/limit">
-            <span class="link-title">제한</span>
-            <em class="mdi mdi-clipboard-outline link-icon"></em>
-          </a>
+          <span class="link-title">제한</span>
+          <em class="mdi mdi-clipboard-outline link-icon"></em>
+        </a>
         </li>
 
-        <li class="tablink">
+        <li ng-class="{tablink, active : isCurrentPath('/v1/alarm')}">
           <a href="#/v1/alarm">
             <span class="link-title">알람</span>
             <em class="mdi mdi-alarm link-icon"></em>
           </a>
         </li>
 
-        <li class="tablink">
+        <li ng-class="{tablink, active : isCurrentPath('/v1/data')}">
           <a href="#/v1/data">
             <span class="link-title">백업/복구</span>
             <em class="mdi mdi-backup-restore link-icon"></em>
           </a>
         </li>
 
-        <li class="tablink">
+        <li ng-class="{tablink, active : isCurrentPath('/v1/sync')}">
           <a href="#/v1/sync">
             <span class="link-title">동기화설정</span>
             <em class="mdi mdi-cloud-sync link-icon"></em>
           </a>
         </li>
 
-        <li class="tablink">
+        <li ng-class="{tablink, active : isCurrentPath('/v1/status')}">
           <a href="#/v1/status">
             <span class="link-title">통계</span>
             <em class="mdi mdi-chart-bubble link-icon"></em>
           </a>
         </li>
 
-        <li class="tablink">
+        <li ng-class="{tablink, active : isCurrentPath('/v1/profile')}">
           <a href="#/v1/profile">
             <span class="link-title">사용자</span>
             <em class="mdi mdi-account-card-details link-icon"></em>
           </a>
         </li>
 
-        <li class="tablink">
+        <li ng-class="{tablink, active : isCurrentPath('/v1/about')}">
           <a href="#/v1/about">
             <span class="link-title">About</span>
             <em class="mdi mdi-bullhorn link-icon"></em>
@@ -85,39 +86,39 @@
         <div class="content-viewport">
           <div ng-view></div>
         </div>
-      <!-- content viewport ends -->
-      <!-- partial:../../partials/_footer.html -->
-      <footer class="footer">
-        <div class="row">
-          <div class="col-sm-6 text-center text-sm-right order-sm-1">
-            <ul class="text-gray">
-              <li><a href="#">Terms of use</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-            </ul>
+        <!-- content viewport ends -->
+        <!-- partial:../../partials/_footer.html -->
+        <footer class="footer">
+          <div class="row">
+            <div class="col-sm-6 text-center text-sm-right order-sm-1">
+              <ul class="text-gray">
+                <li><a href="#">Terms of use</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+              </ul>
+            </div>
+            <div class="col-sm-6 text-center text-sm-left mt-3 mt-sm-0">
+              <small class="text-muted d-block">Copyright © 2019 <a href="http://www.uxcandy.co"
+                  target="_blank">UXCANDY</a>. All rights reserved</small>
+              <small class="text-gray mt-2">Handcrafted With <i class="mdi mdi-heart text-danger"></i></small>
+            </div>
           </div>
-          <div class="col-sm-6 text-center text-sm-left mt-3 mt-sm-0">
-            <small class="text-muted d-block">Copyright © 2019 <a href="http://www.uxcandy.co"
-                target="_blank">UXCANDY</a>. All rights reserved</small>
-            <small class="text-gray mt-2">Handcrafted With <i class="mdi mdi-heart text-danger"></i></small>
-          </div>
-        </div>
-      </footer>
-      <!-- partial -->
+        </footer>
+        <!-- partial -->
+      </div>
+      <!-- page content ends -->
     </div>
-    <!-- page content ends -->
-  </div>
-  <!--page body ends -->
-  <!-- SCRIPT LOADING START FORM HER//////-->
-  <!-- plugins:js -->
-  <!-- <script src="assets/vendors/js/core.js"></script> -->
-  <!-- <script src="assets/vendors/js/vendor.addons.js"></script> -->
-  <!-- endinject -->
-  <!-- Vendor Js For This Page Ends-->
-  <!-- Vendor Js For This Page Ends-->
-  <!-- build:js -->
-  <!-- <script src="assets/js/template.js"></script> -->
-  <!-- endbuild -->
-  <script src="assets/vendors/js/core.js"></script>
+    <!--page body ends -->
+    <!-- SCRIPT LOADING START FORM HER//////-->
+    <!-- plugins:js -->
+    <!-- <script src="assets/vendors/js/core.js"></script> -->
+    <!-- <script src="assets/vendors/js/vendor.addons.js"></script> -->
+    <!-- endinject -->
+    <!-- Vendor Js For This Page Ends-->
+    <!-- Vendor Js For This Page Ends-->
+    <!-- build:js -->
+    <!-- <script src="assets/js/template.js"></script> -->
+    <!-- endbuild -->
+    <script src="assets/vendors/js/core.js"></script>
 </body>
 
 </html>
