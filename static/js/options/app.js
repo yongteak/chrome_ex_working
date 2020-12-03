@@ -1,4 +1,5 @@
-var app = angular.module('app', ["ngRoute",
+var app = angular.module('app', [
+	"ngRoute","angular-echarts3","g1b.calendar-heatmap","angularMoment",
 	'app.controllers', 'app.services'
 ]);
 

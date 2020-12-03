@@ -1,5 +1,14 @@
 <div class="row">
+    <!-- angular-echarts3 -->
     <!-- heat map tab 구성 -->
+    <div class="col-lg-12">
+        <!-- <div class="grid"> -->
+            <!-- <mw-chart style="width: 40%;height:400px;left: 30px;;" ng-model="option">
+            </mw-chart>
+            <button ng-click="change()">切换</button> -->
+            <calendar-heatmap data="example_data" color="color" overview="overview" over="over" handler="print"></calendar-heatmap>
+        <!-- </div> -->
+    </div>
     <div class="col-lg-12">
         <div class="grid">
             <p class="grid-header">2020년 12월 31일 사용현황</p>
@@ -39,8 +48,8 @@
                                 <td>34,234</td>
                                 <td>
                                     <div class="progress progress-slim">
-                                        <div class="progress-bar bg-info progress-bar-striped" role="progressbar" style="width: 35%"
-                                            aria-valuenow="35" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar bg-info progress-bar-striped" role="progressbar"
+                                            style="width: 35%" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100">
                                         </div>
                                     </div>
                                 </td>
@@ -49,7 +58,7 @@
                                 <td class="text-success"> 5시간 30분 02초(86.1%) <i class="mdi mdi-arrow-up"></i>
                                 </td>
                             </tr>
-                           
+
                         </tbody>
                     </table>
                 </div>

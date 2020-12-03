@@ -9,6 +9,9 @@
     "angular-sanitize": "^1.8.2",
     "bootstrap": "4",
     "mdi": "^5.8.55",
-    "angular-route": "^1.8.2"
+    "angular-route": "^1.8.2",
+    "echarts": "^3.1.10",
+    "angular-echarts3": "^0.0.4",
+    "angular-calendar-heatmap": "https://github.com/yongteak/angular-calendar-heatmap.git#master"
   }
 }
