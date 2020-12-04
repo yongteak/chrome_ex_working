@@ -1,0 +1,13 @@
+$scope.remove_all = function () {
+    // console.log('remove!');
+    fetch("https://crix-api-endpoint.upbit.com/v1/crix/trades/days?code=CRIX.UPBIT.KRW-SC&count=1")
+        // .then(r => r.text()).then(result => {
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (myJson) {
+            console.log(myJson);
+        });
+
+
+<button class="col-md-12 btn btn-danger" ng-click="remove_all()" type="submit">
