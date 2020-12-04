@@ -1,13 +1,13 @@
 {
   "manifest_version": 2,
-  "name": "스카우터 앱1",
+  "name": "My Web Tracker",
   // "default_locale": "ko",
-  "description": "Working@@",
+  "description": "개발중",
   "version": "1.0",
   "browser_action": {
     "default_icon": "images/icon.png",
     "default_popup": "app.html",
-    "default_title": "Inject!"
+    "default_title": "설정"
   },
   "options_page": "static/options.html",
   // "permissions": ["activeTab"],
