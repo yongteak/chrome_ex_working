@@ -59,11 +59,11 @@ angular.module('app.controllers', [])
         });
 
         // Set custom color for the calendar heatmap
-        $scope.color = '#cd2327';
+        $scope.color = '#790C90';
 
         // Set overview type (choices are year, month and day)
         $scope.overview = 'year';
-        $scope.tooltip = false;
+        $scope.tooltip = true;
 
         // Handler function
         $scope.print = function (val) {
@@ -71,7 +71,7 @@ angular.module('app.controllers', [])
         };
 
         $scope.over = function (val) {
-            console.log("over@",val);
+            // console.log("over@",val);
           };
 
         var vm = this;
