@@ -1,4 +1,12 @@
 // https://developer.chrome.com/extensions/storage
+/*
+[2020-12-05 00:10:43]
+ - 동기화
+  1. 클라우드 로드
+  2. 로컬 관리
+  3. 클라우드 로드및 마지막 동기화 시간 flag확인
+  4. 로컬 -> 클라우드 복제
+*/
 'use strict';
 
 class LocalStorage {

@@ -1,4 +1,8 @@
+
 <div class="row">
+    <!-- <mw-chart style="width: 40%;height:400px;left: 30px;;" ng-model="option">
+    </mw-chart>
+    <button ng-click="change()">切换</button> -->
     <!-- <div class="col-lg-12"> -->
         <!-- <div class="grid"> -->
             <calendar-heatmap data="example_data" color="color" overview="overview" tooltip="tooltip" over="over"
@@ -6,7 +10,8 @@
         <!-- </div> -->
     <!-- </div> -->
     <div class="col-lg-12">
-        <button class="col-md-12 btn btn-danger" ng-click="check()" type="submit"></button>
+        <button class="col-md-2 btn btn-danger" ng-click="today()" type="submit">오늘 통계</button>
+        <button class="col-md-2 btn btn-danger" ng-click="all()" type="submit">전체 통계</button>
         <div class="grid">
             <p  class="grid-header">2020년 12월 31일 사용현황 | {{ model.todal_total_times | convertSummaryTimeToString}} </p>
             <div class="item-wrapper">
@@ -24,7 +29,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="row in model.today">
+                            <tr ng-repeat="row in model.rows">
                                 <td>{{ $index+1}}</td>
                                 <td>
                                     <!-- <img alt width="15" height="15" ng-src="{{ row.favicon }}" onerror="this.src=''"> &nbsp; -->

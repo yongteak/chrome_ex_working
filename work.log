@@ -73,3 +73,7 @@ https://developers-kr.googleblog.com/2016/08/how-to-use-firebase-in-chrome-exten
 
 [Chart]
 https://developer.aliyun.com/mirror/npm/package/angular-calendar-heatmap
+https://echarts.apache.org/next/examples/en/index.html
+
+주단위 활용
+https://echarts.apache.org/next/examples/en/editor.html?c=heatmap-cartesian

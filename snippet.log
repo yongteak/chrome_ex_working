@@ -11,3 +11,8 @@ $scope.remove_all = function () {
 
 
 <button class="col-md-12 btn btn-danger" ng-click="remove_all()" type="submit">
+
+# array 만들기
+# https://echarts.apache.org/next/examples/en/editor.html?c=heatmap-cartesian
+var hours = Array(24).fill(0).map((e,i)=>i+1);
+var seconds = Array(60).fill(0).map((e,i)=>i+1);

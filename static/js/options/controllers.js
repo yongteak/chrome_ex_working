@@ -31,42 +31,52 @@ angular.module('app.controllers', [])
     .controller('syncController', function ($scope, $location) {
     })
     .controller('statusController', function ($scope, $filter,$location, moment, storage, CONFIG) {
-        $scope.model = {today:[],todal_total_times:0,all:[]};
-        $scope.check = function () {
+        $scope.model = {rows:[],todal_total_times:0};
+        $scope.all = function () {
+            $scope.model.todal_total_times=0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
-            // storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, e => {
-                // console.log(rows);
-                var today = $filter('formatDate')();
-                // var row = this.rows.find(function(item) {
-
-                // rows.reduce()
-
-                // } item.days == today);
                 // console.log(row);
+                rows.forEach(e => {
+                    e.part = {
+                        counter:e.counter,
+                        dataUsage:e.dataUsage,
+                        summary:e.summaryTime
+                    }
+                $scope.model.todal_total_times += e.part.summary;
+                });
+                // var today = $filter('formatDate')();
+                // var targetTabs = rows.filter(x => x.days.find(s => s.date === today));
+                // targetTabs.forEach(e => {
+                //     e.part = e.days.filter(x => x.date == today)[0];
+                //     $scope.model.todal_total_times += e.part.summary;
+                // });
+                // targetTabs = targetTabs.sort(function(a, b) {
+                //     return b.days.find(s => s.date === today).summary - a.days.find(s => s.date === today).summary;
+                // });
+                rows = rows.sort(function(a, b) {
+                    return b.part.summary - a.part.summary;
+                });
+                $scope.model.rows = rows;
+                // console.log(rows);
+                $scope.$apply();
+                // console.log($scope.model.today);
+                // 오늘날짜만 뽑기 또는 최근 마지막 날짜 뽑기
+            
+            })}
+        $scope.today = function () {
+            $scope.model.todal_total_times=0;
+            storage.getValue(CONFIG.STORAGE_TABS, rows => {
+                var today = $filter('formatDate')();
                 var targetTabs = rows.filter(x => x.days.find(s => s.date === today));
                 targetTabs.forEach(e => {
-                    // if (!e.hasOwnProperty('part')) e.part = [];
                     e.part = e.days.filter(x => x.date == today)[0];
                     $scope.model.todal_total_times += e.part.summary;
-                    // e.percentage = $filter('percentage')(,e.part.summary)
-                    // percentage
                 });
-                
-                // sort
                 targetTabs = targetTabs.sort(function(a, b) {
                     return b.days.find(s => s.date === today).summary - a.days.find(s => s.date === today).summary;
                 });
-                // var total_time = $filter('getTotalTime')(targetTabs);
-                // console.log(total_time,targetTabs);
-                $scope.model.today = targetTabs;
-
+                $scope.model.rows = targetTabs;
                 $scope.$apply();
-                // $scope.model.today.party = [];
-                // $scope.model.today.forEach(e => {
-                //     console.log(e);
-                //     // array.filter(x => x == day);
-                //     $scope.model.today.party.push(e.days.filter(x => x.date == today)[0]);
-                // })
                 // console.log($scope.model.today);
                 // 오늘날짜만 뽑기 또는 최근 마지막 날짜 뽑기
             });
@@ -115,13 +125,14 @@ angular.module('app.controllers', [])
             // console.log($scope.example_data);
         };
 
-        var vm = this;
         var type = false;
-        vm.option = loadDataWithType(type);
+        $scope.option = loadDataWithType(type);
+        
 
         $scope.change = function () {
             type = !type;
-            vm.option = loadDataWithType(type);
+            $scope.option = loadDataWithType(type);
+            console.log($scope.option)
         }
 
         function loadDataWithType(type) {

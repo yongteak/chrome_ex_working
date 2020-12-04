@@ -4,3 +4,6 @@ https://joshuajangblog.wordpress.com/tag/%ED%81%AC%EB%A1%AC-%ED%94%8C%EB%9F%AC%E
 
 [git]
 git reset --hard origin/master
+
+[기타]
+heatmap은 월간 항목만 표기함
