@@ -28,8 +28,7 @@ angular.module('app.controllers', [])
         function getDomain() {
             storage.getValue(CONFIG.IGNORED_DOMAINS_LIST, e => {
                 if (e) {
-                    $scope.model.domains = e.sort((a,b)=> {return b.epoch - a.epoch});
-                    console.log(e);
+                    $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
                 }
                 $scope.$apply();
             });
@@ -40,33 +39,65 @@ angular.module('app.controllers', [])
             console.log('clear domains');
         }
 
-        $scope.remove = function(row) {
-            console.log(row);
+        $scope.remove = function (row) {
+            if (confirm('삭제하시겠습니까?')) {
+                var list = $scope.model.domains;
+                const index = list.findIndex(function (item) {
+                    return item.epoch === row.epoch;
+                });
+
+                if (index !== -1) {
+                    list.splice(index, 1);
+                } else {
+                    // throw error
+                }
+
+                storage.saveValue(CONFIG.IGNORED_DOMAINS_LIST, $scope.model.domains);
+                getDomain();
+
+            } else {
+                //
+            }
+            // console.log(row);
+        }
+
+        $scope.enabledChange = function (row) {
+            var list = $scope.model.domains;
+            const index = list.findIndex(function (item) {
+                return item.epoch === row.epoch;
+            });
+            list[index].enabled = row.enabled;
+            storage.saveValue(CONFIG.IGNORED_DOMAINS_LIST, $scope.model.domains);
+            getDomain();
         }
 
         $scope.add_domain = function () {
             var list = $scope.model.domains;
             var find_domain = list.find(s => s.domain == $scope.model.domain);
             var isNewDomain = find_domain == undefined;
+            if (!isNewDomain) {
+                alert('이미 등록된 도메인 입니다.')
+                return;
+            }
             var model = {
                 domain: $scope.model.domain,
                 created: isNewDomain ? today : find_domain.created,
                 updated: today,
-                epoch: moment().valueOf(),
+                epoch: isNewDomain ? moment().valueOf() : find_domain.epoch,
                 enabled: true
             };
 
-            // 기존 데이터 제거
-            if (!isNewDomain) {
-                const index = list.findIndex(function (item) {
-                    return item.field === $scope.model.domain;
-                });
-                if (index !== -1) {
-                    list.splice(index, 1);
-                } else {
-                    // throw error
-                }
-            }
+            // 동일한 데이터가 있는경우 제거후 추가
+            // if (!isNewDomain) {
+            //     const index = list.findIndex(function (item) {
+            //         return item.domain === $scope.model.domain;
+            //     });
+            //     if (index !== -1) {
+            //         list.splice(index, 1);
+            //     } else {
+            //         // throw error
+            //     }
+            // }
             $scope.model.domains.push(model);
             storage.saveValue(CONFIG.IGNORED_DOMAINS_LIST, $scope.model.domains);
             getDomain();
@@ -88,7 +119,6 @@ angular.module('app.controllers', [])
         $scope.all = function () {
             $scope.model.todal_total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
-                // console.log(row);
                 rows.forEach(e => {
                     e.part = {
                         counter: e.counter,

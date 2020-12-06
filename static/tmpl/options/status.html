@@ -25,8 +25,8 @@
                                 <th>도메인</th>
                                 <th>접속</th>
                                 <th>사용량</th>
-                                <th>시간</th>
-                                <th width="15%">비율</th>
+                                <th>사용 시간</th>
+                                <!-- <th width="15%">비율</th> -->
                             </tr>
                         </thead>
                         <tbody>
@@ -38,9 +38,8 @@
                                 <!-- <td>{{ row.url }}</td> -->
                                 <td class="text-info">{{ row.part.counter | num_comma }} <em class="mdi mdi-arrow-up"></em></td>
                                 <td class="text-danger">{{ row.part.dataUsage | dataSizeToUnit }} <em class="mdi mdi-arrow-down"></em></td>
-                                <td>{{ row.part.summary | convertSummaryTimeToString }} </td>
                                 <td>
-                                    {{ row.part.summary | percentage:model.todal_total_times  }}%
+                                    {{ row.part.summary | convertSummaryTimeToString }} 
                                     <div class="progress progress-slim mt-2">
                                         <div class="progress-bar bg-primary" role="progressbar" 
                                             style="width: {{ row.part.summary | percentage:model.todal_total_times  }}%" 
@@ -49,6 +48,16 @@
                                         </div>
                                       </div>
                                 </td>
+                                <!-- <td>
+                                    {{ row.part.summary | percentage:model.todal_total_times  }}%
+                                    <div class="progress progress-slim mt-2">
+                                        <div class="progress-bar bg-primary" role="progressbar" 
+                                            style="width: {{ row.part.summary | percentage:model.todal_total_times  }}%" 
+                                            aria-valuenow="{{ row.part.summary | percentage:model.todal_total_times }}" 
+                                            aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                      </div>
+                                </td> -->
                             </tr>
                             <!-- <tr>
                                 <td>fav</td>

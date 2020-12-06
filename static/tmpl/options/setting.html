@@ -74,7 +74,8 @@
                                             <td>{{ row.created | yyyymmdd_to_format_kr }}</td>
                                             <td>
                                                 <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input" id="switch{{ $index }}" checked="">
+                                                    <input type="checkbox" class="custom-control-input" 
+                                                        id="switch{{ $index }}" ng-change="enabledChange(row)" ng-model="row.enabled" ng-checked="{{ row.enabled }}">
                                                     <label class="custom-control-label" for="switch{{ $index }}"></label>
                                                 </div>
                                             </td>
