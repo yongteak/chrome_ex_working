@@ -41,9 +41,7 @@ class LocalStorage {
     }
 
     saveValue(name, value) {
-        chrome.storage.local.set({
-            [name]: value
-        });
+        chrome.storage.local.set({[name]: value});
     }
 
     getValue(name, callback) {

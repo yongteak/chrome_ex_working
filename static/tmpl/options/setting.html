@@ -1,3 +1,5 @@
+<h2>설정</h2>
+<hr >
 <div class="row">
     <div class="col-lg-12">
         <div class="grid">
@@ -57,51 +59,28 @@
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>적용</th>
+                                            <th>#</th>
                                             <th>도메인</th>
                                             <th>등록일</th>
-                                            <th>변경일</th>
+                                            <th>적용</th>
                                             <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
+                                        <tr ng-repeat="row in model.domains">
+                                            <!-- <td>{{ $index+1}}</td> -->
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ row.domain }}</td>
+                                            <td>{{ row.created | yyyymmdd_to_format_kr }}</td>
                                             <td>
                                                 <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input" id="customSwitch1" checked="">
-                                                    <label class="custom-control-label" for="customSwitch1"></label>
+                                                    <input type="checkbox" class="custom-control-input" id="switch{{ $index }}" checked="">
+                                                    <label class="custom-control-label" for="switch{{ $index }}"></label>
                                                 </div>
                                             </td>
-                                            <td>google.com</td>
-                                            <td>Jar 23, 2019 </td>
-                                            <td>Jar 23, 2019 </td>
+                                            <!-- <td>{{ row.updated | yyyymmdd_to_format_kr }}</td> -->
                                             <td>
-                                                <button type="button" class="btn btn-danger btn-xs">삭제</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input" id="customSwitch1" checked="">
-                                                    <label class="custom-control-label" for="customSwitch1"></label>
-                                                </div>
-                                            </td>
-                                            <td>google.com</td>
-                                            <td>Jar 23, 2019 </td>
-                                            <td>Jar 23, 2019 </td>
-                                            <td class="actions">
-                                                <div class="action-dropdown btn-group">
-                                                    <button type="button"
-                                                        class="btn btn-trasnparent btn-xs component-flat pr-0"
-                                                        data-toggle="dropdown" aria-haspopup="true"
-                                                        aria-expanded="false">
-                                                        <i class="mdi mdi-dots-horizontal"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu dropdown-menu-left">
-                                                        <a class="dropdown-item" href="#">Edit</a>
-                                                        <a class="dropdown-item text-danger" href="#">삭제</a>
-                                                    </div>
-                                                </div>
+                                                <button type="button" ng-click="remove(row)" class="btn btn-danger btn-xs">삭제</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -115,11 +94,12 @@
                         <div class="mx-auto form-group row showcase_row_area">
 
                             <div class="col-md-10 showcase_content_area">
-                                <input class="form-control" maxlength="100" name="defaultconfig" id="defaultconfig"
+                                
+                                <input class="form-control" ng-model="model.domain" maxlength="100" name="defaultconfig" id="defaultconfig"
                                     type="text" placeholder="도메인을 입력해주세요. (예. naver.com)">
                             </div>
                             
-                            <button class="btn btn-primary btn-sm" type="submit">도메인 등록</button>
+                            <button class="btn btn-primary btn-sm" ng-click="add_domain()" type="submit">도메인 등록</button>
                         </div>
                     </form>
                 </div>

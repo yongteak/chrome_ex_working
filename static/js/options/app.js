@@ -131,6 +131,29 @@ app.filter('percentage', function () {
 	}
 });
 
+app.filter('yyyymmdd_to_format_kr', function () {
+    return function (yyyymmdd) {
+      if (!yyyymmdd) return '';
+      var match;
+      if (yyyymmdd.toString().length == 12) {
+        match = yyyymmdd.toString().match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/);
+        return match[1] + '년 ' + match[2] + '월 ' + match[3] +'일 ' + match[4] +'시' + match[5] +'분'
+      } else if (yyyymmdd.toString().length == 10) {
+        match = yyyymmdd.toString().match(/(\d{4})(\d{2})(\d{2})(\d{2})/);
+        return match[1] + '년 ' + match[2] + '월 ' + match[3] +'일 ' + match[4] +'시'
+      } else if (yyyymmdd.toString().length == 8) {
+        match = yyyymmdd.toString().match(/(\d{4})(\d{2})(\d{2})/);
+        return match[1] + '년 ' + match[2] + '월 ' + match[3] +'일'
+      } else if (yyyymmdd.toString().length == 6) {
+        match = yyyymmdd.toString().match(/(\d{4})(\d{2})/);
+        return match[1] + '년 ' + match[2] + '월'
+      } else if (yyyymmdd.toString().length == 4) {
+        match = yyyymmdd.toString().match(/(\d{4})/);
+        return match[1] + '년';
+      }
+  };
+});
+
 
 // https://gist.github.com/dprea/1cd27241db661818e509
 app.directive('onErrorSrc', function() {

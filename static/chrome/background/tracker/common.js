@@ -63,6 +63,8 @@ var SETTINGS_INTERVAL_RANGE = 'range_days';
 var SETTINGS_VIEW_TIME_IN_BADGE = 'view_time_in_badge';
 var SETTINGS_SHOW_HINT = 'show_hint';
 
+// 추적 금지 도메인
+var IGNORED_DOMAINS_LIST = 'ignored_domains_list';
 var EVENT_GENERATE_REPORT = 'performance_report';
 
 function isEmpty(obj) {

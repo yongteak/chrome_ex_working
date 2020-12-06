@@ -17,10 +17,63 @@ angular.module('app.controllers', [])
         }
     })
     .controller('settingController', function ($scope, $location, $filter, identity, storage, CONFIG) {
+        // 추적 금지 목록 조회
         // console.log(CONFIG);
-        // storage.getValue(CONFIG.STORAGE_TABS, e => {
-        //     // console.log(e)
-        // });
+        var today = $filter('formatDate')();
+        $scope.model = {
+            domains: [],
+            domain: null
+        }
+
+        function getDomain() {
+            storage.getValue(CONFIG.IGNORED_DOMAINS_LIST, e => {
+                if (e) {
+                    $scope.model.domains = e.sort((a,b)=> {return b.epoch - a.epoch});
+                    console.log(e);
+                }
+                $scope.$apply();
+            });
+        }
+
+        $scope.clear = function () {
+            storage.saveValue(CONFIG.IGNORED_DOMAINS_LIST, null);
+            console.log('clear domains');
+        }
+
+        $scope.remove = function(row) {
+            console.log(row);
+        }
+
+        $scope.add_domain = function () {
+            var list = $scope.model.domains;
+            var find_domain = list.find(s => s.domain == $scope.model.domain);
+            var isNewDomain = find_domain == undefined;
+            var model = {
+                domain: $scope.model.domain,
+                created: isNewDomain ? today : find_domain.created,
+                updated: today,
+                epoch: moment().valueOf(),
+                enabled: true
+            };
+
+            // 기존 데이터 제거
+            if (!isNewDomain) {
+                const index = list.findIndex(function (item) {
+                    return item.field === $scope.model.domain;
+                });
+                if (index !== -1) {
+                    list.splice(index, 1);
+                } else {
+                    // throw error
+                }
+            }
+            $scope.model.domains.push(model);
+            storage.saveValue(CONFIG.IGNORED_DOMAINS_LIST, $scope.model.domains);
+            getDomain();
+            $scope.model.domain = null;
+        }
+
+        getDomain();
     })
     .controller('limitController', function ($scope, $location) {
     })
@@ -30,19 +83,19 @@ angular.module('app.controllers', [])
     })
     .controller('syncController', function ($scope, $location) {
     })
-    .controller('statusController', function ($scope, $filter,$location, moment, storage, CONFIG) {
-        $scope.model = {rows:[],todal_total_times:0};
+    .controller('statusController', function ($scope, $filter, $location, moment, storage, CONFIG) {
+        $scope.model = { rows: [], todal_total_times: 0 };
         $scope.all = function () {
-            $scope.model.todal_total_times=0;
+            $scope.model.todal_total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
                 // console.log(row);
                 rows.forEach(e => {
                     e.part = {
-                        counter:e.counter,
-                        dataUsage:e.dataUsage,
-                        summary:e.summaryTime
+                        counter: e.counter,
+                        dataUsage: e.dataUsage,
+                        summary: e.summaryTime
                     }
-                $scope.model.todal_total_times += e.part.summary;
+                    $scope.model.todal_total_times += e.part.summary;
                 });
                 // var today = $filter('formatDate')();
                 // var targetTabs = rows.filter(x => x.days.find(s => s.date === today));
@@ -53,7 +106,7 @@ angular.module('app.controllers', [])
                 // targetTabs = targetTabs.sort(function(a, b) {
                 //     return b.days.find(s => s.date === today).summary - a.days.find(s => s.date === today).summary;
                 // });
-                rows = rows.sort(function(a, b) {
+                rows = rows.sort(function (a, b) {
                     return b.part.summary - a.part.summary;
                 });
                 $scope.model.rows = rows;
@@ -61,10 +114,11 @@ angular.module('app.controllers', [])
                 $scope.$apply();
                 // console.log($scope.model.today);
                 // 오늘날짜만 뽑기 또는 최근 마지막 날짜 뽑기
-            
-            })}
+
+            })
+        }
         $scope.today = function () {
-            $scope.model.todal_total_times=0;
+            $scope.model.todal_total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
                 var today = $filter('formatDate')();
                 var targetTabs = rows.filter(x => x.days.find(s => s.date === today));
@@ -72,7 +126,7 @@ angular.module('app.controllers', [])
                     e.part = e.days.filter(x => x.date == today)[0];
                     $scope.model.todal_total_times += e.part.summary;
                 });
-                targetTabs = targetTabs.sort(function(a, b) {
+                targetTabs = targetTabs.sort(function (a, b) {
                     return b.days.find(s => s.date === today).summary - a.days.find(s => s.date === today).summary;
                 });
                 $scope.model.rows = targetTabs;
@@ -127,7 +181,7 @@ angular.module('app.controllers', [])
 
         var type = false;
         $scope.option = loadDataWithType(type);
-        
+
 
         $scope.change = function () {
             type = !type;
