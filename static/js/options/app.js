@@ -1,5 +1,6 @@
 var app = angular.module('app', [
 	"ngRoute", "angular-echarts3", "g1b.calendar-heatmap", "angularMoment",
+	// "ui.bootstrap",
 	'app.controllers', 'app.services'
 ]);
 
@@ -9,10 +10,25 @@ app.constant('CONFIG', {
 	'STORAGE_BLACK_LIST': 'black_list',
 	// 제한 사이트
 	'STORAGE_RESTRICTION_LIST': 'restriction_list',
+	// 제한 사이트 접속 기록
+	'STORAGE_RESTRICTION_ACCESS_LIST': 'restriction_access_list',
 	'STORAGE_NOTIFICATION_LIST': 'notification_list',
 	'STORAGE_NOTIFICATION_MESSAGE': 'notification_message',
 	'STORAGE_TIMEINTERVAL_LIST': 'time_interval'
 })
+
+// app.run([
+//     '$rootScope', '$modalStack',
+//     function ($rootScope, $modalStack) {
+//         $rootScope.$on('$locationChangeStart', function (event) {
+//             var top = $modalStack.getTop();
+//             if (top) {
+//                 $modalStack.dismiss(top.key);
+//                 event.preventDefault();
+//             }
+//         });
+//     }
+// ])
 
 app.config(["$routeProvider", "$locationProvider", /*"$compileProvider", */
 	($routeProvider, /*$compileProvider,*/ $locationProvider) => {
@@ -111,6 +127,13 @@ app.filter('dataSizeToUnit', function () {
 	};
 });
 
+// anguarjs hashkey 데이터 제거
+app.filter('clean', function () {
+	return function (item) {
+		return JSON.parse(angular.toJson(item));
+	}
+});
+
 function zeroAppend(time) {
 	if (time < 10)
 		return '0' + time;
@@ -133,6 +156,15 @@ app.filter('percentage', function () {
 	}
 });
 
+// https://codepen.io/39ee8d/pen/rjwBez
+app.directive('clockPicker', function() {
+	return {
+	  restrict: 'A',
+	  link: function(scope, element, attrs) {
+		element.clockpicker();
+	  }
+	}
+  })
 
 // https://gist.github.com/dprea/1cd27241db661818e509
 app.directive('onErrorSrc', function() {

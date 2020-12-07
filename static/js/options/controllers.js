@@ -18,25 +18,20 @@ angular.module('app.controllers', [])
     })
     .controller('settingController', function ($scope, $location, $filter, identity, storage, CONFIG) {
         // 추적 금지 목록 조회
-        // console.log(CONFIG);
         var today = $filter('formatDate')();
         $scope.model = {
             domains: [],
             domain: null
         }
 
-        function clean(items) {
-            return JSON.parse(angular.toJson(items));
-        }
-
         function getDomain() {
             storage.getValue(CONFIG.STORAGE_BLACK_LIST, e => {
-                e = JSON.parse(angular.toJson(e));
+                e = $filter('clean')(e);
                 if (e) {
                     $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
                 }
                 console.log(e);
-                
+
                 $scope.$apply();
             });
         }
@@ -59,7 +54,7 @@ angular.module('app.controllers', [])
                     // throw error
                 }
 
-                storage.saveValue(CONFIG.STORAGE_BLACK_LIST, clean($scope.model.domains));
+                storage.saveValue(CONFIG.STORAGE_BLACK_LIST, $filter('clean')($scope.model.domains));
                 getDomain();
 
             } else {
@@ -106,14 +101,92 @@ angular.module('app.controllers', [])
             //     }
             // }
             $scope.model.domains.push(model);
-            storage.saveValue(CONFIG.STORAGE_BLACK_LIST, clean($scope.model.domains));
+            storage.saveValue(CONFIG.STORAGE_BLACK_LIST, $filter('clean')($scope.model.domains));
             getDomain();
             $scope.model.domain = null;
         }
 
         getDomain();
     })
-    .controller('limitController', function ($scope, $location) {
+    .controller('limitController', function ($scope, $location, $filter, identity, storage, CONFIG) {
+        var today = $filter('formatDate')();
+        $scope.model = {
+            is_new: true,
+            title: null,
+            domains: [],
+            history: [],
+            modal: {
+                time_start: '08:00',
+                time_end: '17:00',
+                domain: null,
+                created: today,
+                updated: today,
+                epoch: null,//moment().valueOf(),
+                enabled: true
+            }
+        };
+
+        function init_modal() {
+            $scope.model.modal = {
+                time_start: '08:00',
+                time_end: '17:00',
+                domain: null,
+                created: today,
+                updated: today,
+                epoch: null,//moment().valueOf(),
+                enabled: true
+            }
+        }
+
+        $scope.open_modal = () => {
+            $scope.model.is_new = true;
+            $scope.model.title = "사용제한 도메인 등록"// : "사용제한 도메인 수정"'
+        }
+
+        // STORAGE_RESTRICTION_ACCESS_LIST
+
+        function getDomain() {
+            storage.getValue(CONFIG.STORAGE_RESTRICTION_LIST, e => {
+                e = JSON.parse(angular.toJson(e));
+                if (e) {
+                    $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
+                }
+                console.log(e);
+                $scope.$apply();
+            });
+        }
+
+        $scope.modalClose = function () {
+            console.log('modal close');
+        }
+
+        $scope.add_domain = () => {
+            var list = $scope.model.domains;
+            var modal = $scope.model.modal;
+            console.log(modal);
+            var find_domain = list.find(s => s.domain == modal.domain);
+            var isNewDomain = find_domain == undefined;
+            if (!isNewDomain) {
+                alert('이미 등록된 도메인 입니다.')
+                return;
+            }
+            modal.created = isNewDomain ? today : find_domain.created;
+            modal.updated = today;
+            modal.epoch = isNewDomain ? moment().valueOf() : find_domain.epoch;
+            modal.enabled = true;
+
+            $scope.model.domains.push(modal);
+            console.log($scope.model);
+            storage.saveValue(CONFIG.STORAGE_RESTRICTION_LIST, $filter('clean')($scope.model.domains));
+            init_modal();
+            getDomain();
+            // $scope.model.domain = null;
+        };
+        getDomain();
+
+    })
+    .controller('modalLimit', function ($scope, $location, $uibModalInstance) {
+        console.log('modalLimit');
     })
     .controller('alarmController', function ($scope, $location) {
     })

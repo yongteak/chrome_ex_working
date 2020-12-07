@@ -1,5 +1,5 @@
 <h2>제한</h2>
-<hr >
+<hr>
 <div class="row">
     <div class="col-lg-12">
         <div class="grid">
@@ -67,8 +67,16 @@
                         </p>
                         <div class="mx-auto form-group row showcase_row_area">
                             <div class="btn btn-primary has-icon">
-                                <i class="mdi mdi-plus-box"></i>도메인 추가</div>
-                        </div>
+                                <!-- <a class="mdi mdi-plus-box" ng-click="add_domain()"></a>도메인 추가</div> -->
+                                <button class="btn btn-primary btn-sm" ng-click="add_domain()" type="submit">도메인
+                                    등록</button>
+                            </div>
+
+
+
+
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                data-target="#header-filled-info-modal" ng-click="open_modal()"> Info </button>
                     </form>
                 </div>
             </div>
@@ -107,11 +115,59 @@
                         </p>
                         <div class="mx-auto form-group row showcase_row_area">
                             <div class="btn btn-primary has-icon">
-                                <i class="mdi mdi-file-excel"></i>Excel 다운로드</div>
+                                <i class="mdi mdi-file-excel"></i>Excel 다운로드
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false" role="dialog" id="header-filled-info-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form>
+                <div class="modal-header bg-primary">
+                    <h3 class="modal-title text-white">{{ model.title }}</h3>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" ng-click="modalClose()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="inputEmail4">도메인</label>
+                        <input type="text" ng-model="model.modal.domain" class="form-control"
+                            placeholder="도메인을 입력해주세요. (예. naver.com)">
+                    </div>
+                    <div class="form-group">
+                        <label for="inputEmail4">허용시간 (시작시간 ~ 종료시간)</label>
+
+                        <div class="d-flex justify-content-between">
+                            <div class="col-md-6 input-group clockpicker" clock-picker twelvehour="true"
+                                data-autoclose="true">
+                                <input ng-model="model.modal.time_start" type="text" class="form-control">
+                                <span class="input-group-append">
+                                    <div class="input-group-text"><em class="mdi mdi-clock-start"></em></div>
+                                </span>
+                            </div>
+                            <p>~</p>
+                            <div class="col-md-6 input-group clockpicker" clock-picker twelvehour="true"
+                                data-autoclose="true">
+                                <input ng-model="model.modal.time_end" type="text" class="form-control">
+                                <span class="input-group-append">
+                                    <div class="input-group-text"><em class="mdi mdi-clock-end"></em></div>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" ng-click="add_domain()" class="btn btn-primary btn-sm">저장</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
