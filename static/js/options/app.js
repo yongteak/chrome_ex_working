@@ -5,7 +5,9 @@ var app = angular.module('app', [
 
 app.constant('CONFIG', {
 	'STORAGE_TABS': 'tabs',
+	// 추적 금지
 	'STORAGE_BLACK_LIST': 'black_list',
+	// 제한 사이트
 	'STORAGE_RESTRICTION_LIST': 'restriction_list',
 	'STORAGE_NOTIFICATION_LIST': 'notification_list',
 	'STORAGE_NOTIFICATION_MESSAGE': 'notification_message',
@@ -131,6 +133,20 @@ app.filter('percentage', function () {
 	}
 });
 
+
+// https://gist.github.com/dprea/1cd27241db661818e509
+app.directive('onErrorSrc', function() {
+    return {
+        link: function(scope, element, attrs) {
+          element.bind('error', function() {
+            if (attrs.src != attrs.onErrorSrc) {
+              attrs.$set('src', attrs.onErrorSrc);
+            }
+          });
+        }
+    }
+});
+
 app.filter('yyyymmdd_to_format_kr', function () {
     return function (yyyymmdd) {
       if (!yyyymmdd) return '';
@@ -152,20 +168,6 @@ app.filter('yyyymmdd_to_format_kr', function () {
         return match[1] + '년';
       }
   };
-});
-
-
-// https://gist.github.com/dprea/1cd27241db661818e509
-app.directive('onErrorSrc', function() {
-    return {
-        link: function(scope, element, attrs) {
-          element.bind('error', function() {
-            if (attrs.src != attrs.onErrorSrc) {
-              attrs.$set('src', attrs.onErrorSrc);
-            }
-          });
-        }
-    }
 });
 
 // app.filter('getTotalTime', function () {

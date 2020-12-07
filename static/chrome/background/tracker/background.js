@@ -43,50 +43,56 @@ function backgroundCheck() {
                     activity.addTab(activeTab);
                 }
 
-                //  블랙 리스트 사이트 접근 횟수 기록
-                // if (activity.isInBlackList(activeUrl)) {
-                //     chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000' })
-                //     chrome.browserAction.setBadgeText({
-                //         tabId: activeTab.id,
-                //         text: 'n/a'
-                //     });
-                // } else {
-                if (tab !== undefined) {
-                    if (currentTab !== tab.url) {
-                        activity.setCurrentActiveTab(tab.url);
-                    }
-                    // console.log(activeTab.title,activeTab.url);
-                    // activeTab : title, url 수집필요
-                    getCurrentlyViewedTabId()
-                        .then(({ id, _url }) => {
-                            chrome.tabs.sendMessage(id, { req: EVENT_GENERATE_REPORT }, response => {
-                                if (response !== undefined) {
-                                    console.log('performance > ',Math.floor(response.performance/1000), tab);
-                                    activity.incDataUsaged(tab,
-                                        response.isObserved ? response.increasedSize : response.transferSize);
-                                }
-                            });
-
-                            var data = bytesToSize(activity.getDataUsaged(tab));
-                            chrome.browserAction.setBadgeText({ text: data.size + "" + data.unit });
-                        })
-
-
-                    chrome.idle.queryState(parseInt(setting_interval_inactivity), state => {
-                        if (state === 'active') {
-                            mainTRacker(activeUrl, tab, activeTab);
-                        } else checkDOM(state, activeUrl, tab, activeTab);
+                //  추적 금지
+                if (activity.isInBlackList(activeUrl)) {
+                    chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000' })
+                    chrome.browserAction.setBadgeText({
+                        tabId: activeTab.id,
+                        text: 'n/a'
                     });
+                } else {
+                    if (tab !== undefined) {
+                        if (currentTab !== tab.url) {
+                            activity.setCurrentActiveTab(tab.url);
+                        }
+                        // console.log(activeTab.title,activeTab.url);
+                        // activeTab : title, url 수집필요
+                        getCurrentlyViewedTabId()
+                            .then(({ id, _url }) => {
+                                chrome.tabs.sendMessage(id, { req: EVENT_GENERATE_REPORT }, response => {
+                                    if (response !== undefined) {
+                                        // console.log('performance > ', Math.floor(response.performance / 1000), tab);
+                                        activity.incDataUsaged(tab,
+                                            response.isObserved ? response.increasedSize : response.transferSize);
+                                    }
+                                });
+
+                                var data = bytesToSize(activity.getDataUsaged(tab));
+                                chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
+                                chrome.browserAction.setBadgeText({ text: data.size + "" + data.unit });
+                            })
+
+
+                        chrome.idle.queryState(parseInt(setting_interval_inactivity), state => {
+                            if (state === 'active') {
+                                mainTRacker(activeUrl, tab, activeTab);
+                            } else checkDOM(state, activeUrl, tab, activeTab);
+                        });
+                    }
                 }
+            } else {
+                activity.closeIntervalForCurrentTab();
             }
-        } else activity.closeIntervalForCurrentTab();
-    });
+        }
+    })
 }
 
 function mainTRacker(activeUrl, tab, activeTab) {
+    // 사용 금지
     if (activity.isLimitExceeded(activeUrl, tab)) {
         setBlockPageToCurrent(activeUrl);
     }
+    // 추적 금지
     if (!activity.isInBlackList(activeUrl)) {
         // if (activity.isNeedNotifyView(activeUrl, tab)) {
         //     if (isHasPermissioForNotification) {
@@ -246,12 +252,12 @@ function addListener() {
         });
     });
 
-    chrome.webNavigation.onCompleted.addListener( details => {
+    chrome.webNavigation.onCompleted.addListener(details => {
         chrome.tabs.get(details.tabId, tab => {
             activity.updateFavicon(tab);
         });
     });
-    chrome.runtime.onInstalled.addListener( details => {
+    chrome.runtime.onInstalled.addListener(details => {
         if (details.reason == 'install') {
             storage.saveValue(SETTINGS_SHOW_HINT, SETTINGS_SHOW_HINT_DEFAULT);
             setDefaultSettings();
@@ -263,7 +269,7 @@ function addListener() {
             isNeedDeleteTimeIntervalFromTabs = true;
         }
     });
-    chrome.storage.onChanged.addListener( (changes, namespace) => {
+    chrome.storage.onChanged.addListener((changes, namespace) => {
         for (var key in changes) {
             if (key === STORAGE_BLACK_LIST) {
                 loadBlackList();
@@ -358,11 +364,11 @@ function loadTabs() {
         tabs = [];
         if (items != undefined) {
             for (var i = 0; i < items.length; i++) {
-                tabs.push(new Tab(items[i].url, 
-                    items[i].favicon, 
-                    items[i].days, 
-                    items[i].dataUsage, 
-                    items[i].summaryTime, 
+                tabs.push(new Tab(items[i].url,
+                    items[i].favicon,
+                    items[i].days,
+                    items[i].dataUsage,
+                    items[i].summaryTime,
                     items[i].counter));
             }
             if (isNeedDeleteTimeIntervalFromTabs)

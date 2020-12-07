@@ -25,17 +25,24 @@ angular.module('app.controllers', [])
             domain: null
         }
 
+        function clean(items) {
+            return JSON.parse(angular.toJson(items));
+        }
+
         function getDomain() {
-            storage.getValue(CONFIG.IGNORED_DOMAINS_LIST, e => {
+            storage.getValue(CONFIG.STORAGE_BLACK_LIST, e => {
+                e = JSON.parse(angular.toJson(e));
                 if (e) {
                     $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
                 }
+                console.log(e);
+                
                 $scope.$apply();
             });
         }
 
         $scope.clear = function () {
-            storage.saveValue(CONFIG.IGNORED_DOMAINS_LIST, null);
+            storage.saveValue(CONFIG.STORAGE_BLACK_LIST, null);
             console.log('clear domains');
         }
 
@@ -52,7 +59,7 @@ angular.module('app.controllers', [])
                     // throw error
                 }
 
-                storage.saveValue(CONFIG.IGNORED_DOMAINS_LIST, $scope.model.domains);
+                storage.saveValue(CONFIG.STORAGE_BLACK_LIST, clean($scope.model.domains));
                 getDomain();
 
             } else {
@@ -67,7 +74,7 @@ angular.module('app.controllers', [])
                 return item.epoch === row.epoch;
             });
             list[index].enabled = row.enabled;
-            storage.saveValue(CONFIG.IGNORED_DOMAINS_LIST, $scope.model.domains);
+            storage.saveValue(CONFIG.STORAGE_BLACK_LIST, clean($scope.model.domains));
             getDomain();
         }
 
@@ -99,7 +106,7 @@ angular.module('app.controllers', [])
             //     }
             // }
             $scope.model.domains.push(model);
-            storage.saveValue(CONFIG.IGNORED_DOMAINS_LIST, $scope.model.domains);
+            storage.saveValue(CONFIG.STORAGE_BLACK_LIST, clean($scope.model.domains));
             getDomain();
             $scope.model.domain = null;
         }

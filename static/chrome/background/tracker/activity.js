@@ -31,11 +31,11 @@ class Activity {
         } else this.closeIntervalForCurrentTab();
     }
 
-    incDataUsaged(tab,increasedSize) {
+    incDataUsaged(tab, increasedSize) {
         var domain = this.extractHostname(tab.url);
         var tabUrl = this.getTab(domain);
         if (tabUrl !== undefined)
-            tabUrl.incDataUsaged(false,increasedSize);
+            tabUrl.incDataUsaged(false, increasedSize);
     }
 
     getDataUsaged(tab) {
@@ -46,7 +46,7 @@ class Activity {
         } else {
             return 0;
         }
-        
+
     }
 
     isValidPage(tab) {
@@ -57,15 +57,23 @@ class Activity {
         return true;
     }
 
+    // 추적 금지
     isInBlackList(domain) {
-        if (setting_black_list !== undefined && setting_black_list.length > 0)
-            return setting_black_list.find(o => isDomainEquals(this.extractHostname(o), this.extractHostname(domain))) !== undefined;
-        else return false;
+        var find = undefined;
+        if (setting_black_list !== undefined && setting_black_list.length > 0) {
+            // 도메인 검색
+            find = setting_black_list.find(o =>
+                o.enabled && isDomainEquals(this.extractHostname(o.domain), this.extractHostname(domain))
+            );
+        }
+        return find !== undefined;
     }
-
+    // 접근 제한
     isLimitExceeded(domain, tab) {
         if (setting_restriction_list !== undefined && setting_restriction_list.length > 0) {
-            var item = setting_restriction_list.find(o => isDomainEquals(this.extractHostname(o.domain), this.extractHostname(domain)));
+            var item = setting_restriction_list.find(o =>
+                o.enabled && isDomainEquals(this.extractHostname(o.domain), this.extractHostname(domain))
+            );
             if (item !== undefined) {
                 var today = formatDate();
                 var data = tab.days.find(x => x.date == today);
@@ -155,7 +163,7 @@ class Activity {
         currentTab = '';
     }
 
-    isNeedNotifyView(domain, tab){
+    isNeedNotifyView(domain, tab) {
         if (setting_notification_list !== undefined && setting_notification_list.length > 0) {
             var item = setting_notification_list.find(o => isDomainEquals(this.extractHostname(o.domain), this.extractHostname(domain)));
             if (item !== undefined) {

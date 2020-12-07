@@ -30,6 +30,7 @@ var TypeListEnum = {
 
 var STORAGE_TABS = 'tabs';
 var STORAGE_BLACK_LIST = 'black_list';
+// 추적 금지 도메인
 var STORAGE_RESTRICTION_LIST = 'restriction_list';
 var STORAGE_NOTIFICATION_LIST = 'notification_list';
 var STORAGE_NOTIFICATION_MESSAGE = 'notification_message';
@@ -206,15 +207,17 @@ function isDomainEquals(first, second) {
     if (first === second)
         return true;
     else {
-        var resultUrl = function(url) {
+        var resultUrl = function (url) {
             if (url.indexOf('www.') > -1)
                 return url.split('www.')[1];
             return url;
         };
-
-        if (resultUrl(first) === resultUrl(second))
-            return true;
-        else return false;
+        return resultUrl(first) === resultUrl(second);
+        // if (resultUrl(first) === resultUrl(second)) {
+        //     return true;
+        // } else {
+        //     return false;
+        // }
     }
 }
 
@@ -244,5 +247,5 @@ function formatDate() {
     month = month >= 10 ? month : '0' + month;
     var day = date.getDate();
     day = day >= 10 ? day : '0' + day;
-    return  parseInt(year + '' + month + '' + day);
+    return parseInt(year + '' + month + '' + day);
 }
