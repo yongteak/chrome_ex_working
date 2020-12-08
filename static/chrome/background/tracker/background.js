@@ -14,6 +14,7 @@ var storage = new LocalStorage();
 
 var setting_black_list;
 var setting_restriction_list;
+var setting_restriction_access_list
 var setting_interval_save;
 var setting_interval_inactivity;
 var setting_view_in_badge;
@@ -57,10 +58,29 @@ function backgroundCheck() {
                         });
                     }
 
-                    if (isLimitList) {
+                    if (isLimitList && tab !== undefined) {
                         setBlockPageToCurrent(activeUrl);
+                        // update
+                        var domain = activity.extractHostname(tab.url);
+                        var item = setting_restriction_list.find(e => e.domain === domain);
+                        if (item !== undefined) {
+                            item.count += 1;
+                            storage.saveValue(STORAGE_RESTRICTION_LIST,setting_restriction_list);
+                        };
+                        var today = formatDate();
+                        item = setting_restriction_access_list.find(o => o.domain === domain && o.day == today);
+                        if (item !== undefined) {
+                            item.count += 1;
+                        } else {
+                            setting_restriction_access_list.push({
+                                domain: domain,
+                                epoch: Math.round(Date.now() / 1000),
+                                day: today,
+                                count: 1
+                            });
+                        }
+                        storage.saveValue(STORAGE_RESTRICTION_ACCESS_LIST,setting_restriction_access_list);
                     }
-
                 } else {
                     if (tab !== undefined) {
                         if (currentTab !== tab.url) {
@@ -172,9 +192,7 @@ function notificationAction(activeUrl, tab) {
 }
 
 function setBlockPageToCurrent(activeUrl) {
-    // 
     var blockUrl = chrome.runtime.getURL("static/tmpl/block.html") + '?url=' + activeUrl;
-    console.log('setBlockPageToCurrent > ',activeUrl,blockUrl);
     chrome.tabs.query({ currentWindow: true, active: true }, tab => {
         chrome.tabs.update(tab.id, { url: blockUrl });
     });
@@ -423,13 +441,21 @@ function loadTimeIntervals() {
 
 function loadRestrictionList() {
     storage.getValue(STORAGE_RESTRICTION_LIST, function (items) {
-        setting_restriction_list = items;
+        setting_restriction_list = isEmpty2(items) ? [] : items;
     })
 }
 
+function loadRestrictionAccessList() {
+    storage.getValue(STORAGE_RESTRICTION_ACCESS_LIST, function (items) {
+        setting_restriction_access_list = isEmpty2(items) ? [] : items;
+    });
+}
+
+
+
 function loadNotificationList() {
     storage.getValue(STORAGE_NOTIFICATION_LIST, items => {
-        setting_notification_list = items;
+        setting_notification_list = isEmpty2(items) ? [] : items;
     });
 }
 
@@ -453,6 +479,7 @@ function loadAddDataFromStorage() {
     loadTimeIntervals();
     loadBlackList();
     loadRestrictionList();
+    loadRestrictionAccessList();
     loadNotificationList();
     loadNotificationMessage();
     loadSettings();

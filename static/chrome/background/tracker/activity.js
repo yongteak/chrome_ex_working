@@ -68,6 +68,7 @@ class Activity {
         }
         return find !== undefined;
     }
+
     // 접근 제한
     isLimitExceeded(domain, tab) {
         if (setting_restriction_list !== undefined && setting_restriction_list.length > 0) {
@@ -79,8 +80,8 @@ class Activity {
                 var startHm = hhmmStrToNumber(item.time_start);
                 var endHm = hhmmStrToNumber(item.time_end);
                 var curHm = new Date().toTimeString().split(' ')[0].split(':');
-                new Date().toTimeString().split(' ')[0].split(':').splice(1,1)
-                curHm.splice(2,1);
+                new Date().toTimeString().split(' ')[0].split(':').splice(1, 1)
+                curHm.splice(2, 1);
                 curHm = parseInt(curHm.join(''));
                 var isAllow = startHm < curHm && curHm < endHm;
                 return !isAllow;

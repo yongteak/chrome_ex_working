@@ -32,6 +32,8 @@ var STORAGE_TABS = 'tabs';
 var STORAGE_BLACK_LIST = 'black_list';
 // 추적 금지 도메인
 var STORAGE_RESTRICTION_LIST = 'restriction_list';
+// domain, day, count
+var STORAGE_RESTRICTION_ACCESS_LIST = 'restriction_access_list';
 var STORAGE_NOTIFICATION_LIST = 'notification_list';
 var STORAGE_NOTIFICATION_MESSAGE = 'notification_message';
 var STORAGE_TIMEINTERVAL_LIST = 'time_interval';
@@ -73,8 +75,11 @@ function isEmpty(obj) {
         if (obj.hasOwnProperty(prop))
             return false;
     }
-
     return JSON.stringify(obj) === JSON.stringify({});
+}
+
+function isEmpty2(val) {
+    return (val == undefined || val == null || val.length === 0);// || !val.trim());
 }
 
 function convertTimeToSummaryTime(time) {

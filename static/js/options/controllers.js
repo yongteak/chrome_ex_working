@@ -149,6 +149,10 @@ angular.module('app.controllers', [])
             modalClose: () => {
                 $('#domainModal').modal("hide");
             },
+            export_csv: () => {
+                console.log('export_csv!');
+                // storage.saveValue(CONFIG.STORAGE_RESTRICTION_ACCESS_LIST, null);
+            },
             remove_domain: () => {
                 if (confirm('삭제하시겠습니까?')) {
                     var row = $scope.model.copy_modal;
@@ -249,12 +253,21 @@ angular.module('app.controllers', [])
                 }
             },
             getDomain: () => {
+                storage.getValue(CONFIG.STORAGE_RESTRICTION_ACCESS_LIST, e => {
+                    console.log(e);
+                    e = JSON.parse(angular.toJson(e));
+                    if (e) {
+                        $scope.model.history = e.sort((a, b) => { return b.epoch - a.epoch });
+                    }
+                    $scope.$apply();
+                });
+
                 storage.getValue(CONFIG.STORAGE_RESTRICTION_LIST, e => {
                     e = JSON.parse(angular.toJson(e));
                     if (e) {
                         $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
                     }
-                    console.log(e);
+                    // console.log(e);
                     $scope.$apply();
                 });
             }
