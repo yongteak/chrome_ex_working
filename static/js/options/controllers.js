@@ -60,7 +60,6 @@ angular.module('app.controllers', [])
             } else {
                 //
             }
-            // console.log(row);
         }
 
         $scope.enabledChange = function (row) {
@@ -69,7 +68,7 @@ angular.module('app.controllers', [])
                 return item.epoch === row.epoch;
             });
             list[index].enabled = row.enabled;
-            storage.saveValue(CONFIG.STORAGE_BLACK_LIST, clean($scope.model.domains));
+            storage.saveValue(CONFIG.STORAGE_BLACK_LIST, $filter('clean')($scope.model.domains));
             getDomain();
         }
 
@@ -118,6 +117,7 @@ angular.module('app.controllers', [])
             modal: {
                 time_start: '08:00',
                 time_end: '17:00',
+                count: 0,
                 domain: null,
                 created: today,
                 updated: today,
@@ -130,6 +130,7 @@ angular.module('app.controllers', [])
             $scope.model.modal = {
                 time_start: '08:00',
                 time_end: '17:00',
+                count: 0,
                 domain: null,
                 created: today,
                 updated: today,
@@ -138,10 +139,21 @@ angular.module('app.controllers', [])
             }
         }
 
-        $scope.open_modal = () => {
-            $scope.model.is_new = true;
-            $scope.model.title = "사용제한 도메인 등록"// : "사용제한 도메인 수정"'
+        $scope.open_modal = function(row) {
+            console.log(row);
+            if (row == undefined) {
+                init_modal();
+            } else {
+                $scope.model.modal = row;
+            }
+            $scope.model.is_new = row == undefined;
+            $scope.model.title = "사용제한 도메인"
         }
+
+        // $scope.open_modal = () => {
+        //     $scope.model.is_new = true;
+        //     $scope.model.title = "사용제한 도메인 등록"
+        // }
 
         // STORAGE_RESTRICTION_ACCESS_LIST
 
@@ -172,6 +184,7 @@ angular.module('app.controllers', [])
             }
             modal.created = isNewDomain ? today : find_domain.created;
             modal.updated = today;
+            modal.count = 0;
             modal.epoch = isNewDomain ? moment().valueOf() : find_domain.epoch;
             modal.enabled = true;
 

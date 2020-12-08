@@ -1,6 +1,6 @@
 var app = angular.module('app', [
 	"ngRoute", "angular-echarts3", "g1b.calendar-heatmap", "angularMoment",
-	// "ui.bootstrap",
+	//// "ui.bootstrap",
 	'app.controllers', 'app.services'
 ]);
 
