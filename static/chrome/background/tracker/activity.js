@@ -74,15 +74,16 @@ class Activity {
             var item = setting_restriction_list.find(o =>
                 o.enabled && isDomainEquals(this.extractHostname(o.domain), this.extractHostname(domain))
             );
+            // console.log(item);
             if (item !== undefined) {
-                var today = formatDate();
-                var data = tab.days.find(x => x.date == today);
-                if (data !== undefined) {
-                    var todayTimeUse = data.summary;
-                    if (todayTimeUse >= item.time) {
-                        return true;
-                    }
-                }
+                var startHm = hhmmStrToNumber(item.time_start);
+                var endHm = hhmmStrToNumber(item.time_end);
+                var curHm = new Date().toTimeString().split(' ')[0].split(':');
+                new Date().toTimeString().split(' ')[0].split(':').splice(1,1)
+                curHm.splice(2,1);
+                curHm = parseInt(curHm.join(''));
+                var isAllow = startHm < curHm && curHm < endHm;
+                return !isAllow;
             }
         }
         return false;

@@ -117,6 +117,10 @@ function convertShortSummaryTimeToString(summaryTime) {
     return hours + 'h : ' + mins + 'm';
 }
 
+function hhmmStrToNumber(str) {
+    return parseInt(str.split(":").join(''));
+}
+
 function convertShortSummaryTimeToLongString(summaryTime) {
     var hours = Math.floor(summaryTime / 3600);
     var totalSeconds = summaryTime % 3600;
@@ -213,11 +217,6 @@ function isDomainEquals(first, second) {
             return url;
         };
         return resultUrl(first) === resultUrl(second);
-        // if (resultUrl(first) === resultUrl(second)) {
-        //     return true;
-        // } else {
-        //     return false;
-        // }
     }
 }
 

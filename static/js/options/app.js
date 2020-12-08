@@ -134,6 +134,12 @@ app.filter('clean', function () {
 	}
 });
 
+app.filter('hhmmStrToNumber', function () {
+	return function (str) {
+		return parseInt(str.split(":").join(''));
+	}
+});
+
 function zeroAppend(time) {
 	if (time < 10)
 		return '0' + time;

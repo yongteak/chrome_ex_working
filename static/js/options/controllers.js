@@ -6,7 +6,7 @@ angular.module('app.controllers', [])
     .controller('side', ($scope, $location) => {
         $scope.isCurrentPath = path => {
             return $location.path().indexOf(path) != -1;
-        };
+        };        
     })
     .controller('view', $scope => {
         // $scope.count = 0;
@@ -175,6 +175,17 @@ angular.module('app.controllers', [])
                 var list = $scope.model.domains;
                 var modal = $scope.model.copy_modal;
 
+                if ($filter('isEmpty')(modal.domain)) {
+                    alert('도메인을 입력해주세요.');
+                    return;
+                }
+
+                var a = $filter('hhmmStrToNumber')(modal.time_start);
+                var b = $filter('hhmmStrToNumber')(modal.time_end);
+                if (a >= b) {
+                    alert("시작 시간은 종료 시간보다 이전 시간으로 설정해야 합니다.");
+                    return;
+                }
                 var find_domain = list.find(s => s.epoch == modal.epoch);
                 if (find_domain == undefined) {
                     alert('항목을 수정할 수 없습니다.')
@@ -192,6 +203,18 @@ angular.module('app.controllers', [])
             add_domain: () => {
                 var list = $scope.model.domains;
                 var modal = $scope.model.modal;
+
+                if ($filter('isEmpty')(modal.domain)) {
+                    alert('도메인을 입력해주세요.');
+                    return;
+                }
+
+                var a = $filter('hhmmStrToNumber')(modal.time_start);
+                var b = $filter('hhmmStrToNumber')(modal.time_end);
+                if (a >= b) {
+                    alert("시작 시간은 종료 시간보다 이전 시간으로 설정해야 합니다.");
+                    return;
+                }
                 // console.log(modal);
                 var find_domain = list.find(s => s.domain == modal.domain);
                 var isNewDomain = find_domain == undefined;
@@ -231,6 +254,7 @@ angular.module('app.controllers', [])
                     if (e) {
                         $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
                     }
+                    console.log(e);
                     $scope.$apply();
                 });
             }

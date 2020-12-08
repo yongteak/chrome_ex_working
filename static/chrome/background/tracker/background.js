@@ -43,13 +43,24 @@ function backgroundCheck() {
                     activity.addTab(activeTab);
                 }
 
+                var isBlockList = activity.isInBlackList(activeUrl);
+                var isLimitList = activity.isLimitExceeded(activeUrl, tab);
                 //  추적 금지
-                if (activity.isInBlackList(activeUrl)) {
-                    chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000' })
-                    chrome.browserAction.setBadgeText({
-                        tabId: activeTab.id,
-                        text: 'n/a'
-                    });
+                // [2020-12-08 22:19:34]
+                // badge 표현 설정 필요
+                if (isBlockList || isLimitList) {
+                    if (isBlockList) {
+                        chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000' })
+                        chrome.browserAction.setBadgeText({
+                            tabId: activeTab.id,
+                            text: 'n/a'
+                        });
+                    }
+
+                    if (isLimitList) {
+                        setBlockPageToCurrent(activeUrl);
+                    }
+
                 } else {
                     if (tab !== undefined) {
                         if (currentTab !== tab.url) {
@@ -89,9 +100,9 @@ function backgroundCheck() {
 
 function mainTRacker(activeUrl, tab, activeTab) {
     // 사용 금지
-    if (activity.isLimitExceeded(activeUrl, tab)) {
-        setBlockPageToCurrent(activeUrl);
-    }
+    // if (activity.isLimitExceeded(activeUrl, tab)) {
+    //     setBlockPageToCurrent(activeUrl);
+    // }
     // 추적 금지
     if (!activity.isInBlackList(activeUrl)) {
         // if (activity.isNeedNotifyView(activeUrl, tab)) {
@@ -161,7 +172,9 @@ function notificationAction(activeUrl, tab) {
 }
 
 function setBlockPageToCurrent(activeUrl) {
-    var blockUrl = chrome.runtime.getURL("block.html") + '?url=' + activeUrl;
+    // 
+    var blockUrl = chrome.runtime.getURL("static/tmpl/block.html") + '?url=' + activeUrl;
+    console.log('setBlockPageToCurrent > ',activeUrl,blockUrl);
     chrome.tabs.query({ currentWindow: true, active: true }, tab => {
         chrome.tabs.update(tab.id, { url: blockUrl });
     });

@@ -11761,7 +11761,7 @@ table {
   display: flex;
   align-items: stretch;
   min-height: 100vh;
-  background: url("../../images/samples/error__bg_1.svg") no-repeat 80% center;
+  background: url("../../images/error__bg_1.svg") no-repeat 80% center;
   background-color: #fff;
   background-size: 45%; }
   .error_page.error_1 .inner-wrapper {
