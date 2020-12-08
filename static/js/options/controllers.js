@@ -226,46 +226,15 @@ angular.module('app.controllers', [])
                 }
             },
             getDomain: () => {
-            storage.getValue(CONFIG.STORAGE_RESTRICTION_LIST, e => {
-                e = JSON.parse(angular.toJson(e));
-                if (e) {
-                    $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
-                }
-                $scope.$apply();
-            });
-        }
+                storage.getValue(CONFIG.STORAGE_RESTRICTION_LIST, e => {
+                    e = JSON.parse(angular.toJson(e));
+                    if (e) {
+                        $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
+                    }
+                    $scope.$apply();
+                });
+            }
         };
-
-        // function init_modal() {
-        //     $scope.model.modal = {
-        //         time_start: '08:00',
-        //         time_end: '17:00',
-        //         count: 0,
-        //         domain: null,
-        //         created: today,
-        //         updated: today,
-        //         epoch: null,//moment().valueOf(),
-        //         enabled: true
-        //     }
-        // }
-
-
-        // $scope.open_modal = () => {
-        //     $scope.model.is_new = true;
-        //     $scope.model.title = "사용제한 도메인 등록"
-        // }
-
-        // STORAGE_RESTRICTION_ACCESS_LIST
-
-        // function getDomain() {
-        //     storage.getValue(CONFIG.STORAGE_RESTRICTION_LIST, e => {
-        //         e = JSON.parse(angular.toJson(e));
-        //         if (e) {
-        //             $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
-        //         }
-        //         $scope.$apply();
-        //     });
-        // }
         $scope.run.getDomain();
 
     })
