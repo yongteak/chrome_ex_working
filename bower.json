@@ -13,6 +13,7 @@
     "angular-echarts3": "^0.0.4",
     "angular-calendar-heatmap": "https://github.com/yongteak/angular-calendar-heatmap.git#master",
     "echarts": "^5.0.0",
-    "clockpicker": "^0.0.7"
+    "clockpicker": "^0.0.7",
+    "chart.js": "chartjs#^2.9.4"
   }
 }

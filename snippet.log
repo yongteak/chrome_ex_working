@@ -16,3 +16,125 @@ $scope.remove_all = function () {
 # https://echarts.apache.org/next/examples/en/editor.html?c=heatmap-cartesian
 var hours = Array(24).fill(0).map((e,i)=>i+1);
 var seconds = Array(60).fill(0).map((e,i)=>i+1);
+
+
+
+# echarts
+ <mw-chart style="height: 100%; width: 100%; background-color: white;
+                                margin-top: 20px; float: left; border-left: black;" ng-model="option">
+                                </mw-chart>
+                                
+var stop_count = 20;
+        var obj = {data1:['New member','Old member'], data2:[621,32032]};
+        var stop;
+        $scope.fight = function() {
+          // Don't start a new fight if we are already fighting
+          if ( angular.isDefined(stop) ) return;
+
+          stop = $interval(function() {
+            --stop_count;
+            obj.data2[0] += 800;
+            obj.data2[1] -= 500;
+
+            $scope.option = loadDataWithType(obj);
+            if (stop_count == 0) {
+                $scope.stopFight();
+            }
+            
+          }, 500);
+        };
+
+        $scope.fight();
+
+
+        $scope.stopFight = function() {
+            if (angular.isDefined(stop)) {
+              $interval.cancel(stop);
+              stop = undefined;
+            //   $scope.$apply();
+            }
+          };
+$scope.option = loadDataWithType(obj);
+function loadDataWithType(data) {
+            if (data) {
+                return {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b}: {c} ({d}%)"
+                    },
+                    legend: {
+                        itemHeight: 10,
+                        itemWidth: 10,
+                        orient: 'vertical',
+                        x: 'center',
+                        y: 'bottom',
+                        icon: 'roundRect',
+                        formatter: function(name) {
+                            var index = 0;
+                            var clientlabels = data.data1;
+                            var clientcounts = data.data2;
+                            clientlabels.forEach(function(value,i){
+                                if(value == name){
+                                    index = i;
+                                }
+                            });
+                            return name + "  " + clientcounts[index];
+                        }
+                    },
+                    series: [
+                        {
+                            name:'Male to female ratio',
+                            type:'pie',
+                            radius: ['45%', '53%'],
+                            avoidLabelOverlap: false,
+                            hoverAnimation: false,
+                            data:[
+                                {value:data.data2[0], name:'New member'},
+                                {value:data.data2[1], name:'Old member'},
+                            ],
+                            itemStyle: {
+                                normal:{
+                                    label:{
+                                        position : 'outside',
+                                        formatter: '{d}%',
+                                        fontSize: 10,
+                                    },
+                                    labelLine :{
+                                        length: 2,
+                                        length2: 2,
+                                        show:false,
+                                    }
+                                }
+            
+                            }
+                        }
+                    ],
+                    color:['#0090FF','#F6A20C'],
+                    title: {
+                        subtext: 'Total number of members',
+                        text: parseInt(data.data2[0])+parseInt(data.data2[1]),
+                        x: 'center',
+                        y: 'center',
+                        padding: 0,
+                        itemGap: 0,
+                        textStyle:{
+                            fontSize: 20,
+                        },
+                        subtextStyle:{
+                            fontSize: 10,
+                        },
+                    },
+                    graphic: {
+                        type: 'text',
+                        style:{
+                            x: 15,
+                            y: 15,
+                            font: 'bolder 1.2em "PingFang-SC-Medium", sans-serif',
+                            text:'Proportion',
+                        },
+                    },
+                
+                };
+            }
+
+        }

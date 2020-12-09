@@ -68,7 +68,7 @@ class Activity {
         }
         return find !== undefined;
     }
-
+ㄴ
     // 접근 제한
     isLimitExceeded(domain, tab) {
         if (setting_restriction_list !== undefined && setting_restriction_list.length > 0) {

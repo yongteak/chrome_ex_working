@@ -4331,7 +4331,7 @@ a.close.disabled {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 1rem;
+  /* padding: 1rem; */
   border-top: 1px solid #dee2e6;
   border-bottom-right-radius: 0.3rem;
   border-bottom-left-radius: 0.3rem; }
@@ -9771,7 +9771,7 @@ textarea {
 
 .modal-body {
   color: #adb5bd;
-  padding: 30px 20px 10px 20px;
+  /* padding: 30px 20px 10px 20px; */
   color: #565656; }
 
 .modal-footer {

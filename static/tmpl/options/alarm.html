@@ -1,2 +1,156 @@
 <h2>알람</h2>
-<hr >
+<hr>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="grid">
+            <p class="grid-header">알람 목록</p>
+            <div class="mx-auto form-group row showcase_row_area">
+                <div class="btn btn-primary has-icon pointer" ng-click="run.open_modal()" data-toggle="modal"
+                    data-target="#domainModal">
+                    <i class="mdi mdi mdi-alarm"></i>알람 추가하기
+                </div>
+            </div>
+            <div class="grid-body">
+                <div class="item-wrapper">
+                    <div class="row">
+
+
+                        <!-- <div class="col-lg-4 col-md-6 equel-grid">
+                            <div class="grid">
+
+                                <mw-chart style="height: 100%; width: 100%; background-color: white;
+                                margin-top: 20px; float: left; border-left: black;" ng-model="option">
+                                </mw-chart>
+
+                            </div>
+                          </div> -->
+
+                        <div class="col-lg-4 col-md-6 equel-grid">
+                            <div class="grid">
+                                <div class="grid-body">
+                                    <p class="card-title">Campaign</p>
+                                    <div id="radial-chart"></div>
+                                    <h4 class="text-center">$23,350.00</h4>
+                                    <p class="text-center text-muted">Used balance this billing cycle</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6 equel-grid">
+                            <div class="grid">
+                                <div class="grid-body">
+                                    <p class="card-title">Campaign</p>
+                                    <div id="radial-chart"></div>
+                                    <h4 class="text-center">$23,350.00</h4>
+                                    <p class="text-center text-muted">Used balance this billing cycle</p>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<div class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false" role="dialog" id="domainModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form>
+                <div class="modal-header bg-primary">
+                    <h3 class="modal-title text-white">{{ model.title }}</h3>
+                    <button type="button" class="close text-white" ng-click="run.modalClose()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="inputEmail4">제목</label>
+                        <input type="text" ng-if="model.is_new" ng-model="model.modal.domain" class="form-control"
+                            placeholder="알람 이름을 입력해주세요." maxlength="30">
+                        <input type="text" ng-if="!model.is_new" ng-model="model.copy_modal.domain" class="form-control"
+                            placeholder="알람 이름을 입력해주세요." maxlength="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="inputEmail4">종류</label>
+                        <div class="form-inline">
+                            <div class="radio mb-3">
+                                <label class="radio-label mr-4">
+                                    <input name="sample" type="radio" checked>사용 시간<i class="input-frame"></i>
+                                </label>
+                            </div>
+                            <div class="radio mb-3">
+                                <label class="radio-label">
+                                    <input name="sample" type="radio">데이터 사용량<i class="input-frame"></i>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <select class="custom-select">
+                                <option selected>5분</option>
+                                <option selected>30분</option>
+                                <option selected>1시간</option>
+                                <option selected>2시간</option>
+                                <option selected>3시간</option>
+                                <option selected>4시간</option>
+                                <option selected>5시간</option>
+                                <option selected>6시간</option>
+                                <option selected>7시간</option>
+                                <option selected>8시간</option>
+                                <option selected>9시간</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="form-group">
+                        <label for="inputEmail4">설정</label>
+                        <div class="form-inline">
+                            <div class="checkbox mb-3">
+                                <label>
+                                    <input type="checkbox" class="form-check-input"> 정기적으로 남은 시간 알람 <i
+                                        class="input-frame"></i>
+                                </label>
+                            </div>
+                            <div class="checkbox mb-3">
+                                <label>
+                                    <input type="checkbox" class="form-check-input" checked=""> 알람 완료시 반복 <i
+                                        class="input-frame"></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <hr > -->
+                    <div class="form-group">
+                        <label for="inputEmail4">알람 위치</label>
+                        <select class="custom-select">
+                            <option selected>화면 정중앙</option>
+                            <option value="1">화면 상단</option>
+                            <option value="2">화면 하단</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputEmail4">알람 메세지</label>
+                        <textarea class="form-control" id="inputType9" rows="2">오늘은 여기까지! 조금 쉬도록 하세요~</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" ng-if="model.is_new" ng-click="run.add_domain()"
+                        class="btn btn-primary btn-sm">저장</button>
+                    <button type="submit" ng-if="!model.is_new" ng-click="run.update_domain()"
+                        class="btn btn-primary btn-sm">수정</button>
+                    <button type="submit" ng-if="!model.is_new" ng-click="run.remove_domain()"
+                        class="btn btn-danger  btn-sm">삭제</button>
+                    <button type="submit" ng-click="run.modalClose()" class="btn btn-primary btn-sm">닫기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
