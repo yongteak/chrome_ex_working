@@ -284,7 +284,7 @@ angular.module('app.controllers', [])
         $scope.model = {
             is_new: true,
             title: '알람 설정 추가하기',
-            domains: [],
+            alarms: [],
             history: [],
             copy_modal: {},
             options:[
@@ -293,11 +293,12 @@ angular.module('app.controllers', [])
                 {name:'화면 하단',id:'bottom'},
                 {name:'화면 전환',id:'move'}
             ],
+            select:"center",
             modal: {
                 title: null,
                 type: 'time',// time, data
-                value: 0,// hours, MegaByte
-                remind: false,
+                value: 3,// hours, MegaByte
+                remind: true,
                 repeat: false,
                 position: 'center',//top, bottom
                 message: '오늘은 여기까지! 조금 쉬도록 하세요~',
@@ -307,17 +308,32 @@ angular.module('app.controllers', [])
                 epoch: null,
                 enabled: true
             },
-            select:"top"
+            
         };
-        console.log($scope.model.select);
+        // console.log($scope.model.select);
         $scope.run = {
-            selected: item => {
-                console.log(item);
-                // $('#domainModal').modal("hide");
+            init_modal: () => {
+                $scope.model.modal = {
+                    title: null,
+                    type: 'time',// time, data
+                    value: 5,// hours, MegaByte
+                    remind: true,
+                    repeat: false,
+                    position: 'center',//top, bottom
+                    message: '오늘은 여기까지! 조금 쉬도록 하세요~',
+                    count: 0,
+                    created: today,
+                    updated: today,
+                    epoch: null,
+                    enabled: true
+                }
+                // console.log('init > ',$scope.model.modal);
+            },
+            selected: _item => {
+                console.log($scope.model.select);
             },
             
             open_modal: row => {
-                // console.log(row);
                 if (row == undefined) {
                     $scope.run.init_modal();
                 } else {
@@ -336,13 +352,14 @@ angular.module('app.controllers', [])
                 $scope.run.getDomain();
             },
             modalClose: () => {
+                $scope.run.init_modal();
                 $('#domainModal').modal("hide");
             },
             export_csv: () => {
                 console.log('export_csv!');
                 // storage.saveValue(CONFIG.STORAGE_RESTRICTION_ACCESS_LIST, null);
             },
-            remove_domain: () => {
+            remove_alarm: () => {
                 if (confirm('삭제하시겠습니까?')) {
                     var row = $scope.model.copy_modal;
                     var list = $scope.model.domains;
@@ -364,7 +381,7 @@ angular.module('app.controllers', [])
                     //
                 }
             },
-            update_domain: () => {
+            update_alarm: () => {
                 var list = $scope.model.domains;
                 var modal = $scope.model.copy_modal;
 
@@ -393,79 +410,47 @@ angular.module('app.controllers', [])
                 }
                 $('#domainModal').modal("hide");
             },
-            add_domain: () => {
-                var list = $scope.model.domains;
+            add_alarm: () => {
                 var modal = $scope.model.modal;
-
-                if ($filter('isEmpty')(modal.domain)) {
-                    alert('도메인을 입력해주세요.');
+                
+                if ($filter('isEmpty')(modal.title)) {
+                    alert('알람 이름을 입력해주세요.');
                     return;
                 }
 
-                var a = $filter('hhmmStrToNumber')(modal.time_start);
-                var b = $filter('hhmmStrToNumber')(modal.time_end);
-                if (a >= b) {
-                    alert("시작 시간은 종료 시간보다 이전 시간으로 설정해야 합니다.");
+                if (parseInt(modal.value) <= 0 || isNaN(parseInt(modal.value))) {
+                    alert('간(Hours)또는 데이터 용량(GB)을 정수(0이상)으로 입력해주세요.')
                     return;
                 }
-                // console.log(modal);
-                var find_domain = list.find(s => s.domain == modal.domain);
-                var isNewDomain = find_domain == undefined;
-                if (!isNewDomain) {
-                    alert('이미 등록된 도메인 입니다.')
-                    return;
-                }
-                modal.created = isNewDomain ? today : find_domain.created;
+                modal.created = today;
                 modal.updated = today;
                 modal.count = 0;
-                modal.epoch = isNewDomain ? moment().valueOf() : find_domain.epoch;
+                modal.epoch = moment().valueOf()
                 modal.enabled = true;
 
-                $scope.model.domains.push(modal);
-                // console.log($scope.model);
-                storage.saveValue(CONFIG.STORAGE_RESTRICTION_LIST, $filter('clean')($scope.model.domains));
+                $scope.model.alarms.push(modal);
+                console.log($scope.model.alarms);
+                storage.saveValue(CONFIG.STORAGE_ALARM_LIST, $filter('clean')($scope.model.alarms));
                 $scope.run.init_modal();
-                $scope.run.getDomain();
-                // 창닫기
+                $scope.run.getAlarms();
+                // // 창닫기
                 $('#domainModal').modal("hide");
             },
-            init_modal: () => {
-                $scope.model.modal = {
-                    title: null,
-                    type: 'time',// time, data
-                    value: null,// hours, MegaByte
-                    remind: false,
-                    repeat: false,
-                    position: 'center',//top, bottom
-                    message: '오늘은 여기까지! 조금 쉬도록 하세요~',
-                    count: 0,
-                    created: today,
-                    updated: today,
-                    epoch: null,
-                    enabled: true
-                }
-            },
-            getDomain: () => {
-                storage.getValue(CONFIG.STORAGE_RESTRICTION_ACCESS_LIST, e => {
+            getAlarms: () => {
+                storage.getValue(CONFIG.STORAGE_ALARM_LIST, e => {
+                    // [2020-12-11 00:42:17]
+                    // 최초 설정은 데이터가 없음, undefined
+                    e = e === undefined ? [] :$filter('clean')(e);
+                    if (e) {
+                        $scope.model.alarms = e.sort((a, b) => { return b.epoch - a.epoch });
+                    }
                     console.log(e);
-                    e = JSON.parse(angular.toJson(e));
-                    if (e) {
-                        $scope.model.history = e.sort((a, b) => { return b.epoch - a.epoch });
-                    }
-                    $scope.$apply();
-                });
-
-                storage.getValue(CONFIG.STORAGE_RESTRICTION_LIST, e => {
-                    e = JSON.parse(angular.toJson(e));
-                    if (e) {
-                        $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
-                    }
-                    // console.log(e);
+    
                     $scope.$apply();
                 });
             }
         };
-        $scope.run.getDomain();
+        $scope.run.getAlarms();
 
 
     })

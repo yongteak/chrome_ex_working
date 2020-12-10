@@ -12,6 +12,8 @@ app.constant('CONFIG', {
 	'STORAGE_RESTRICTION_LIST': 'restriction_list',
 	// 제한 사이트 접속 기록
 	'STORAGE_RESTRICTION_ACCESS_LIST': 'restriction_access_list',
+	// 알람 목록
+	'STORAGE_ALARM_LIST': 'alarm_list',
 	'STORAGE_NOTIFICATION_LIST': 'notification_list',
 	'STORAGE_NOTIFICATION_MESSAGE': 'notification_message',
 	'STORAGE_TIMEINTERVAL_LIST': 'time_interval'

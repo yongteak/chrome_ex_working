@@ -72,9 +72,9 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="inputEmail4">제목</label>
-                        <input type="text" ng-if="model.is_new" ng-model="model.modal.domain" class="form-control"
+                        <input type="text" ng-if="model.is_new" ng-model="model.modal.title" class="form-control"
                             placeholder="알람 이름을 입력해주세요." maxlength="30">
-                        <input type="text" ng-if="!model.is_new" ng-model="model.copy_modal.domain" class="form-control"
+                        <input type="text" ng-if="!model.is_new" ng-model="model.copy_modal.title" class="form-control"
                             placeholder="알람 이름을 입력해주세요." maxlength="30">
                     </div>
                     <div class="form-group">
@@ -82,12 +82,14 @@
                         <div class="form-inline" ng-if="model.is_new">
                             <div class="radio mb-3">
                                 <label class="radio-label mr-4">
-                                    <input type="radio" value='time' ng-model="model.modal.type">사용 시간 (시간 단위)<i class="input-frame"></i>
+                                    <input type="radio" value='time' ng-model="model.modal.type">사용 시간 (시간 단위)<i
+                                        class="input-frame"></i>
                                 </label>
                             </div>
                             <div class="radio mb-3">
                                 <label class="radio-label">
-                                    <input type="radio" value='data' ng-model="model.modal.type">데이터 사용량 (GB단위)<i class="input-frame"></i>
+                                    <input type="radio" value='data' ng-model="model.modal.type">데이터 사용량 (GB단위)<i
+                                        class="input-frame"></i>
                                 </label>
                             </div>
                         </div>
@@ -102,16 +104,17 @@
                     <hr>
                     <div class="form-group">
                         <label for="inputEmail4">설정</label>
+                        {{ model.is_new}}, {{model.modal.remind}}
                         <div class="form-inline">
                             <div class="checkbox mb-3">
                                 <label>
-                                    <input type="checkbox" class="form-check-input"> 정기적으로 남은 시간 알람 <i
+                                    <input type="checkbox" class="form-check-input" ng-model="model.modal.remind"> 정기적으로 남은 시간 알람 <i
                                         class="input-frame"></i>
                                 </label>
                             </div>
                             <div class="checkbox mb-3">
                                 <label>
-                                    <input type="checkbox" class="form-check-input" checked=""> 알람 완료시 반복 <i
+                                    <input type="checkbox" class="form-check-input" ng-model="model.modal.repeat"> 알람 완료시 반복 <i
                                         class="input-frame"></i>
                                 </label>
                             </div>
@@ -120,34 +123,23 @@
                     <!-- <hr > -->
                     <div class="form-group">
                         <label for="inputEmail4">알람 위치</label>
-                        <!-- <select class="custom-select">
-                            <option selected>화면 정중앙</option>
-                            <option value="1">화면 상단</option>
-                            <option value="2">화면 하단</option>
-                        </select> -->
-
-                        <select class="custom-select"
-                            ng-change="run.selected(model.select)"
-                            ng-model='model.select'
+                        <select class="custom-select" ng-change="run.selected(model.select)" ng-model='model.select'
                             ng-options="item.id as item.name for item in model.options">
-
-
-                            <!-- ng-options="country.id as country.name for country in register.countries"></select> -->
                         </select>
 
                     </div>
 
                     <div class="form-group">
                         <label for="inputEmail4">알람 메세지</label>
-                        <textarea class="form-control" id="inputType9" rows="2">오늘은 여기까지! 조금 쉬도록 하세요~</textarea>
+                        <textarea class="form-control" id="inputType9" rows="2" ng-model="model.modal.message"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" ng-if="model.is_new" ng-click="run.add_domain()"
+                    <button type="submit" ng-if="model.is_new" ng-click="run.add_alarm()"
                         class="btn btn-primary btn-sm">저장</button>
-                    <button type="submit" ng-if="!model.is_new" ng-click="run.update_domain()"
+                    <button type="submit" ng-if="!model.is_new" ng-click="run.update_alarm()"
                         class="btn btn-primary btn-sm">수정</button>
-                    <button type="submit" ng-if="!model.is_new" ng-click="run.remove_domain()"
+                    <button type="submit" ng-if="!model.is_new" ng-click="run.remove_alarm()"
                         class="btn btn-danger  btn-sm">삭제</button>
                     <button type="submit" ng-click="run.modalClose()" class="btn btn-primary btn-sm">닫기</button>
                 </div>
