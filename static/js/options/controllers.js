@@ -287,18 +287,35 @@ angular.module('app.controllers', [])
             domains: [],
             history: [],
             copy_modal: {},
+            options:[
+                {name:'화면 정중앙',id:'center'},
+                {name:'화면 상단',id:'top'},
+                {name:'화면 하단',id:'bottom'},
+                {name:'화면 전환',id:'move'}
+            ],
             modal: {
-                time_start: '08:00',
-                time_end: '17:00',
+                title: null,
+                type: 'time',// time, data
+                value: 0,// hours, MegaByte
+                remind: false,
+                repeat: false,
+                position: 'center',//top, bottom
+                message: '오늘은 여기까지! 조금 쉬도록 하세요~',
                 count: 0,
-                domain: null,
                 created: today,
                 updated: today,
-                epoch: null,//moment().valueOf(),
+                epoch: null,
                 enabled: true
-            }
+            },
+            select:"top"
         };
+        console.log($scope.model.select);
         $scope.run = {
+            selected: item => {
+                console.log(item);
+                // $('#domainModal').modal("hide");
+            },
+            
             open_modal: row => {
                 // console.log(row);
                 if (row == undefined) {
@@ -414,13 +431,17 @@ angular.module('app.controllers', [])
             },
             init_modal: () => {
                 $scope.model.modal = {
-                    time_start: '08:00',
-                    time_end: '17:00',
+                    title: null,
+                    type: 'time',// time, data
+                    value: null,// hours, MegaByte
+                    remind: false,
+                    repeat: false,
+                    position: 'center',//top, bottom
+                    message: '오늘은 여기까지! 조금 쉬도록 하세요~',
                     count: 0,
-                    domain: null,
                     created: today,
                     updated: today,
-                    epoch: null,//moment().valueOf(),
+                    epoch: null,
                     enabled: true
                 }
             },
@@ -445,7 +466,7 @@ angular.module('app.controllers', [])
             }
         };
         $scope.run.getDomain();
-        
+
 
     })
     .controller('statusController', function ($scope, $filter, $location, moment, storage, CONFIG) {

@@ -79,32 +79,23 @@
                     </div>
                     <div class="form-group">
                         <label for="inputEmail4">종류</label>
-                        <div class="form-inline">
+                        <div class="form-inline" ng-if="model.is_new">
                             <div class="radio mb-3">
                                 <label class="radio-label mr-4">
-                                    <input name="sample" type="radio" checked>사용 시간<i class="input-frame"></i>
+                                    <input type="radio" value='time' ng-model="model.modal.type">사용 시간 (시간 단위)<i class="input-frame"></i>
                                 </label>
                             </div>
                             <div class="radio mb-3">
                                 <label class="radio-label">
-                                    <input name="sample" type="radio">데이터 사용량<i class="input-frame"></i>
+                                    <input type="radio" value='data' ng-model="model.modal.type">데이터 사용량 (GB단위)<i class="input-frame"></i>
                                 </label>
                             </div>
                         </div>
                         <div class="form-group">
-                            <select class="custom-select">
-                                <option selected>5분</option>
-                                <option selected>30분</option>
-                                <option selected>1시간</option>
-                                <option selected>2시간</option>
-                                <option selected>3시간</option>
-                                <option selected>4시간</option>
-                                <option selected>5시간</option>
-                                <option selected>6시간</option>
-                                <option selected>7시간</option>
-                                <option selected>8시간</option>
-                                <option selected>9시간</option>
-                            </select>
+                            <input type="text" ng-if="model.is_new" ng-model="model.modal.value" class="form-control"
+                                class="form-control" placeholder="시간(Hours)또는 데이터 용량(GB)을 입력해주세요." maxlength="30">
+                            <input type="text" ng-if="!model.is_new" ng-model="model.copy_modal.value"
+                                class="form-control" placeholder="{{ model.input_value_text }}" maxlength="30">
                         </div>
                     </div>
 
@@ -129,11 +120,21 @@
                     <!-- <hr > -->
                     <div class="form-group">
                         <label for="inputEmail4">알람 위치</label>
-                        <select class="custom-select">
+                        <!-- <select class="custom-select">
                             <option selected>화면 정중앙</option>
                             <option value="1">화면 상단</option>
                             <option value="2">화면 하단</option>
+                        </select> -->
+
+                        <select class="custom-select"
+                            ng-change="run.selected(model.select)"
+                            ng-model='model.select'
+                            ng-options="item.id as item.name for item in model.options">
+
+
+                            <!-- ng-options="country.id as country.name for country in register.countries"></select> -->
                         </select>
+
                     </div>
 
                     <div class="form-group">

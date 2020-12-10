@@ -17,13 +17,14 @@ $scope.remove_all = function () {
 var hours = Array(24).fill(0).map((e,i)=>i+1);
 var seconds = Array(60).fill(0).map((e,i)=>i+1);
 
-
+# angular select
+https://embed.plnkr.co/Wlw62X/preview
 
 # echarts
  <mw-chart style="height: 100%; width: 100%; background-color: white;
                                 margin-top: 20px; float: left; border-left: black;" ng-model="option">
                                 </mw-chart>
-                                
+
 var stop_count = 20;
         var obj = {data1:['New member','Old member'], data2:[621,32032]};
         var stop;
