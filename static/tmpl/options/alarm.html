@@ -1,62 +1,70 @@
 <h2>알람</h2>
 <hr>
 
-<div class="row">
-    <div class="col-lg-12">
-        <div class="grid">
-            <p class="grid-header">알람 목록</p>
-            <div class="mx-auto form-group row showcase_row_area">
-                <div class="btn btn-primary has-icon pointer" ng-click="run.open_modal()" data-toggle="modal"
-                    data-target="#domainModal">
-                    <i class="mdi mdi mdi-alarm"></i>알람 추가하기
-                </div>
-            </div>
-            <div class="grid-body">
-                <div class="item-wrapper">
-                    <div class="row">
+<div class="grid">
+    <p class="grid-header">알람목록</p>
+    <div class="grid-body">
+        <div class="item-wrapper">
+            <form>
+                <div class="form-row">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>종류</th>
+                                    <th>시간/용량</th>
+                                    <th>등록일</th>
+                                    <th>알람위치</th>
+                                    <th>미리알림</th>
+                                    <th>반복</th>
+                                    <th>적용</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="row in model.alarms">
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ row.type }}</td>
+                                    <td>{{ row.value }}</td>
+                                    <td>{{ row.created | yyyymmdd_to_format_kr }}</td>
+                                    <td>{{ row.position }}</td>
+                                    <td>{{ row.remind }}</td>
+                                    <td>{{ row.repeat }}</td>
+                                    <td>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input"
+                                                id="enabled_switch{{ $index }}"
+                                                ng-change="run.enabledChange(row,'enabled')" ng-model="row.enabled"
+                                                ng-checked="{{ row.enabled }}">
+                                            <label class="custom-control-label"
+                                                for="enabled_switch{{ $index }}"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button type="button" data-toggle="modal" data-target="#domainModal"
+                                            ng-click="run.open_modal(row)" class="btn btn-xs">수정</button>
+                                    </td>
+                                </tr>
 
-
-                        <!-- <div class="col-lg-4 col-md-6 equel-grid">
-                            <div class="grid">
-
-                                <mw-chart style="height: 100%; width: 100%; background-color: white;
-                                margin-top: 20px; float: left; border-left: black;" ng-model="option">
-                                </mw-chart>
-
-                            </div>
-                          </div> -->
-
-                        <div class="col-lg-4 col-md-6 equel-grid">
-                            <div class="grid">
-                                <div class="grid-body">
-                                    <p class="card-title">Campaign</p>
-                                    <div id="radial-chart"></div>
-                                    <h4 class="text-center">$23,350.00</h4>
-                                    <p class="text-center text-muted">Used balance this billing cycle</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 col-md-6 equel-grid">
-                            <div class="grid">
-                                <div class="grid-body">
-                                    <p class="card-title">Campaign</p>
-                                    <div id="radial-chart"></div>
-                                    <h4 class="text-center">$23,350.00</h4>
-                                    <p class="text-center text-muted">Used balance this billing cycle</p>
-                                </div>
-                            </div>
-                        </div>
-
-
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
+                <p>
+                    <hr>
+                </p>
+                <div class="mx-auto form-group row showcase_row_area">
+                    <div class="btn btn-primary has-icon pointer" ng-click="run.open_modal()" data-toggle="modal"
+                        data-target="#domainModal">
+                        <i class="mdi mdi mdi-alarm"></i>알람 추가하기
+                    </div>
+                </div>
+
+            </form>
         </div>
     </div>
-
 </div>
-
 
 
 <div class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false" role="dialog" id="domainModal">
@@ -70,13 +78,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label for="inputEmail4">제목</label>
-                        <input type="text" ng-if="model.is_new" ng-model="model.modal.title" class="form-control"
-                            placeholder="알람 이름을 입력해주세요." maxlength="30">
-                        <input type="text" ng-if="!model.is_new" ng-model="model.copy_modal.title" class="form-control"
-                            placeholder="알람 이름을 입력해주세요." maxlength="30">
-                    </div>
                     <div class="form-group">
                         <label for="inputEmail4">종류</label>
                         <div class="form-inline" ng-if="model.is_new">
@@ -93,9 +94,26 @@
                                 </label>
                             </div>
                         </div>
+
+                        <div class="form-inline" ng-if="!model.is_new">
+                            <div class="radio mb-3">
+                                <label class="radio-label mr-4">
+                                    <input type="radio" value='time' ng-model="model.copy_modal.type">사용 시간 (시간 단위)<i
+                                        class="input-frame"></i>
+                                </label>
+                            </div>
+                            <div class="radio mb-3">
+                                <label class="radio-label">
+                                    <input type="radio" value='data' ng-model="model.copy_modal.type">데이터 사용량 (GB단위)<i
+                                        class="input-frame"></i>
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <input type="text" ng-if="model.is_new" ng-model="model.modal.value" class="form-control"
                                 class="form-control" placeholder="시간(Hours)또는 데이터 용량(GB)을 입력해주세요." maxlength="30">
+
                             <input type="text" ng-if="!model.is_new" ng-model="model.copy_modal.value"
                                 class="form-control" placeholder="{{ model.input_value_text }}" maxlength="30">
                         </div>
@@ -104,34 +122,57 @@
                     <hr>
                     <div class="form-group">
                         <label for="inputEmail4">설정</label>
-                        {{ model.is_new}}, {{model.modal.remind}}
                         <div class="form-inline">
-                            <div class="checkbox mb-3">
+                            <div ng-if="model.is_new" class="checkbox mb-3">
                                 <label>
-                                    <input type="checkbox" class="form-check-input" ng-model="model.modal.remind"> 정기적으로 남은 시간 알람 <i
-                                        class="input-frame"></i>
+                                    <input type="checkbox" class="form-check-input" ng-model="model.modal.remind"> 정기적으로
+                                    남은 시간 알람 <i class="input-frame"></i>
                                 </label>
                             </div>
-                            <div class="checkbox mb-3">
+
+                            <div ng-if="!model.is_new" class="checkbox mb-3">
                                 <label>
-                                    <input type="checkbox" class="form-check-input" ng-model="model.modal.repeat"> 알람 완료시 반복 <i
-                                        class="input-frame"></i>
+                                    <input type="checkbox" class="form-check-input" ng-model="model.copy_modal.remind">
+                                    정기적으로
+                                    남은 시간 알람 <i class="input-frame"></i>
+                                </label>
+                            </div>
+
+
+                            <div ng-if="model.is_new" class="checkbox mb-3">
+                                <label>
+                                    <input type="checkbox" class="form-check-input" ng-model="model.modal.repeat"> 알람
+                                    완료시 반복 <i class="input-frame"></i>
+                                </label>
+                            </div>
+                            <div ng-if="!model.is_new" class="checkbox mb-3">
+                                <label>
+                                    <input type="checkbox" class="form-check-input" ng-model="model.copy_modal.repeat">
+                                    알람
+                                    완료시 반복 <i class="input-frame"></i>
                                 </label>
                             </div>
                         </div>
                     </div>
                     <!-- <hr > -->
                     <div class="form-group">
-                        <label for="inputEmail4">알람 위치</label>
-                        <select class="custom-select" ng-change="run.selected(model.select)" ng-model='model.select'
+                        <label>알람 위치</label>
+                        <select ng-if="model.is_new" class="custom-select" ng-change="run.selected(model.select)" ng-model='model.select'
+                            ng-options="item.id as item.name for item in model.options">
+                        </select>
+
+                        <select ng-if="!model.is_new" class="custom-select" ng-change="run.selected(model.select)" ng-model='model.select'
                             ng-options="item.id as item.name for item in model.options">
                         </select>
 
                     </div>
 
                     <div class="form-group">
-                        <label for="inputEmail4">알람 메세지</label>
-                        <textarea class="form-control" id="inputType9" rows="2" ng-model="model.modal.message"></textarea>
+                        <label>알람 메세지</label>
+                        <textarea ng-if="model.is_new" class="form-control" id="inputType9" rows="2"
+                            ng-model="model.modal.message"></textarea>
+                        <textarea ng-if="!model.is_new" class="form-control" id="inputType9" rows="2"
+                            ng-model="model.copy_modal.message"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

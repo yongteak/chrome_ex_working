@@ -1,5 +1,6 @@
+// https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "WEB Screen Time",
   // "default_locale": "ko",
   "description": "WEB Screen Times",
@@ -10,8 +11,11 @@
     "default_title": "Inject!"
   },
   "options_page": "static/options.html",
-  // "permissions": ["activeTab"],
-  // "*://*.google.com/"
+
+  "host_permissions": [
+    "http://*/",
+    "https://*/"
+  ],
   "permissions": [
     "identity", "identity.email",
     "tabs",
@@ -22,8 +26,6 @@
     "storage",
     "activeTab",
     "webRequest",
-    "http://*/",
-    "https://*/",
     "declarativeContent"
   ],
   "content_scripts": [
@@ -38,11 +40,8 @@
     }
 ],
   "background": {
-    "scripts": [
+    "service_worker": [
       "static/vendor/angular/angular.js",
-      // "static/js/app.js",
-      // "static/js/controllers.js",
-      // "static/js/background.js",
       "static/js/services.js",
 
       "static/chrome/background/tracker/common.js",
@@ -51,28 +50,6 @@
       "static/chrome/background/tracker/tab.js",
       "static/chrome/background/tracker/timeInterval.js",
       "static/chrome/background/tracker/background.js"
-
-      // "static/chrome/background/traffic.js"
-      // ,"static/chrome/background/Usage.js"
-    ],
-    "persistent":true
-
-  } //,
-  // "background_page": "background.html", 
-  // "scripts": ["jquery.3.3.1min.js","background.js"]
-  // "content_scripts": [
-  //   {
-  //     "matches": [
-  //       "*://*/*"
-  //     ],
-  //     "css": [
-  //       "styles.css"
-  //     ],
-  //     "js": [
-  //       "jquery.3.3.1min.js",
-  //       "background.js",
-  //       "content.js"
-  //     ]
-  //   }
-  // ]
+    ]
+  } 
 }
