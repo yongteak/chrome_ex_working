@@ -1,2 +1,56 @@
 <h2>백업/복구</h2>
-<hr >
+<hr>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="grid">
+            <p class="grid-header">로컬 데이터 목록</p>
+            <!-- {{ model.collections}} -->
+            <div class="grid-body">
+                <div class="item-wrapper">
+                    <form>
+                        <div class="form-row">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>이름</th>
+                                            <th>갯수</th>
+                                            <th>용량</th>
+                                            <th>최근 갱신일</th>
+                                            <th>마지막 클라우드 동기화</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="row in model.collections">
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ row.name }}</td>
+                                            <td>{{ row.rows | num_comma }}개</td>
+                                            <td>{{ row.size | dataSizeToUnit }}</td>
+                                            <td>{{ row.updated | yyyymmdd_to_format_kr }}회</td>
+                                            <td>{{ row.cloud_synced | yyyymmdd_to_format_kr }}회</td>
+                                            <!-- <td>
+                                                <button type="button" data-toggle="modal" data-target="#domainModal"
+                                                    ng-click="run.open_modal(row)" class="btn btn-xs">수정</button>
+                                            </td> -->
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <p>
+                            <hr>
+                        </p>
+                        <div class="mx-auto form-group row showcase_row_area">
+                            <div class="btn btn-primary has-icon pointer" ng-click="run.export_csv()" >
+                                <i class="mdi mdi-file-excel"></i>Excel 다운로드
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>

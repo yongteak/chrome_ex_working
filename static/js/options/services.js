@@ -2,6 +2,9 @@
 angular.module('app.services', [])
     .factory('storage', ['$window', '$timeout', function ($window, $timeout) {
         return {
+            getMemoryUse: function (name, callback) {
+                return chrome.storage.local.getBytesInUse(name, callback);
+            },
             saveValue: function (name, value) {
                 return chrome.storage.local.set({
                     [name]: value

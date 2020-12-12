@@ -5,6 +5,7 @@ var app = angular.module('app', [
 ]);
 
 app.constant('CONFIG', {
+	'STORAGE_SETTING': 'setting',
 	'STORAGE_TABS': 'tabs',
 	// 추적 금지
 	'STORAGE_BLACK_LIST': 'black_list',
@@ -15,7 +16,7 @@ app.constant('CONFIG', {
 	// 알람 목록
 	'STORAGE_ALARM_LIST': 'alarm_list',
 	'STORAGE_NOTIFICATION_LIST': 'notification_list',
-	'STORAGE_NOTIFICATION_MESSAGE': 'notification_message',
+	// 'STORAGE_NOTIFICATION_MESSAGE': 'notification_message',
 	'STORAGE_TIMEINTERVAL_LIST': 'time_interval'
 })
 

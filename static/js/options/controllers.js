@@ -9,103 +9,116 @@ angular.module('app.controllers', [])
         };
     })
     .controller('view', $scope => {
-        // $scope.count = 0;
         console.log("view!");
-
         $scope.init = () => {
             console.log("view > init!");
         }
     })
     .controller('settingController', function ($scope, $location, $filter, identity, storage, CONFIG) {
-        // 추적 금지 목록 조회
-        var today = $filter('formatDate')();
         $scope.model = {
+            is_news: false,
+            today: $filter('formatDate')(),
             domains: [],
-            domain: null
-        }
-
-        function getDomain() {
-            storage.getValue(CONFIG.STORAGE_BLACK_LIST, e => {
-                e = $filter('clean')(e);
-                if (e) {
-                    $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
+            domain: null,
+            setting: [
+                {name:"activity_detected",value:'bandwith_today',epoch:0,updated:null}
+            ], // activity_detected, badge_icon_info,
+            options: {activity_detected:
+                        [{ name: '웹사이트 랭킹정보', id: 'ranking_web' },
+                        { name: '알람:남은 시간또는 용량', id: 'alarm_info' },
+                        { name: '오늘:데이터 수신량', id: 'bandwith_today' },
+                        { name: '오늘:사이트 사용시간', id: 'time_today' },
+                        { name: '전체:데이터 수신량', id: 'bandwith_total' },
+                        { name: '전체:사이트 사용량', id: 'time_total' },
+                        { name: '표시하지 않음', id: 'none' }]
+            },
+            select: {activity_detected:'time_today'}
+        };
+        $scope.run = {
+            getSetting: () => {
+                storage.getValue(CONFIG.STORAGE_SETTING, e => {
+                    $scope.model.is_new = (e == null || e.undefined);
+                    $scope.model.setting = (e == null || e.undefined) ? $scope.model.setting  : $filter('clean')(e);
+                    var find = $scope.model.setting.find(s => s.name == 'activity_detected');
+                    $scope.model.select.activity_detected = find.value;
+                    $scope.$apply();
+                })
+            },
+            getDomain: () => {
+                storage.getValue(CONFIG.STORAGE_BLACK_LIST, e => {
+                    e = (e == null || e.undefined) ? [] : $filter('clean')(e);
+                    if (e) {
+                        $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
+                    }
+                    $scope.$apply();
+                })
+            },
+            selected: (field,_item) => {
+                // {name:"activity_detected",value:null,epoch:0,updated:null}
+                var items = $scope.model.setting;
+                var find = items.find(s => s.name == field);
+                find.value = $scope.model.select[field];
+                find.epoch = (find.epoch == 0 || $scope.model.is_new) ? moment().valueOf() : find.epoch;
+                find.updated = $scope.model.today;
+                // console.log(find,$scope.model.setting);
+                storage.saveValue(CONFIG.STORAGE_SETTING, $scope.model.setting);
+                $scope.run.getSetting();
+            },
+            clear: () => {
+                storage.saveValue(CONFIG.STORAGE_BLACK_LIST, null);
+            },
+            remove: (row) => {
+                if (confirm('삭제하시겠습니까?')) {
+                    var list = $scope.model.domains;
+                    const index = list.findIndex(function (item) {
+                        return item.epoch === row.epoch;
+                    });
+    
+                    if (index !== -1) {
+                        list.splice(index, 1);
+                    } else {
+                        // throw error
+                    }
+    
+                    storage.saveValue(CONFIG.STORAGE_BLACK_LIST, $filter('clean')($scope.model.domains));
+                    $scope.run.getDomain();
+    
+                } else {
+                    //
                 }
-                console.log(e);
-
-                $scope.$apply();
-            });
-        }
-
-        $scope.clear = function () {
-            storage.saveValue(CONFIG.STORAGE_BLACK_LIST, null);
-            console.log('clear domains');
-        }
-
-        $scope.remove = function (row) {
-            if (confirm('삭제하시겠습니까?')) {
+            },
+            enabledChange: row => {
                 var list = $scope.model.domains;
                 const index = list.findIndex(function (item) {
                     return item.epoch === row.epoch;
                 });
-
-                if (index !== -1) {
-                    list.splice(index, 1);
-                } else {
-                    // throw error
-                }
-
+                list[index].enabled = row.enabled;
                 storage.saveValue(CONFIG.STORAGE_BLACK_LIST, $filter('clean')($scope.model.domains));
-                getDomain();
-
-            } else {
-                //
+                $scope.run.getDomain();
+            },
+            add_domain: () => {
+                var list = $scope.model.domains;
+                var find_domain = list.find(s => s.domain == $scope.model.domain);
+                var isNewDomain = find_domain == undefined;
+                if (!isNewDomain) {
+                    alert('이미 등록된 도메인 입니다.')
+                    return;
+                }
+                var model = {
+                    domain: $scope.model.domain,
+                    created: isNewDomain ? today : find_domain.created,
+                    updated: today,
+                    epoch: isNewDomain ? moment().valueOf() : find_domain.epoch,
+                    enabled: true
+                };
+                $scope.model.domains.push(model);
+                storage.saveValue(CONFIG.STORAGE_BLACK_LIST, $filter('clean')($scope.model.domains));
+                $scope.run.getDomain();
+                $scope.model.domain = null;
             }
         }
-
-        $scope.enabledChange = function (row) {
-            var list = $scope.model.domains;
-            const index = list.findIndex(function (item) {
-                return item.epoch === row.epoch;
-            });
-            list[index].enabled = row.enabled;
-            storage.saveValue(CONFIG.STORAGE_BLACK_LIST, $filter('clean')($scope.model.domains));
-            getDomain();
-        }
-
-        $scope.add_domain = function () {
-            var list = $scope.model.domains;
-            var find_domain = list.find(s => s.domain == $scope.model.domain);
-            var isNewDomain = find_domain == undefined;
-            if (!isNewDomain) {
-                alert('이미 등록된 도메인 입니다.')
-                return;
-            }
-            var model = {
-                domain: $scope.model.domain,
-                created: isNewDomain ? today : find_domain.created,
-                updated: today,
-                epoch: isNewDomain ? moment().valueOf() : find_domain.epoch,
-                enabled: true
-            };
-
-            // 동일한 데이터가 있는경우 제거후 추가
-            // if (!isNewDomain) {
-            //     const index = list.findIndex(function (item) {
-            //         return item.domain === $scope.model.domain;
-            //     });
-            //     if (index !== -1) {
-            //         list.splice(index, 1);
-            //     } else {
-            //         // throw error
-            //     }
-            // }
-            $scope.model.domains.push(model);
-            storage.saveValue(CONFIG.STORAGE_BLACK_LIST, $filter('clean')($scope.model.domains));
-            getDomain();
-            $scope.model.domain = null;
-        }
-
-        getDomain();
+        $scope.run.getSetting();
+        $scope.run.getDomain();
     })
     .controller('limitController', function ($scope, $location, $filter, identity, storage, CONFIG) {
         var today = $filter('formatDate')();
@@ -277,7 +290,45 @@ angular.module('app.controllers', [])
     })
     .controller('syncController', function ($scope, $location) {
     })
-    .controller('dataController', function ($scope, $location) {
+    .controller('dataController', function ($scope, $location, $filter, $interval, identity, storage, CONFIG) {
+        $scope.model = {
+            collections:{
+                setting:{name:'설정',desc:'기본설정',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
+                tabs:{name:'도메인별 사용기록',desc:'도메인별 사용기록',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
+                black_list:{name:'추적금지 도메인',desc:'추적금지 도메인',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
+                restriction_list:{name:'접근제한 도메인',desc:'접근제한 도메인',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
+                restriction_access_list:{name:'접근제한 도메인 접속 정보',desc:'접근제한 도메인 접속 정보',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
+                alarm_list:{name:'알람목록',desc:'알람목록',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
+                time_interval:{name:'시간대별 도메인 접속 정보',desc:'시간대별 도메인 접속 정보',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
+            }
+        };
+        $scope.run = {
+            getCollections: () => {
+                for (var p in $scope.model.collections) {
+                    var variable = p;
+                    (function(x){ //start wrapper code
+                        storage.getValue(x, e => {
+                            // $scope.model.collections[x].rows = Array.isArray(e) ? e.length : Object.keys(e).length
+                            $scope.model.collections[x].rows = e.length;
+                            storage.getMemoryUse(x, integer => {
+                                $scope.model.collections[x].size = integer;
+                                $scope.$apply();
+                            });
+                        })
+                    })(variable);//passing in variable to var here
+                  }
+            }
+        };
+
+
+        
+
+        $scope.run.getCollections();
+
+        // storage.getMemoryUse(STORAGE_TABS, function (integer) {
+    //     document.getElementById('memoryUse').innerHTML = (integer / 1024).toFixed(2) + 'Kb';
+    // });
+       
     })
     .controller('alarmController', function ($scope, $location, $filter, $interval, identity, storage, CONFIG) {
         const today = $filter('formatDate')();

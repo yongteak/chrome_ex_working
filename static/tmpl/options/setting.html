@@ -10,35 +10,12 @@
                         <div class="col-md-8 mx-auto">
                             <div class="row showcase_row_area">
                                 <div class="col-md-3 showcase_text_area">
-                                    <label>비활동 감지 시간</label>
-                                </div>
-                                <div class="col-md-9 showcase_content_area">
-                                    <select class="custom-select">
-                                        <option value="1">1분</option>
-                                        <option value="2">5분</option>
-                                        <option value="3">10분</option>
-                                        <option value="3">20분</option>
-                                        <option selected value="3">30분</option>
-                                        <option value="3">60분</option>
-                                    </select>
-                                    <code>* 지정된 시간동안 마우스및 키보드 동작이 없으면 시간 추적을 하지 않습니다.</code>
-                                </div>
-                            </div>
-
-                            <div class="row showcase_row_area">
-                                <div class="col-md-3 showcase_text_area">
                                     <label>아이콘 표시정보</label>
                                 </div>
                                 <div class="col-md-9 showcase_content_area">
-                                    <select class="custom-select">
-                                        <option value="1">알람:설정된 남은 시간</option>
-                                        <option value="1">오늘:데이터 수신량</option>
-                                        <option value="2">오늘:사이트 사용시간</option>
-                                        <option value="3">전체:데이터 수신량</option>
-                                        <option value="3">전체:사이트 사용시간</option>
-                                        <option selected value="3">표시하지 않음</option>
-                                    </select>
-                                    <code>* 확장 기능의 아이콘 아래 표시되는 텍스트 정보를 설정합니다.</code>
+                                    <select class="custom-select" ng-change="run.selected('activity_detected',model.select.activity_detected)" ng-model='model.select.activity_detected'
+                                    ng-options="item.id as item.name for item in model.options.activity_detected"></select>
+                                    <code>* 확장 기능의 아이콘 아래 표시되는 정보</code>
                                 </div>
                             </div>
 
@@ -81,7 +58,7 @@
                                             </td>
                                             <!-- <td>{{ row.updated | yyyymmdd_to_format_kr }}</td> -->
                                             <td>
-                                                <button type="button" ng-click="remove(row)" class="btn btn-danger btn-xs">삭제</button>
+                                                <button type="button" ng-click="run.remove(row)" class="btn btn-danger btn-xs">삭제</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -100,7 +77,7 @@
                                     type="text" placeholder="도메인을 입력해주세요. (예. naver.com)">
                             </div>
                             
-                            <button class="btn btn-primary btn-sm" ng-click="add_domain()" type="submit">도메인 등록</button>
+                            <button class="btn btn-primary btn-sm" ng-click="run.add_domain()" type="submit">도메인 등록</button>
                         </div>
                     </form>
                 </div>

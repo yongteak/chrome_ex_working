@@ -27,7 +27,7 @@ var TypeListEnum = {
     ByDays: 3,
 };
 
-
+var STORAGE_SETTING = 'setting';
 var STORAGE_TABS = 'tabs';
 var STORAGE_BLACK_LIST = 'black_list';
 // 추적 금지 도메인
@@ -50,7 +50,6 @@ var STORAGE_TIMERANGE_LIST = 'time_range';
     }
 */
 var STORAGE_TIME_TO_URL = 'time_to_url';
-
 var SETTINGS_INTERVAL_INACTIVITY_DEFAULT = InactivityInterval.second30;
 var SETTINGS_INTERVAL_CHECK_DEFAULT = 1000;
 var SETTINGS_INTERVAL_SAVE_STORAGE_DEFAULT = 2000;
