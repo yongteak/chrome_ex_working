@@ -300,6 +300,8 @@ angular.module('app.controllers', [])
             ]
         };
         $scope.run = {
+            // 제약 사항 정리
+            // https://github.com/Xwilarg/NHentaiAnalytics/blob/780ce6c571e1095ab2af375a61c496a3b49bdeee/js/background.js
             sync: row => {
                 var collection;
                 var variable;
