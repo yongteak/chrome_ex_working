@@ -21,24 +21,25 @@ angular.module('app.controllers', [])
             domains: [],
             domain: null,
             setting: [
-                {name:"activity_detected",value:'bandwith_today',epoch:0,updated:null}
+                { name: "activity_detected", value: 'bandwith_today', epoch: 0, updated: null }
             ], // activity_detected, badge_icon_info,
-            options: {activity_detected:
-                        [{ name: '웹사이트 랭킹정보', id: 'ranking_web' },
-                        { name: '알람:남은 시간또는 용량', id: 'alarm_info' },
-                        { name: '오늘:데이터 수신량', id: 'bandwith_today' },
-                        { name: '오늘:사이트 사용시간', id: 'time_today' },
-                        { name: '전체:데이터 수신량', id: 'bandwith_total' },
-                        { name: '전체:사이트 사용량', id: 'time_total' },
-                        { name: '표시하지 않음', id: 'none' }]
+            options: {
+                activity_detected:
+                    [{ name: '웹사이트 랭킹정보', id: 'ranking_web' },
+                    { name: '알람:남은 시간또는 용량', id: 'alarm_info' },
+                    { name: '오늘:데이터 수신량', id: 'bandwith_today' },
+                    { name: '오늘:사이트 사용시간', id: 'time_today' },
+                    { name: '전체:데이터 수신량', id: 'bandwith_total' },
+                    { name: '전체:사이트 사용량', id: 'time_total' },
+                    { name: '표시하지 않음', id: 'none' }]
             },
-            select: {activity_detected:'time_today'}
+            select: { activity_detected: 'time_today' }
         };
         $scope.run = {
             getSetting: () => {
                 storage.getValue(CONFIG.STORAGE_SETTING, e => {
                     $scope.model.is_new = (e == null || e.undefined);
-                    $scope.model.setting = (e == null || e.undefined) ? $scope.model.setting  : $filter('clean')(e);
+                    $scope.model.setting = (e == null || e.undefined) ? $scope.model.setting : $filter('clean')(e);
                     var find = $scope.model.setting.find(s => s.name == 'activity_detected');
                     $scope.model.select.activity_detected = find.value;
                     $scope.$apply();
@@ -53,7 +54,7 @@ angular.module('app.controllers', [])
                     $scope.$apply();
                 })
             },
-            selected: (field,_item) => {
+            selected: (field, _item) => {
                 // {name:"activity_detected",value:null,epoch:0,updated:null}
                 var items = $scope.model.setting;
                 var find = items.find(s => s.name == field);
@@ -73,16 +74,16 @@ angular.module('app.controllers', [])
                     const index = list.findIndex(function (item) {
                         return item.epoch === row.epoch;
                     });
-    
+
                     if (index !== -1) {
                         list.splice(index, 1);
                     } else {
                         // throw error
                     }
-    
+
                     storage.saveValue(CONFIG.STORAGE_BLACK_LIST, $filter('clean')($scope.model.domains));
                     $scope.run.getDomain();
-    
+
                 } else {
                     //
                 }
@@ -292,21 +293,21 @@ angular.module('app.controllers', [])
     })
     .controller('dataController', function ($scope, $location, $filter, $interval, identity, storage, CONFIG) {
         $scope.model = {
-            collections:{
-                setting:{name:'설정',desc:'기본설정',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
-                tabs:{name:'도메인별 사용기록',desc:'도메인별 사용기록',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
-                black_list:{name:'추적금지 도메인',desc:'추적금지 도메인',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
-                restriction_list:{name:'접근제한 도메인',desc:'접근제한 도메인',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
-                restriction_access_list:{name:'접근제한 도메인 접속 정보',desc:'접근제한 도메인 접속 정보',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
-                alarm_list:{name:'알람목록',desc:'알람목록',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
-                time_interval:{name:'시간대별 도메인 접속 정보',desc:'시간대별 도메인 접속 정보',rows:0,size:0,updated:null,cloud_synced:null,cloud_synced_count:0},
+            collections: {
+                setting: { name: '설정', desc: '기본설정', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+                tabs: { name: '도메인별 사용기록', desc: '도메인별 사용기록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+                black_list: { name: '추적금지 도메인', desc: '추적금지 도메인', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+                restriction_list: { name: '접근제한 도메인', desc: '접근제한 도메인', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+                restriction_access_list: { name: '접근제한 도메인 접속 정보', desc: '접근제한 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+                alarm_list: { name: '알람목록', desc: '알람목록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+                time_interval: { name: '시간대별 도메인 접속 정보', desc: '시간대별 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
             }
         };
         $scope.run = {
             getCollections: () => {
                 for (var p in $scope.model.collections) {
                     var variable = p;
-                    (function(x){ //start wrapper code
+                    (function (x) { //start wrapper code
                         storage.getValue(x, e => {
                             // $scope.model.collections[x].rows = Array.isArray(e) ? e.length : Object.keys(e).length
                             $scope.model.collections[x].rows = e.length;
@@ -316,19 +317,19 @@ angular.module('app.controllers', [])
                             });
                         })
                     })(variable);//passing in variable to var here
-                  }
+                }
             }
         };
 
 
-        
+
 
         $scope.run.getCollections();
 
         // storage.getMemoryUse(STORAGE_TABS, function (integer) {
-    //     document.getElementById('memoryUse').innerHTML = (integer / 1024).toFixed(2) + 'Kb';
-    // });
-       
+        //     document.getElementById('memoryUse').innerHTML = (integer / 1024).toFixed(2) + 'Kb';
+        // });
+
     })
     .controller('alarmController', function ($scope, $location, $filter, $interval, identity, storage, CONFIG) {
         const today = $filter('formatDate')();
@@ -360,7 +361,52 @@ angular.module('app.controllers', [])
             },
 
         };
+
+        $scope.resetToastPosition = function () {
+            $('.jq-toast-wrap').removeClass('.alert-notification-wrapper bottom-left bottom-right top-left top-right mid-center'); // to remove previous position class
+            $(".jq-toast-wrap").css({
+                "top": "",
+                "left": "",
+                "bottom": "",
+                "right": ""
+            });
+            $(this).parentsUntil(".alert-notification-wrapper").slideToggle();
+        }
+
         $scope.run = {
+            preview: row => {
+                'use strict';
+                $scope.resetToastPosition();
+                $.toast({
+                    heading: '설정된 알람 미리 보기',
+                    icon: 'error',
+                    text: 'Specify the custom position object or use one of the predefined ones',
+                    allowToastClose: true,
+                    position: 'top-right',
+                    sticky: true,
+                    loader: false,
+                    loaderBg: '#00e093'
+                });
+
+
+                // toggleAlertNotificationTop() {
+                    $("body").append('\
+            <div class="alert-notification-wrapper top">\
+                <div class="alert-notification dismissible-alert">\
+                    <p><b>알려드립니다!&nbsp;</b>지정하신 알람 시간이 되었습니다! 닫기버튼을 누르면 초기화됩니다. </p>\
+                    <i class="alert-close mdi mdi-close"></i>\
+                </div>\
+            </div>\
+        ');
+                $(".alert-notification-wrapper .dismissible-alert .alert-close").on("click", function () {
+                    $(this).parentsUntil(".alert-notification-wrapper").slideToggle();
+                });
+                    // $(".alert-notification-wrapper .dismissible-alert .alert-close").on("click", function () {
+                    //     $(this).parentsUntil(".alert-notification-wrapper").slideToggle();
+                    // });
+                // }
+
+            },
             init_modal: () => {
                 $scope.model.select = "center";
                 $scope.model.modal = {

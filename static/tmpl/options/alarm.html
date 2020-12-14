@@ -20,6 +20,7 @@
                                     <th>반복</th>
                                     <th>적용</th>
                                     <th></th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -44,6 +45,10 @@
                                     <td>
                                         <button type="button" data-toggle="modal" data-target="#domainModal"
                                             ng-click="run.open_modal(row)" class="btn btn-xs">수정</button>
+                                    </td>
+                                    <td>
+                                        <button type="button" ng-click="run.preview(row)"
+                                            class="btn btn-xs">미리보기</button>
                                     </td>
                                 </tr>
 
@@ -157,12 +162,12 @@
                     <!-- <hr > -->
                     <div class="form-group">
                         <label>알람 위치</label>
-                        <select ng-if="model.is_new" class="custom-select" ng-change="run.selected(model.select)" ng-model='model.select'
-                            ng-options="item.id as item.name for item in model.options">
+                        <select ng-if="model.is_new" class="custom-select" ng-change="run.selected(model.select)"
+                            ng-model='model.select' ng-options="item.id as item.name for item in model.options">
                         </select>
 
-                        <select ng-if="!model.is_new" class="custom-select" ng-change="run.selected(model.select)" ng-model='model.select'
-                            ng-options="item.id as item.name for item in model.options">
+                        <select ng-if="!model.is_new" class="custom-select" ng-change="run.selected(model.select)"
+                            ng-model='model.select' ng-options="item.id as item.name for item in model.options">
                         </select>
 
                     </div>
