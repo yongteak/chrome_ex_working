@@ -188,6 +188,20 @@ app.directive('onErrorSrc', function() {
     }
 });
 
+app.directive('customOnChange', function() {
+	return {
+	  restrict: 'A',
+	  link: function (scope, element, attrs) {
+		var onChangeHandler = scope.$eval(attrs.customOnChange);
+		element.on('change', onChangeHandler);
+		element.on('$destroy', function() {
+		  element.off();
+		});
+  
+	  }
+	};
+  });
+
 app.filter('yyyymmdd_to_format_kr', function () {
     return function (yyyymmdd) {
       if (!yyyymmdd) return '';

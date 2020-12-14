@@ -303,6 +303,10 @@ angular.module('app.controllers', [])
                 time_interval: { name: '시간대별 도메인 접속 정보', desc: '시간대별 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
             }
         };
+
+        // $scope.fileNameChanged = (e) => {
+        //     console.log(e)
+        // }
         $scope.run = {
             backup: () => {
                 var collections = $scope.model.collections;
@@ -318,9 +322,9 @@ angular.module('app.controllers', [])
                         })
                     })(variable);//passing in variable to var here
                 }
-                
+
                 function createFile(data, type, fileName) {
-                    fileName =  fileName || 'WEB-SCREEN-TIME-BACKUP|'+moment().format('YYYY-MM-DD');
+                    fileName = fileName || 'WEB-SCREEN-TIME-BACKUP|' + moment().format('YYYY-MM-DD');
                     console.log(fileName);
                     var file = new Blob([data], { type: type });
                     var downloadLink;
@@ -331,6 +335,31 @@ angular.module('app.controllers', [])
                     document.body.appendChild(downloadLink);
                     downloadLink.click();
                 }
+            },
+            restore_from_file: (e) => {
+                let file = e.target.files[0];
+                if (file.type === "application/json") {
+                    var reader = new FileReader();
+                    reader.readAsText(file, 'UTF-8');
+                    reader.onload = readerEvent => {
+                        let content = readerEvent.target.result;
+                        let collections = JSON.parse(content);
+                        for (var p in collections) {
+                            storage.saveValue(p, collections[p]);
+                            if (p == 'tabs') {
+                                chrome.extension.getBackgroundPage().tabs = collections[p];
+                            }
+                        }
+                    }
+                } else {
+                    // error
+                }
+            },
+            restore: () => {
+
+                document.getElementById('file-input-backup').click();
+
+
             },
             getCollections: () => {
                 for (var p in $scope.model.collections) {
@@ -418,7 +447,7 @@ angular.module('app.controllers', [])
 
 
                 // toggleAlertNotificationTop() {
-                    $("body").append('\
+                $("body").append('\
             <div class="alert-notification-wrapper top">\
                 <div class="alert-notification dismissible-alert">\
                     <p><b>알려드립니다!&nbsp;</b>지정하신 알람 시간이 되었습니다! 닫기버튼을 누르면 초기화됩니다. </p>\
@@ -429,9 +458,9 @@ angular.module('app.controllers', [])
                 $(".alert-notification-wrapper .dismissible-alert .alert-close").on("click", function () {
                     $(this).parentsUntil(".alert-notification-wrapper").slideToggle();
                 });
-                    // $(".alert-notification-wrapper .dismissible-alert .alert-close").on("click", function () {
-                    //     $(this).parentsUntil(".alert-notification-wrapper").slideToggle();
-                    // });
+                // $(".alert-notification-wrapper .dismissible-alert .alert-close").on("click", function () {
+                //     $(this).parentsUntil(".alert-notification-wrapper").slideToggle();
+                // });
                 // }
 
             },
