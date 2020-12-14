@@ -17,8 +17,8 @@
                                             <th>이름</th>
                                             <th>갯수</th>
                                             <th>용량</th>
-                                            <th>최근 갱신일</th>
-                                            <th>마지막 클라우드 동기화</th>
+                                            <!-- <th>최근 갱신일</th>
+                                            <th>마지막 클라우드 동기화</th> -->
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -28,8 +28,8 @@
                                             <td>{{ row.name }}</td>
                                             <td>{{ row.rows | num_comma }}개</td>
                                             <td>{{ row.size | dataSizeToUnit }}</td>
-                                            <td>{{ row.updated | yyyymmdd_to_format_kr }}회</td>
-                                            <td>{{ row.cloud_synced | yyyymmdd_to_format_kr }}회</td>
+                                            <!-- <td>{{ row.updated | yyyymmdd_to_format_kr }}회</td>
+                                            <td>{{ row.cloud_synced | yyyymmdd_to_format_kr }}회</td> -->
                                             <!-- <td>
                                                 <button type="button" data-toggle="modal" data-target="#domainModal"
                                                     ng-click="run.open_modal(row)" class="btn btn-xs">수정</button>
