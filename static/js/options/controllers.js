@@ -659,6 +659,8 @@ angular.module('app.controllers', [])
             console.log($scope.option)
         }
 
+        $scope.today();
+
         function loadDataWithType(type) {
             if (type) {
                 return {
