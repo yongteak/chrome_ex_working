@@ -289,19 +289,84 @@ angular.module('app.controllers', [])
         $scope.run.getDomain();
 
     })
-    .controller('syncController', function ($scope, $location) {
-    })
-    .controller('dataController', function ($scope, $location, $filter, $interval, identity, storage, CONFIG) {
+    .controller('syncController', function ($scope, $location, $filter, $interval, identity, storage, CONFIG, COLLECTIONS) {
+
         $scope.model = {
-            collections: {
-                setting: { name: '설정', desc: '기본설정', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-                tabs: { name: '도메인별 사용기록', desc: '도메인별 사용기록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-                black_list: { name: '추적금지 도메인', desc: '추적금지 도메인', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-                restriction_list: { name: '접근제한 도메인', desc: '접근제한 도메인', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-                restriction_access_list: { name: '접근제한 도메인 접속 정보', desc: '접근제한 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-                alarm_list: { name: '알람목록', desc: '알람목록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-                time_interval: { name: '시간대별 도메인 접속 정보', desc: '시간대별 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+            rows: [
+                { desc: '로컬 > 크롬 계정', direction: 'local_to_chrome', count: 0, last: 0, repeat_min: 5 },
+                { desc: '로컬 < 크롬 계정', direction: 'chrome_to_local', count: 0, last: 0, repeat_min: 5 },
+                { desc: '로컬 > 클라우드', direction: 'local_to_cloud', count: 0, last: 0, repeat_min: 5 },
+                { desc: '로컬 < 클라우드', direction: 'cloud_to_local', count: 0, last: 0, repeat_min: 5 }
+            ]
+        };
+        $scope.run = {
+            sync: row => {
+                var collection;
+                var variable;
+                if (row.direction == 'local_to_chrome') {
+
+                    var result = {};
+                    for (var collection in COLLECTIONS) {
+                        var variable = collection;
+                        (function (field) {
+                            storage.getValue(field, item => {
+                                result[field] = item;
+                                if (Object.keys(result).length == Object.keys(COLLECTIONS).length) {
+                                    let i = 0;
+                                    let save_str = {};
+                                    let str = JSON.stringify(result);
+                                    while (str.length > chrome.storage.sync.QUOTA_BYTES_PER_ITEM / 4) {
+                                        save_str["tags" + i] = str.substr(0, chrome.storage.sync.QUOTA_BYTES_PER_ITEM / 4);
+                                        str = str.substring(chrome.storage.sync.QUOTA_BYTES_PER_ITEM / 4, str.length);
+                                        i++;
+                                    }
+                                    save_str["tags" + i] = str;
+                                    console.log(1,save_str);
+                                    chrome.storage.sync.set(save_str);
+
+                                }
+                            })
+                        })(variable);//passing in variable to var here
+                    }
+                } else if (row.direction == 'chrome_to_local') {
+                    function loadTagsInternal(index, str, callback) {
+                        chrome.storage.sync.get(['tags' + index], function (elems) {
+                            if (elems['tags' + index] === undefined) {
+                                console.log(str);
+                                // callback(JSON.parse(str));
+                            } else {
+                                loadTagsInternal(index + 1, str + elems['tags' + index], callback);
+                            }
+                        })
+                    }
+                    // function LoadTagsInternal(index, str, callback) {
+                    loadTagsInternal(0, "", function (tags) {
+                        console.log(tag);
+                    });
+
+                    // for (collection in COLLECTIONS) {
+                    //     variable = collection;
+                    //     (function (field) {
+                    //         storage.getValueSync(field, item => {
+                    //             console.log('getValueSync > ', item);
+                    //             // result[field] = item;
+                    //             // if (Object.keys(result).length == Object.keys(collections).length) {
+                    //             //     createFile(JSON.stringify(result), "application/json");
+                    //             // }
+                    //         })
+                    //     })(variable);//passing in variable to var here
+                    // }
+                } else if (row.direction == 'local_to_cloud') {
+                    //
+                } else if (row.direction == 'cloud_to_local') {
+                    //
+                }
             }
+        }
+    })
+    .controller('dataController', function ($scope, $location, $filter, $interval, identity, storage, CONFIG, COLLECTIONS) {
+        $scope.model = {
+            collections: COLLECTIONS
         };
 
         // $scope.fileNameChanged = (e) => {
@@ -356,17 +421,13 @@ angular.module('app.controllers', [])
                 }
             },
             restore: () => {
-
                 document.getElementById('file-input-backup').click();
-
-
             },
             getCollections: () => {
                 for (var p in $scope.model.collections) {
                     var variable = p;
                     (function (x) { //start wrapper code
                         storage.getValue(x, e => {
-                            // $scope.model.collections[x].rows = Array.isArray(e) ? e.length : Object.keys(e).length
                             $scope.model.collections[x].rows = e.length;
                             storage.getMemoryUse(x, integer => {
                                 $scope.model.collections[x].size = integer;
@@ -377,9 +438,6 @@ angular.module('app.controllers', [])
                 }
             }
         };
-
-
-
 
         $scope.run.getCollections();
 

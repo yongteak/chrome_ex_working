@@ -16,6 +16,18 @@ angular.module('app.services', [])
                         callback(item[name]);
                     }
                 })
+            },
+            saveValueSync: function (name, value) {
+                return chrome.storage.sync.set({
+                    [name]: value
+                })
+            },
+            getValueSync: function (name, callback) {
+                return chrome.storage.sync.get(name, function (item) {
+                    if (item !== undefined) {
+                        callback(item[name]);
+                    }
+                })
             }
         }
     }])

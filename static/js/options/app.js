@@ -20,6 +20,16 @@ app.constant('CONFIG', {
 	'STORAGE_TIMEINTERVAL_LIST': 'time_interval'
 })
 
+app.constant('COLLECTIONS', {
+	setting: { name: '설정', desc: '기본설정', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+	tabs: { name: '도메인별 사용기록', desc: '도메인별 사용기록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+	black_list: { name: '추적금지 도메인', desc: '추적금지 도메인', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+	restriction_list: { name: '접근제한 도메인', desc: '접근제한 도메인', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+	restriction_access_list: { name: '접근제한 도메인 접속 정보', desc: '접근제한 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+	alarm_list: { name: '알람목록', desc: '알람목록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+	time_interval: { name: '시간대별 도메인 접속 정보', desc: '시간대별 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+})
+
 // app.run([
 //     '$rootScope', '$modalStack',
 //     function ($rootScope, $modalStack) {
@@ -166,63 +176,63 @@ app.filter('percentage', function () {
 });
 
 // https://codepen.io/39ee8d/pen/rjwBez
-app.directive('clockPicker', function() {
+app.directive('clockPicker', function () {
 	return {
-	  restrict: 'A',
-	  link: function(scope, element, attrs) {
-		element.clockpicker();
-	  }
+		restrict: 'A',
+		link: function (scope, element, attrs) {
+			element.clockpicker();
+		}
 	}
-  })
+})
 
 // https://gist.github.com/dprea/1cd27241db661818e509
-app.directive('onErrorSrc', function() {
-    return {
-        link: function(scope, element, attrs) {
-          element.bind('error', function() {
-            if (attrs.src != attrs.onErrorSrc) {
-              attrs.$set('src', attrs.onErrorSrc);
-            }
-          });
-        }
-    }
+app.directive('onErrorSrc', function () {
+	return {
+		link: function (scope, element, attrs) {
+			element.bind('error', function () {
+				if (attrs.src != attrs.onErrorSrc) {
+					attrs.$set('src', attrs.onErrorSrc);
+				}
+			});
+		}
+	}
 });
 
-app.directive('customOnChange', function() {
+app.directive('customOnChange', function () {
 	return {
-	  restrict: 'A',
-	  link: function (scope, element, attrs) {
-		var onChangeHandler = scope.$eval(attrs.customOnChange);
-		element.on('change', onChangeHandler);
-		element.on('$destroy', function() {
-		  element.off();
-		});
-  
-	  }
+		restrict: 'A',
+		link: function (scope, element, attrs) {
+			var onChangeHandler = scope.$eval(attrs.customOnChange);
+			element.on('change', onChangeHandler);
+			element.on('$destroy', function () {
+				element.off();
+			});
+
+		}
 	};
-  });
+});
 
 app.filter('yyyymmdd_to_format_kr', function () {
-    return function (yyyymmdd) {
-      if (!yyyymmdd) return '';
-      var match;
-      if (yyyymmdd.toString().length == 12) {
-        match = yyyymmdd.toString().match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/);
-        return match[1] + '년 ' + match[2] + '월 ' + match[3] +'일 ' + match[4] +'시' + match[5] +'분'
-      } else if (yyyymmdd.toString().length == 10) {
-        match = yyyymmdd.toString().match(/(\d{4})(\d{2})(\d{2})(\d{2})/);
-        return match[1] + '년 ' + match[2] + '월 ' + match[3] +'일 ' + match[4] +'시'
-      } else if (yyyymmdd.toString().length == 8) {
-        match = yyyymmdd.toString().match(/(\d{4})(\d{2})(\d{2})/);
-        return match[1] + '년 ' + match[2] + '월 ' + match[3] +'일'
-      } else if (yyyymmdd.toString().length == 6) {
-        match = yyyymmdd.toString().match(/(\d{4})(\d{2})/);
-        return match[1] + '년 ' + match[2] + '월'
-      } else if (yyyymmdd.toString().length == 4) {
-        match = yyyymmdd.toString().match(/(\d{4})/);
-        return match[1] + '년';
-      }
-  };
+	return function (yyyymmdd) {
+		if (!yyyymmdd) return '';
+		var match;
+		if (yyyymmdd.toString().length == 12) {
+			match = yyyymmdd.toString().match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/);
+			return match[1] + '년 ' + match[2] + '월 ' + match[3] + '일 ' + match[4] + '시' + match[5] + '분'
+		} else if (yyyymmdd.toString().length == 10) {
+			match = yyyymmdd.toString().match(/(\d{4})(\d{2})(\d{2})(\d{2})/);
+			return match[1] + '년 ' + match[2] + '월 ' + match[3] + '일 ' + match[4] + '시'
+		} else if (yyyymmdd.toString().length == 8) {
+			match = yyyymmdd.toString().match(/(\d{4})(\d{2})(\d{2})/);
+			return match[1] + '년 ' + match[2] + '월 ' + match[3] + '일'
+		} else if (yyyymmdd.toString().length == 6) {
+			match = yyyymmdd.toString().match(/(\d{4})(\d{2})/);
+			return match[1] + '년 ' + match[2] + '월'
+		} else if (yyyymmdd.toString().length == 4) {
+			match = yyyymmdd.toString().match(/(\d{4})/);
+			return match[1] + '년';
+		}
+	};
 });
 
 // app.filter('getTotalTime', function () {

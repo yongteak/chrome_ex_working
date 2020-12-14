@@ -1,5 +1,63 @@
 <h2>동기화 설정</h2>
-<hr >
+<hr>
+
+<div class="col-lg-12">
+    <div class="grid">
+        <p class="grid-header">동기화 설정</p>
+        <div class="grid-body">
+            <div class="item-wrapper">
+                <form>
+                    <div class="form-row">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>동기화 방향</th>
+                                        <th>실행횟수</th>
+                                        <th>마지막 실행시간</th>
+                                        <th>반복 시간</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="row in model.rows">
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ row.desc }}</td>
+                                        <td>{{ row.count }}</td>
+                                        <td>{{ row.last }}</td>
+                                        <td>{{ row.repeat_min }}</td>
+                                        <td>{{ row.created | yyyymmdd_to_format_kr }}</td>
+                                        <td>
+                                            <button type="button" ng-click="run.sync(row)"
+                                                class="btn btn-danger btn-xs">동기화</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <p>
+                        <hr>
+                    </p>
+                    <div class="mx-auto form-group row showcase_row_area">
+
+                        <div class="col-md-10 showcase_content_area">
+
+                            <input class="form-control" ng-model="model.domain" maxlength="100" name="defaultconfig"
+                                id="defaultconfig" type="text" placeholder="도메인을 입력해주세요. (예. naver.com)">
+                        </div>
+
+                        <button class="btn btn-primary btn-sm" ng-click="run.add_domain()" type="submit">도메인 등록</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="row">
     <div class="col-lg-12">
         <div class="grid">
