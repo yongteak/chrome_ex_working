@@ -97,10 +97,19 @@ function backgroundCheck() {
                                             response.isObserved ? response.increasedSize : response.transferSize);
                                     }
                                 });
+                                var today = formatDate();
+                                var summary = tab.days.find(s => s.date === today).summary;
 
                                 var data = bytesToSize(activity.getDataUsaged(tab));
-                                chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
-                                chrome.browserAction.setBadgeText({ text: data.size + "" + data.unit });
+                                // console.log('summary > ', summary, " data >", data);
+                                chrome.browserAction.setBadgeText({
+                                    tabId: activeTab.id,
+                                    text: String(convertSummaryTimeToBadgeString(summary))
+                                });
+
+                                // var data = bytesToSize(activity.getDataUsaged(tab));
+                                // chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
+                                // chrome.browserAction.setBadgeText({ text: data.size + "" + data.unit });
                             })
 
 
@@ -133,25 +142,32 @@ function mainTRacker(activeUrl, tab, activeTab) {
         //     }
         // }
         tab.incSummaryTime();
-    }
-    if (setting_view_in_badge === true) {
-        // chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] })
+    } else {
         var today = formatDate();
-        // console.log("today > ",today);
-        // console.log(tab);
         var summary = tab.days.find(s => s.date === today).summary;
-        // console.log(tab.url," > ",today, String(convertSummaryTimeToBadgeString(summary)));
+        chrome.browserAction.setBadgeText({
+            tabId: activeTab.id,
+            text: String(convertSummaryTimeToBadgeString(summary))
+        });
+    }
+    // if (true)//(setting_view_in_badge === true) {
+        // chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] })
+        // var today = formatDate();
+        // // console.log("today > ",today);
+        // // console.log(tab);
+        // var summary = tab.days.find(s => s.date === today).summary;
+        // // console.log(tab.url," > ",today, String(convertSummaryTimeToBadgeString(summary)));
         // chrome.browserAction.setBadgeText({
         //     tabId: activeTab.id,
         //     text: String(convertSummaryTimeToBadgeString(summary))
         // });
-    } else {
-        // chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] })
-        // chrome.browserAction.setBadgeText({
-        //     tabId: activeTab.id,
-        //     text: ''
-        // });
-    }
+    // } else {
+    //     // chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] })
+    //     // chrome.browserAction.setBadgeText({
+    //     //     tabId: activeTab.id,
+    //     //     text: ''
+    //     // });
+    // }
 }
 
 function showNotification(activeUrl, tab) {
@@ -350,16 +366,25 @@ function webNavigation(e) {
 function onTabSwitch({ tabId }) {
     // const tabData = getTabData(tabId);
     // updateView(tabData);
-    getCurrentlyViewedTabId()
-        .then(({ id, url }) => {
-            if (id === tabId) {
-                chrome.tabs.get(tabId, tab => {
-                    var timesAlreadyDone = activity.getDataUsaged(tab);
-                    var data = bytesToSize(timesAlreadyDone);
-                    chrome.browserAction.setBadgeText({ text: data.size + "" + data.unit });
-                });
-            }
-        });
+    // getCurrentlyViewedTabId()
+    //     .then(({ id, url }) => {
+    //         if (id === tabId) {
+    //             chrome.tabs.get(tabId, tabDetail => {
+    //                 // var timesAlreadyDone = activity.getDataUsaged(tab);
+    //                 // var data = bytesToSize(timesAlreadyDone);
+    //                 // chrome.browserAction.setBadgeText({ text: data.size + "" + data.unit });
+    //                 // console.log(tab);
+    //                 var tab = activity.getTab(tabDetail.url);
+    //                 console.log(1,tab);
+    //                 var today = formatDate();
+    //                 var summary = tab.days.find(s => s.date === today).summary;
+    //                 chrome.browserAction.setBadgeText({
+    //                     tabId: activeTab.id,
+    //                     text: String(convertSummaryTimeToBadgeString(summary))
+    //                 });
+    //             });
+    //         }
+    //     });
 }
 
 

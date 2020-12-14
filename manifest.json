@@ -1,55 +1,57 @@
-// https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/
 {
-  "manifest_version": 3,
-  "name": "WEB Screen Time",
-  // "default_locale": "ko",
-  "description": "WEB Screen Times",
-  "version": "1.0",
-  "browser_action": {
-    "default_icon": "images/icon.png",
-    "default_popup": "app.html",
-    "default_title": "Inject!"
-  },
+  "manifest_version": 2,
+  "name": "Web Screen Time Tracker",
+  "short_name": "Web Screen Time",
+  "version": "1.0.02",
+  "minimum_chrome_version": "26",
+  "description": "웹 기록 잘해드림",
   "options_page": "static/options.html",
-
-  "host_permissions": [
-    "http://*/",
-    "https://*/"
-  ],
+  "icons": {},
   "permissions": [
-    "identity", "identity.email",
+    "identity",
+    "identity.email",
     "tabs",
-    "idle",
-    "chrome://favicon/*",
-    "webNavigation",
-    "unlimitedStorage",
     "storage",
+    "unlimitedStorage",
+    "idle",
     "activeTab",
+    "webNavigation",
+    "chrome://favicon/*",
     "webRequest",
-    "declarativeContent"
+    "*://*/"
   ],
   "content_scripts": [
     {
-        "matches": [
-            "https://*/*",
-            "http://*/"
-        ],
-        "js": [
-            "static/chrome/content.js"
-        ]
-    }
-],
+      "matches": [
+        "https://*/*",
+        "http://*/"
+      ],
+      "js": [
+        "static/chrome/content.js"
+      ]
+    }],
+  "optional_permissions": [
+    "https://www.youtube.com/*",
+    "https://www.netflix.com/*",
+    "notifications"
+  ],
+  "offline_enabled": true,
   "background": {
-    "service_worker": [
+    "scripts": [
       "static/vendor/angular/angular.js",
       "static/js/services.js",
-
       "static/chrome/background/tracker/common.js",
       "static/chrome/background/tracker/storage.js",
       "static/chrome/background/tracker/activity.js",
       "static/chrome/background/tracker/tab.js",
       "static/chrome/background/tracker/timeInterval.js",
       "static/chrome/background/tracker/background.js"
-    ]
-  } 
+    ],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_icon": "images/icon.png",
+    "default_popup": "app.html",
+    "default_title": "Web Screen Time Tracker"
+  }
 }
