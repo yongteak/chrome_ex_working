@@ -304,6 +304,34 @@ angular.module('app.controllers', [])
             }
         };
         $scope.run = {
+            backup: () => {
+                var collections = $scope.model.collections;
+                var result = {};
+                for (var collection in collections) {
+                    var variable = collection;
+                    (function (field) {
+                        storage.getValue(field, item => {
+                            result[field] = item;
+                            if (Object.keys(result).length == Object.keys(collections).length) {
+                                createFile(JSON.stringify(result), "application/json");
+                            }
+                        })
+                    })(variable);//passing in variable to var here
+                }
+                
+                function createFile(data, type, fileName) {
+                    fileName =  fileName || 'WEB-SCREEN-TIME-BACKUP|'+moment().format('YYYY-MM-DD');
+                    console.log(fileName);
+                    var file = new Blob([data], { type: type });
+                    var downloadLink;
+                    downloadLink = document.createElement("a");
+                    downloadLink.download = fileName;
+                    downloadLink.href = window.URL.createObjectURL(file);
+                    downloadLink.style.display = "none";
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                }
+            },
             getCollections: () => {
                 for (var p in $scope.model.collections) {
                     var variable = p;
