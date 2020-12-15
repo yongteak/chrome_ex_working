@@ -296,8 +296,23 @@ angular.module('app.controllers', [])
                 { desc: '로컬 < 크롬 계정', direction: 'chrome_to_local', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
                 { desc: '로컬 > 클라우드', direction: 'local_to_cloud', count: 0, last: 0, repeat_min: 5, sync_enabled: false },
                 { desc: '로컬 < 클라우드', direction: 'cloud_to_local', count: 0, last: 0, repeat_min: 5, sync_enabled: false }
-            ]
+            ],
+            history: []
         };
+
+        $scope.run = {
+            history: () => {
+                storage.getValue(CONFIG.STORAGE_HISTORY_OF_SYNC, rows => {
+                    $scope.model.history = rows.sort((a, b) => { return b.epoch - a.epoch });
+                    $scope.$apply();
+                });
+            },
+            format: epochTime => {
+                moment.unix(epochTime).format('dddd, MMMM Do, YYYY h:mm:ss A')
+            }
+        }
+
+        $scope.run.history();
 
         function lengthInUtf8Bytes(str) {
             const m = encodeURIComponent(str).match(/%[89ABab]/g);
@@ -336,8 +351,6 @@ angular.module('app.controllers', [])
                                         storageObj[index] = segment;
                                         jsonstr = jsonstr.substr(counter);
                                     }
-
-
                                     storageObj[key] = i;
                                     console.log(storageObj);
                                     // 좀 이상하다아..
@@ -348,12 +361,24 @@ angular.module('app.controllers', [])
                                             console.log('remove all');
                                             chrome.storage.sync.clear(function () {
                                                 chrome.storage.sync.set(storageObj, () => {
-                                                    console.log('chrome.runtime.lastError ');
                                                     console.log(chrome.runtime.lastError);
-                                                    chrome.storage.sync.get(['tags0'], function (elems) {
-                                                        console.log(elems);
-                                                    });
-                                                    // tags0
+                                                    chrome.storage.sync.get(['tags'], elems => console.log(elems))
+
+
+                                                    storage.getValue(CONFIG.STORAGE_HISTORY_OF_SYNC, rows => {
+                                                        rows = rows || [];
+                                                        var has_error = chrome.runtime.lastError !== undefined;
+                                                        var message = has_error ? chrome.runtime.lastError.message : 'success';
+                                                        rows.push({
+                                                            type: row.direction,
+                                                            is_error: has_error,
+                                                            message: message,
+                                                            epoch: moment().valueOf(),
+                                                            created: $filter('formatDate')(),
+                                                            size: JSON.stringify(storageObj).length
+                                                        });
+                                                        storage.saveValue(CONFIG.STORAGE_HISTORY_OF_SYNC, $filter('clean')(rows));
+                                                    })
                                                 });
                                             });
                                         });
@@ -363,7 +388,7 @@ angular.module('app.controllers', [])
                         })(variable);//passing in variable to var here
                     }
                 } else if (row.direction == 'chrome_to_local') {
-                    chrome.storage.sync.get('tags',size => {
+                    chrome.storage.sync.get('tags', size => {
                         var keys = Array(size.tags).fill(0).map((e, i) => 'tags' + i++);
                         chrome.storage.sync.get(keys, items => {
                             var res = '';
@@ -372,6 +397,21 @@ angular.module('app.controllers', [])
                             storage.set(res);
                             console.log('local save ok!');
                             chrome.extension.getBackgroundPage().loadAddDataFromStorage();
+
+                            storage.getValue(CONFIG.STORAGE_HISTORY_OF_SYNC, rows => {
+                                rows = rows || [];
+                                var has_error = chrome.runtime.lastError !== undefined;
+                                var message = has_error ? chrome.runtime.lastError.message : 'success';
+                                rows.push({
+                                    type: row.direction,
+                                    is_error: has_error,
+                                    message: message,
+                                    epoch: moment().valueOf(),
+                                    created: $filter('formatDate')(),
+                                    size: JSON.stringify(res).length
+                                });
+                                storage.saveValue(CONFIG.STORAGE_HISTORY_OF_SYNC, $filter('clean')(rows));
+                            })
                         })
                     });
                 } else if (row.direction == 'local_to_cloud') {
@@ -392,7 +432,7 @@ angular.module('app.controllers', [])
         // }
         $scope.run = {
             clear: () => {
-                chrome.storage.local.set({'tabs':null});
+                chrome.storage.local.set({ 'tabs': null });
                 chrome.storage.local.remove('tabs', () => {
                     console.log('remove tabs');
                 });

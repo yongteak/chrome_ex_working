@@ -3,8 +3,8 @@ var app = angular.module('app', [
 	//// "ui.bootstrap",
 	'app.controllers', 'app.services'
 ]);
-
 app.constant('CONFIG', {
+	'STORAGE_HISTORY_OF_SYNC': 'sync_history',
 	'STORAGE_SETTING': 'setting',
 	'STORAGE_TABS': 'tabs',
 	// 추적 금지
@@ -21,6 +21,7 @@ app.constant('CONFIG', {
 })
 
 app.constant('COLLECTIONS', {
+	sync_history: { name: '동기화 기록', desc: '동기화 기록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
 	setting: { name: '설정', desc: '기본설정', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
 	tabs: { name: '도메인별 사용기록', desc: '도메인별 사용기록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
 	black_list: { name: '추적금지 도메인', desc: '추적금지 도메인', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
@@ -106,6 +107,13 @@ app.filter('formatDate', function () {
 		return parseInt(year + '' + month + '' + day);
 	};
 });
+
+app.filter('epochTimeToFormat', function () {
+	return function (epochTime) {
+		return moment(epochTime).format('YYYY-MM-DD HH:mm:ss');
+	}
+})
+
 app.filter('convertSummaryTimeToString', function () {
 	return function (summaryTime) {
 		var days = Math.floor(summaryTime / 3600 / 24);

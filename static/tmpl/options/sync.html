@@ -46,32 +46,33 @@
             <p class="grid-header">동기화 기록</p>
             <div class="grid-body">
                 <div class="item-wrapper">
-                    <form>
-                        <div class="form-row">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th width="10">상태</th>
-                                            <th width="50">날짜</th>
-                                            <th>메세지</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>완료</td>
-                                            <td>방금</td>
-                                            <td>동기화 옵션 로컬 -> 클라우드 변경</td>
-                                        </tr>
-                                        <tr>
-                                            <td>완료</td>
-                                            <td>3일전</td>
-                                            <td>동기화 시작, 동기화 완료</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                    <div class="form-row">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="10">#</th>
+                                        <th>날짜</th>
+                                        <th>종류</th>
+                                        <th>상태</th>
+                                        <th>메세지</th>
+                                        <th>용량</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="row in model.history">
+                                        {{row}}
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ row.epoch | epochTimeToFormat}}</td>
+                                        <td>{{ row.type }}</td>
+                                        <td>{{ row.is_error }}</td>
+                                        <td>{{ row.message }}</td>
+                                        <td>{{ row.size | dataSizeToUnit }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
+                    </div>
                 </div>
             </div>
         </div>
