@@ -7,3 +7,6 @@ git reset --hard origin/master
 
 [기타]
 heatmap은 월간 항목만 표기함
+
+[ssdb]
+34.83.116.28 8888

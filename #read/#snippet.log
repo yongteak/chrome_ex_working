@@ -1,3 +1,51 @@
+# erlang
+ssl:start().
+inets:start().
+URL = "https://cors-anywhere.herokuapp.com/https://data.similarweb.com/api/v1/data?domain=music.bugs.co.kr".
+Headers = [{"User-Agent", "PostmanRuntime"},{"Content-Encoding","UTF-8"},{"X-Requested-With", "xmlhttprequest"}].
+{ok, {{_, _, _}, _, SimilarwebRes}} = httpc:request(get, {URL,Headers}, [], [{body_format,binary}]).
+
+
+
+URL1 = "https://cors-anywhere.herokuapp.com/https://data.alexa.com/data?cli=10&url=music.bugs.co.kr".
+{ok, {{_, _, _}, _, AlexaRes}} = httpc:request(get, {URL1,Headers}, [], [{body_format,binary}]).
+
+{Xml,_} = xmerl_scan:string(binary_to_list(AlexaRes)).
+
+[{xmlAttribute,_,_,_,_,_,_,_,CountryCode,_}] = xmerl_xpath:string("//SD//COUNTRY/@CODE", Xml).               
+[{xmlAttribute,_,_,_,_,_,_,_,CountryName,_}] = xmerl_xpath:string("//SD//COUNTRY/@NAME", Xml).
+[{xmlAttribute,_,_,_,_,_,_,_,CountryRank,_}] = xmerl_xpath:string("//SD//COUNTRY/@RANK", Xml).
+[{xmlAttribute,_,_,_,_,_,_,_,GlobalRank,_}] = xmerl_xpath:string("//SD//REACH/@RANK", Xml).
+
+AlexaTuple = [{<<"CountryCode">>,boot_util:binary(CountryCode)},
+ {<<"CountryName">>,boot_util:binary(CountryName)},
+ {<<"CountryRank">>,boot_util:int(CountryRank)},
+ {<<"GlobalRank">>,boot_util:int(GlobalRank)}].
+      
+
+SimilarwebTuple = jsx:decode(SimilarwebRes).
+
+Save = jsx:encode([{<<"similarweb">>,SimilarwebTuple},{<<"alexa">>,AlexaTuple}]).
+
+
+ 4urdev.tistory.com
+
+
+# ssdb
+key : host_analytic
+name : naver.com
+value : [json]
+
+
+
+{ok,_} = ssdb:query([hset,<<"host_analytic">>,<<"music.bugs.co.kr">>,Save]).
+
+ssdb:query([hget,<<"host_analytic">>,<<"4urdev.tistory.com">>]).
+
+
+ssdb:query([info]).
+
+
 $scope.remove_all = function () {
     // console.log('remove!');
     fetch("https://crix-api-endpoint.upbit.com/v1/crix/trades/days?code=CRIX.UPBIT.KRW-SC&count=1")

@@ -303,8 +303,10 @@ angular.module('app.controllers', [])
         $scope.run = {
             history: () => {
                 storage.getValue(CONFIG.STORAGE_HISTORY_OF_SYNC, rows => {
-                    $scope.model.history = rows.sort((a, b) => { return b.epoch - a.epoch });
-                    $scope.$apply();
+                    if (rows) {
+                        $scope.model.history = rows.sort((a, b) => { return b.epoch - a.epoch });
+                        $scope.$apply();
+                    }
                 });
             },
             format: epochTime => {
@@ -323,8 +325,8 @@ angular.module('app.controllers', [])
             // 제약 사항 정리
             // https://github.com/Xwilarg/NHentaiAnalytics/blob/780ce6c571e1095ab2af375a61c496a3b49bdeee/js/background.js
             sync: row => {
-                var collection;
-                var variable;
+                // var collection;
+                // var variable;
                 if (row.direction == 'local_to_chrome') {
                     var result = {};
                     for (var collection in COLLECTIONS) {

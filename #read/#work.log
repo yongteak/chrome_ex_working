@@ -8,6 +8,9 @@ https://developer.chrome.com/apps/storage
 https://gyuyeon.tistory.com/6
 
 [WORK]
+[2020-12-15 22:52:19]
+ - cors
+ - https://cors-anywhere.herokuapp.com/https://data.similarweb.com/api/v1/data?domain=4urdev.tistory.com
 [2020-12-12 00:43:34]
  - manifest v3 마이그레이션 진행
  - 알람 목록 기능 구현, UI고민 필요, 적용방안 미구현
