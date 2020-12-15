@@ -265,6 +265,7 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
 
 function backgroundUpdateStorage() {
     if (tabs != undefined && tabs.length > 0)
+        console.log('storage.saveTabs > ',tabs.length);
         storage.saveTabs(tabs);
     if (timeIntervalList != undefined && timeIntervalList.length > 0)
         storage.saveValue(STORAGE_TIMEINTERVAL_LIST, timeIntervalList);

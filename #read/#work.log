@@ -1,5 +1,6 @@
 [TASK]
-
+[2020-12-15 09:41:00]
+ - 도메인별 종류 tag기록
 [LOG]
 
 [LINK]
@@ -23,6 +24,15 @@ https://gyuyeon.tistory.com/6
 
 
 [TODO]
+[2020-12-15 11:48:42]
+chrome sync 동기화 과정
+ 1. 앱 실행시 크롬에서 데이터 다운로드
+ 2. 로컬 덮어씌우기
+ 3. 5분마다 크롬으로 업로드
+ => 2개의 기기에서 동일한 계정으로 크롬 확장기능을 사용할경우?
+   => merge는 불가함
+[2020-12-15 09:41:25]
+chrome sync는 하나의 key에 8Kb데이터만 저장가능, 분할 저장 기능 구현필요
 [2020-12-12 10:35:29]
 collections
  - master settings : 중아 collection목록 관리
@@ -98,3 +108,7 @@ https://programming.vip/docs/echarts-dynamically-refresh-data.html
 
 주단위 활용
 https://echarts.apache.org/next/examples/en/editor.html?c=heatmap-cartesian
+
+
+[manifest.json]
+https://github.com/RomanistHere/HR-Helper/blob/main/manifest.json

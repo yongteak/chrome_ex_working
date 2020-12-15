@@ -290,15 +290,20 @@ angular.module('app.controllers', [])
 
     })
     .controller('syncController', function ($scope, $location, $filter, $interval, identity, storage, CONFIG, COLLECTIONS) {
-
         $scope.model = {
             rows: [
-                { desc: '로컬 > 크롬 계정', direction: 'local_to_chrome', count: 0, last: 0, repeat_min: 5 },
-                { desc: '로컬 < 크롬 계정', direction: 'chrome_to_local', count: 0, last: 0, repeat_min: 5 },
-                { desc: '로컬 > 클라우드', direction: 'local_to_cloud', count: 0, last: 0, repeat_min: 5 },
-                { desc: '로컬 < 클라우드', direction: 'cloud_to_local', count: 0, last: 0, repeat_min: 5 }
+                { desc: '로컬 > 크롬 계정', direction: 'local_to_chrome', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
+                { desc: '로컬 < 크롬 계정', direction: 'chrome_to_local', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
+                { desc: '로컬 > 클라우드', direction: 'local_to_cloud', count: 0, last: 0, repeat_min: 5, sync_enabled: false },
+                { desc: '로컬 < 클라우드', direction: 'cloud_to_local', count: 0, last: 0, repeat_min: 5, sync_enabled: false }
             ]
         };
+
+        function lengthInUtf8Bytes(str) {
+            const m = encodeURIComponent(str).match(/%[89ABab]/g);
+            return str.length + (m ? m.length : 0);
+        }
+
         $scope.run = {
             // 제약 사항 정리
             // https://github.com/Xwilarg/NHentaiAnalytics/blob/780ce6c571e1095ab2af375a61c496a3b49bdeee/js/background.js
@@ -306,7 +311,6 @@ angular.module('app.controllers', [])
                 var collection;
                 var variable;
                 if (row.direction == 'local_to_chrome') {
-
                     var result = {};
                     for (var collection in COLLECTIONS) {
                         var variable = collection;
@@ -314,50 +318,62 @@ angular.module('app.controllers', [])
                             storage.getValue(field, item => {
                                 result[field] = item;
                                 if (Object.keys(result).length == Object.keys(COLLECTIONS).length) {
-                                    let i = 0;
-                                    let save_str = {};
-                                    let str = JSON.stringify(result);
-                                    while (str.length > chrome.storage.sync.QUOTA_BYTES_PER_ITEM / 4) {
-                                        save_str["tags" + i] = str.substr(0, chrome.storage.sync.QUOTA_BYTES_PER_ITEM / 4);
-                                        str = str.substring(chrome.storage.sync.QUOTA_BYTES_PER_ITEM / 4, str.length);
-                                        i++;
-                                    }
-                                    save_str["tags" + i] = str;
-                                    console.log(1,save_str);
-                                    chrome.storage.sync.set(save_str);
 
+                                    var jsonstr = JSON.stringify(result), i = 0, storageObj = {},
+                                        maxBytesPerItem = chrome.storage.sync.QUOTA_BYTES_PER_ITEM / 2,
+                                        maxValueBytes, index, segment, counter;
+                                    var key = "tags";
+
+                                    while (jsonstr.length > 0) {
+                                        index = key + "" + i++;
+                                        maxValueBytes = maxBytesPerItem - lengthInUtf8Bytes(index);
+
+                                        counter = maxValueBytes;
+                                        segment = jsonstr.substr(0, counter);
+                                        while ((lengthInUtf8Bytes(JSON.stringify(segment)) + key.length) > maxValueBytes)
+                                            segment = jsonstr.substr(0, --counter);
+
+                                        storageObj[index] = segment;
+                                        jsonstr = jsonstr.substr(counter);
+                                    }
+
+
+                                    storageObj[key] = i;
+                                    console.log(storageObj);
+                                    // 좀 이상하다아..
+                                    chrome.storage.sync.set({ 'tabs': null });
+                                    chrome.storage.sync.remove('tabs', () => {
+                                        console.log('remove sync tabs');
+                                        chrome.storage.sync.remove(Object.keys(COLLECTIONS), () => {
+                                            console.log('remove all');
+                                            chrome.storage.sync.clear(function () {
+                                                chrome.storage.sync.set(storageObj, () => {
+                                                    console.log('chrome.runtime.lastError ');
+                                                    console.log(chrome.runtime.lastError);
+                                                    chrome.storage.sync.get(['tags0'], function (elems) {
+                                                        console.log(elems);
+                                                    });
+                                                    // tags0
+                                                });
+                                            });
+                                        });
+                                    });
                                 }
                             })
                         })(variable);//passing in variable to var here
                     }
                 } else if (row.direction == 'chrome_to_local') {
-                    function loadTagsInternal(index, str, callback) {
-                        chrome.storage.sync.get(['tags' + index], function (elems) {
-                            if (elems['tags' + index] === undefined) {
-                                console.log(str);
-                                // callback(JSON.parse(str));
-                            } else {
-                                loadTagsInternal(index + 1, str + elems['tags' + index], callback);
-                            }
+                    chrome.storage.sync.get('tags',size => {
+                        var keys = Array(size.tags).fill(0).map((e, i) => 'tags' + i++);
+                        chrome.storage.sync.get(keys, items => {
+                            var res = '';
+                            keys.forEach(e => res += items[e])
+                            res = JSON.parse(res);
+                            storage.set(res);
+                            console.log('local save ok!');
+                            chrome.extension.getBackgroundPage().loadAddDataFromStorage();
                         })
-                    }
-                    // function LoadTagsInternal(index, str, callback) {
-                    loadTagsInternal(0, "", function (tags) {
-                        console.log(tag);
                     });
-
-                    // for (collection in COLLECTIONS) {
-                    //     variable = collection;
-                    //     (function (field) {
-                    //         storage.getValueSync(field, item => {
-                    //             console.log('getValueSync > ', item);
-                    //             // result[field] = item;
-                    //             // if (Object.keys(result).length == Object.keys(collections).length) {
-                    //             //     createFile(JSON.stringify(result), "application/json");
-                    //             // }
-                    //         })
-                    //     })(variable);//passing in variable to var here
-                    // }
                 } else if (row.direction == 'local_to_cloud') {
                     //
                 } else if (row.direction == 'cloud_to_local') {
@@ -375,6 +391,21 @@ angular.module('app.controllers', [])
         //     console.log(e)
         // }
         $scope.run = {
+            clear: () => {
+                chrome.storage.local.set({'tabs':null});
+                chrome.storage.local.remove('tabs', () => {
+                    console.log('remove tabs');
+                });
+                chrome.storage.local.remove(Object.keys(COLLECTIONS), () => {
+                    console.log('remove all');
+                    chrome.storage.local.clear(function () {
+                        console.log('clear all');
+                        console.log(chrome.runtime.lastError);
+                        chrome.extension.getBackgroundPage().tabs = [];
+                        chrome.extension.getBackgroundPage().loadAddDataFromStorage();
+                    })
+                })
+            },
             backup: () => {
                 var collections = $scope.model.collections;
                 var result = {};
@@ -430,23 +461,23 @@ angular.module('app.controllers', [])
                     var variable = p;
                     (function (x) { //start wrapper code
                         storage.getValue(x, e => {
-                            $scope.model.collections[x].rows = e.length;
-                            storage.getMemoryUse(x, integer => {
-                                $scope.model.collections[x].size = integer;
-                                $scope.$apply();
-                            });
+                            console.log(x, e);
+                            if (e == undefined) {
+                                $scope.model.collections[x].rows = 0;
+                                $scope.model.collections[x].size = 0;
+                            } else {
+                                $scope.model.collections[x].rows = e.length;
+                                storage.getMemoryUse(x, integer => {
+                                    $scope.model.collections[x].size = integer;
+                                    $scope.$apply();
+                                });
+                            }
                         })
                     })(variable);//passing in variable to var here
                 }
             }
         };
-
         $scope.run.getCollections();
-
-        // storage.getMemoryUse(STORAGE_TABS, function (integer) {
-        //     document.getElementById('memoryUse').innerHTML = (integer / 1024).toFixed(2) + 'Kb';
-        // });
-
     })
     .controller('alarmController', function ($scope, $location, $filter, $interval, identity, storage, CONFIG) {
         const today = $filter('formatDate')();
@@ -673,6 +704,7 @@ angular.module('app.controllers', [])
                     return b.part.summary - a.part.summary;
                 });
                 $scope.model.rows = rows;
+                // console.log(rows);
                 $scope.$apply();
             })
         }
@@ -681,6 +713,7 @@ angular.module('app.controllers', [])
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
                 var today = $filter('formatDate')();
                 var targetTabs = rows.filter(x => x.days.find(s => s.date === today));
+                console.log(today, targetTabs);
                 targetTabs.forEach(e => {
                     e.part = e.days.filter(x => x.date == today)[0];
                     $scope.model.todal_total_times += e.part.summary;
