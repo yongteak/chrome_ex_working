@@ -175,7 +175,7 @@ function mainTRacker(activeUrl, tab, activeTab) {
 function showNotification(activeUrl, tab) {
     chrome.notifications.clear('watt-site-notification', wasCleared => {
         if (!wasCleared) {
-            console.log('!wasCleared');
+            // console.log('!wasCleared');
 
             chrome.notifications.create(
                 'watt-site-notification', {
@@ -186,7 +186,7 @@ function showNotification(activeUrl, tab) {
                 message: setting_notification_message
             },
                 function (notificationId) {
-                    console.log(notificationId);
+                    // console.log(notificationId);
                     chrome.notifications.clear('watt-site-notification', function (wasCleared) {
                         if (wasCleared)
                             notificationAction(activeUrl, tab);

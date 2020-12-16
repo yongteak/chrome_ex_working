@@ -321,15 +321,19 @@ angular.module('app.controllers', [])
                 storage.getValue(CONFIG.IDENTITY, item => {
                     if (item == undefined) {
                         identity.getUserID(userInfo => {
+                            console.log('userInfo > ', userInfo);
                             if (userInfo == undefined) {
                                 // 로그인 상태 없음
                             } else {
-                                $scope.model.identity = userInfo;
                                 storage.saveValue(CONFIG.IDENTITY, userInfo);
+                                $scope.model.identity = userInfo;
+                                // $scope.$apply();
                             }
                         });
                     } else {
                         $scope.model.identity = item;
+                        // console.log('item > ', item, $scope.model.identity == null);
+                        // $scope.$apply();
                     }
                 })
             },
@@ -349,7 +353,8 @@ angular.module('app.controllers', [])
             sync: row => {
                 // var collection;
                 // var variable;
-                if (!$scope.model.dentity) {
+                if ($scope.model.identity['id'] == null) {
+                    console.log(222,$scope.model.identity);
                     alert('로그인 정보가 없습니다.');
                     return;
                 }
