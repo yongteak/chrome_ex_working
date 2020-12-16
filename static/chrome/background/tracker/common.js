@@ -68,6 +68,7 @@ var SETTINGS_SHOW_HINT = 'show_hint';
 // 추적 금지 도메인
 var IGNORED_DOMAINS_LIST = 'ignored_domains_list';
 var EVENT_GENERATE_REPORT = 'performance_report';
+var EVENT_SIMILARWEB_REPORT = 'similarweb_report';
 
 function isEmpty(obj) {
     for (var prop in obj) {

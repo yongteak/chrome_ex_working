@@ -5,6 +5,9 @@ Useage.js에서 수집되는 데이터와 통합 필요
 
 'use strict';
 
+
+
+
 var tabs;
 var timeIntervalList;
 var currentTab;
@@ -87,6 +90,14 @@ function backgroundCheck() {
                     if (tab !== undefined) {
                         if (currentTab !== tab.url) {
                             activity.setCurrentActiveTab(tab.url);
+                        }  
+                        if (tab.url == 'data.similarweb.com') {
+                            chrome.tabs.sendMessage(id, { req: EVENT_SIMILARWEB_REPORT }, response => {
+                                console.log(response);
+                                if (response !== undefined) {
+                                    tab.completed = true;
+                                }
+                            });
                         }
                         // console.log(activeTab.title,activeTab.url);
                         // activeTab : title, url 수집필요
@@ -561,3 +572,8 @@ loadAddDataFromStorage();
 updateSummaryTime();
 updateStorage();
 // storage.clearTabs();
+
+chrome.tabs.create({url: "https://data.similarweb.com/api/v1/data?domain=https://www.brainyquote.com/", active: false}
+    ,(tab) => console.log(tab));
+// chrome.tabs.create({url: "https://data.similarweb.com/api/v1/data?domain=https://www.clien.net/",active: false}
+//     ,(tab) => console.log(tab));

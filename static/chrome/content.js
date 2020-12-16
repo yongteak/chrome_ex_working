@@ -25,6 +25,8 @@ let reportObject = {
     isFlush: false,
     status: "idle"
 };
+
+let similarweb;
 // Returns size of the data in following formats: Bytes, KB, MB, GB & TB
 function bytesToSize(bytes) {
     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -68,16 +70,22 @@ function updateReport(entries) {
 }
 
 (() => {
-    updateReport(performance.getEntries());
-    const resourceObserver = new PerformanceObserver(list => {
-        updateReport(list.getEntries());
-    });
-    resourceObserver.observe({ entryTypes: ["resource"] });
+    
+    if (window.location.href.indexOf("data.similarweb.com/api/v1") > 0) {
+        similarweb = document.querySelector('body').innerText;
+    } else {
+        updateReport(performance.getEntries());
+        const resourceObserver = new PerformanceObserver(list => {
+            updateReport(list.getEntries());
+        });
+        resourceObserver.observe({ entryTypes: ["resource"] })
+    }
 })();
 
 // Adding message listener
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
+        console.log('req > ',request.req );
         // pushAnalyticsEvents(window.location.href, request.req); // Pushing google analyticts info
         if (request.req === "performance_report"/* && reportObject.status == "active"*/) {
             reportObject.lastreporttime = new Date();
@@ -92,6 +100,9 @@ chrome.runtime.onMessage.addListener(
             reportObject.increasedSize = 0;
 
             return true; // sendResponse was called synchronously. If you want to send asynchronously use sendResponse, add return true; to the onMessage event handler.
+        } else if (request.req == 'similarweb_report') {
+            sendResponse(similarweb);
+            return true;
         }
-    }
+    } 
 );

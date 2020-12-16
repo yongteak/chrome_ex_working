@@ -27,7 +27,7 @@ SimilarwebTuple = jsx:decode(SimilarwebRes).
 
 Save = jsx:encode([{<<"similarweb">>,SimilarwebTuple},{<<"alexa">>,AlexaTuple}]).
 
-
+{ok,_} = ssdb:query([hset,<<"host_analytic">>,<<"music.bugs.co.kr">>,Save]).
  4urdev.tistory.com
 
 
@@ -36,11 +36,14 @@ key : host_analytic
 name : naver.com
 value : [json]
 
+multi_hget name key1 key2 ...
 
 
 {ok,_} = ssdb:query([hset,<<"host_analytic">>,<<"music.bugs.co.kr">>,Save]).
 
-ssdb:query([hget,<<"host_analytic">>,<<"4urdev.tistory.com">>]).
+ssdb:query([hget,<<"host_analytic">>,<<"music.bugs.co.kr">>]).
+
+ssdb:query([multi_hget,<<"host_analytic">>,<<"music.bugs.co.kr">>,<<"4urdev.tistory.com">>]).
 
 
 ssdb:query([info]).
