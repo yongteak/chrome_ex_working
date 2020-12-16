@@ -21,6 +21,8 @@ var setting_view_in_badge;
 var setting_notification_list;
 var setting_notification_message;
 
+var identity;
+
 var isHasPermissioForYouTube;
 var isHasPermissioForNetflix;
 var isHasPermissioForNotification;
@@ -265,7 +267,7 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
 
 function backgroundUpdateStorage() {
     if (tabs != undefined && tabs.length > 0)
-        console.log('storage.saveTabs > ',tabs.length);
+        // console.log('storage.saveTabs > ',tabs.length);
         storage.saveTabs(tabs);
     if (timeIntervalList != undefined && timeIntervalList.length > 0)
         storage.saveValue(STORAGE_TIMEINTERVAL_LIST, timeIntervalList);

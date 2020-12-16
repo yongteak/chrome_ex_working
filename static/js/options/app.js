@@ -4,6 +4,7 @@ var app = angular.module('app', [
 	'app.controllers', 'app.services'
 ]);
 app.constant('CONFIG', {
+	'IDENTITY':'dentity',
 	'STORAGE_HISTORY_OF_SYNC': 'sync_history',
 	'STORAGE_SETTING': 'setting',
 	'STORAGE_TABS': 'tabs',

@@ -3,16 +3,24 @@
 // https://stackoverflow.com/questions/47696945/over-function-throwing-me-an-angular-error
 
 angular.module('app.controllers', [])
-    .controller('side', ($scope, $location) => {
+    .controller('side', ($scope, $location, identity, storage, CONFIG) => {
         $scope.isCurrentPath = path => {
             return $location.path().indexOf(path) != -1;
         };
+
+        identity.getUserID(userInfo => {
+            if (userInfo == undefined) {
+                // 로그인 상태 없음
+            } else {
+                storage.saveValue(CONFIG.IDENTITY, userInfo);
+            }
+        });
     })
     .controller('view', $scope => {
         console.log("view!");
-        $scope.init = () => {
-            console.log("view > init!");
-        }
+        // $scope.init = () => {
+        //     console.log("view > init!");
+        // }
     })
     .controller('settingController', function ($scope, $location, $filter, identity, storage, CONFIG) {
         $scope.model = {
@@ -289,18 +297,42 @@ angular.module('app.controllers', [])
         $scope.run.getDomain();
 
     })
-    .controller('syncController', function ($scope, $location, $filter, $interval, identity, storage, CONFIG, COLLECTIONS) {
+    .controller('syncController', function ($scope, $http, $location, $filter, $interval, identity, storage, CONFIG, COLLECTIONS) {
+
         $scope.model = {
             rows: [
                 { desc: '로컬 > 크롬 계정', direction: 'local_to_chrome', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
                 { desc: '로컬 < 크롬 계정', direction: 'chrome_to_local', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
-                { desc: '로컬 > 클라우드', direction: 'local_to_cloud', count: 0, last: 0, repeat_min: 5, sync_enabled: false },
-                { desc: '로컬 < 클라우드', direction: 'cloud_to_local', count: 0, last: 0, repeat_min: 5, sync_enabled: false }
+                { desc: '로컬 > 클라우드', direction: 'local_to_cloud', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
+                { desc: '로컬 < 클라우드', direction: 'cloud_to_local', count: 0, last: 0, repeat_min: 5, sync_enabled: true }
             ],
+            identity: undefined,
             history: []
         };
 
+
+        function lengthInUtf8Bytes(str) {
+            const m = encodeURIComponent(str).match(/%[89ABab]/g);
+            return str.length + (m ? m.length : 0);
+        }
+
         $scope.run = {
+            getIdentity: () => {
+                storage.getValue(CONFIG.IDENTITY, item => {
+                    if (item == undefined) {
+                        identity.getUserID(userInfo => {
+                            if (userInfo == undefined) {
+                                // 로그인 상태 없음
+                            } else {
+                                $scope.model.identity = userInfo;
+                                storage.saveValue(CONFIG.IDENTITY, userInfo);
+                            }
+                        });
+                    } else {
+                        $scope.model.identity = item;
+                    }
+                })
+            },
             history: () => {
                 storage.getValue(CONFIG.STORAGE_HISTORY_OF_SYNC, rows => {
                     if (rows) {
@@ -311,22 +343,16 @@ angular.module('app.controllers', [])
             },
             format: epochTime => {
                 moment.unix(epochTime).format('dddd, MMMM Do, YYYY h:mm:ss A')
-            }
-        }
-
-        $scope.run.history();
-
-        function lengthInUtf8Bytes(str) {
-            const m = encodeURIComponent(str).match(/%[89ABab]/g);
-            return str.length + (m ? m.length : 0);
-        }
-
-        $scope.run = {
+            },
             // 제약 사항 정리
             // https://github.com/Xwilarg/NHentaiAnalytics/blob/780ce6c571e1095ab2af375a61c496a3b49bdeee/js/background.js
             sync: row => {
                 // var collection;
                 // var variable;
+                if (!$scope.model.dentity) {
+                    alert('로그인 정보가 없습니다.');
+                    return;
+                }
                 if (row.direction == 'local_to_chrome') {
                     var result = {};
                     for (var collection in COLLECTIONS) {
@@ -417,12 +443,54 @@ angular.module('app.controllers', [])
                         })
                     });
                 } else if (row.direction == 'local_to_cloud') {
-                    //
+                    var result = {};
+                    // $scope.model.identity
+                    for (var collection in COLLECTIONS) {
+                        var variable = collection;
+                        (function (field) {
+                            storage.getValue(field, item => {
+                                result[field] = item;
+                                if (Object.keys(result).length == Object.keys(COLLECTIONS).length) {
+                                    $http({
+                                        url: "http://localhost:8888/api/v1/sync",
+                                        method: "PUT",
+                                        data: { user_id: $scope.model.identity.id, payload: JSON.stringify(result) }
+                                    }).finally(function () {
+                                        console.log('finally')
+                                    }).then(function (response) {
+                                        console.log(response.data)
+                                    }, function (response) {
+                                        console.log('ERROR')
+                                    });
+                                }
+                            })
+                        })(variable);//passing in variable to var here
+                    }
                 } else if (row.direction == 'cloud_to_local') {
-                    //
+                    // jwt를 사용하여 따로 사용자 id를 받지 않도록 구현
+                    $http({
+                        url: "http://localhost:8888/api/v1/sync/" + $scope.model.identity.id,
+                        method: "GET"
+                    }).finally(function () {
+                        console.log('finally')
+                    }).then(function (response) {
+                        response = response.data;
+                        if (response.result_msg == "STATUS_NORMAL") {
+                            //response.result_data
+                            storage.set(response.result_data);
+                            console.log('local save ok!');
+                            chrome.extension.getBackgroundPage().loadAddDataFromStorage();
+                        } else {
+
+                        }
+                    }, function (response) {
+                        console.log('ERROR')
+                    });
                 }
             }
         }
+        $scope.run.getIdentity();
+        $scope.run.history();
     })
     .controller('dataController', function ($scope, $location, $filter, $interval, identity, storage, CONFIG, COLLECTIONS) {
         $scope.model = {

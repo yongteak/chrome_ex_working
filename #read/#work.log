@@ -8,6 +8,10 @@ https://developer.chrome.com/apps/storage
 https://gyuyeon.tistory.com/6
 
 [WORK]
+[2020-12-16 13:55:02]
+ - ecoch utx 시간 변환 참고
+- https://www.epochconverter.com/timezones?q=1608094415&tz=Asia%2FSeoul
+ - 해외 버전 출시를 위한 시스템 timezone 고민필요
 [2020-12-15 22:52:19]
  - cors
  - https://cors-anywhere.herokuapp.com/https://data.similarweb.com/api/v1/data?domain=4urdev.tistory.com

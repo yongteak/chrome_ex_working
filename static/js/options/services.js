@@ -54,9 +54,7 @@ angular.module('app.services', [])
         return {
             getUserID: function (callback) {
                 chrome.identity.getProfileUserInfo(function (user) {
-                    // user.email
-                    // user.id : 이메일 계정의 고유 값      
-                    return callback(user.id);
+                    return callback(user);
                 })
             }
         }

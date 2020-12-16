@@ -1,0 +1,37 @@
+# user
+name : chrome user_id
+key : collection name
+key : profile
+key : sync_history
+
+============== 동기화를 위한 사용자 데이터 업로드 과정 ==============
+# 사용자 ID가 존재하는지 체크
+ssdb:query([hget,<<"wst_user_profile">>,<<"114916629141904173371">>])
+
+# 사용자 고유 ID값을 기준으로 하나의 최종 동기화 데이터
+ssdb:query([hset,<<"wst_sync_commit">>,<<"114916629141904173371">>,Save])
+# 백업본 관리, 일정 주기가 되면 목록을 통해 백업 데이터를 제거하거나 파일형태로 압축
+ssdb:query([hset,<<"wst_sync_backup">>,<<"114916629141904173371_yyymmddhh">>,Save])
+ssdb:query([hset,<<"wst_sync_backup_list">>,<<"yyymmddhh">>,<<"114916629141904173371_yyymmddhh">>])
+
+# 일련의 모든 백업 과정을 누적 형태로 기록한다. 
+ssdb:query([hset,<<"wst_sync_history_by_time">>,<<"yyymmddhh">>,Save])
+ssdb:query([hset,<<"wst_sync_history_by_user">>,<<"114916629141904173371">>,Save])
+
+============== 동기화를 위한 사용자 데이터 다운로드 과정 ==============
+# 사용자 ID가 존재하는지 체크
+ssdb:query([hget,<<"wst_user_profile">>,<<"114916629141904173371">>])
+
+# 데이터 조화
+ssdb:query([hget,<<"wst_sync_commit">>,<<"114916629141904173371">>])
+
+# 히스토리 조회, 최대 20개
+ssdb:query([hget,<<"wst_sync_history_by_user">>,<<"114916629141904173371">>])
+
+ {ok,_} ->
+ // epoch, size,
+    case ssdb:query([hset,<<"wst_sync_history_by_user_id">>,<<"114916629141904173371">>,Save]) of
+ _ -> 
+end,
+
+#
