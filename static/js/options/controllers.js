@@ -302,21 +302,59 @@ angular.module('app.controllers', [])
         $scope.model = {
             rows: [
                 { desc: '로컬 > 크롬 계정', direction: 'local_to_chrome', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
-                { desc: '로컬 < 크롬 계정', direction: 'chrome_to_local', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
+                { desc: '크롬 계정 > 로컬', direction: 'chrome_to_local', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
                 { desc: '로컬 > 클라우드', direction: 'local_to_cloud', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
-                { desc: '로컬 < 클라우드', direction: 'cloud_to_local', count: 0, last: 0, repeat_min: 5, sync_enabled: true }
+                { desc: '클라우드 > 로컬', direction: 'cloud_to_local', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
+                { desc: 'Similarweb 업로드', direction: 'similarweb_to_cloud', count: 0, last: 0, repeat_min: 5, sync_enabled: true }
             ],
             identity: undefined,
-            history: []
+            history: [],
+            similarweb:[],
+            similarweb1: [],
         };
 
-
+        // http://localhost:8080/api/v1/system/queue/analytics/2
         function lengthInUtf8Bytes(str) {
             const m = encodeURIComponent(str).match(/%[89ABab]/g);
             return str.length + (m ? m.length : 0);
-        }
+        };
+
+        storage.getValue('similarweb', item => $scope.model.similarweb = item||[]);
 
         $scope.run = {
+            open_tab: () => {
+                $http({
+                    url: "http://localhost:8080/api/v1/system/queue/analytics/5",
+                    method: "GET"
+                }).finally(function () {
+                    
+                }).then(function (response) {
+                    response = response.data;
+                    if (response.result_msg == "STATUS_NORMAL") {
+                        chrome.extension.getBackgroundPage().open_tab(response.result_data);
+                    } else {
+
+                    }
+                }, function (response) {
+                    console.log('ERROR')
+                });
+                
+            },
+            get_report: () => {
+                chrome.extension.getBackgroundPage().get_reports((url,response) => {
+                    // 로컬에 저장후 일괄 업로드
+                    url = url.split("v1/data?domain=")[1];
+                    response = JSON.parse(response);
+                    response.host = url;
+                    $scope.model.similarweb1.push(response);
+                    $scope.$apply();
+                });
+            },
+            set_report: () => {
+                $scope.model.similarweb = $scope.model.similarweb.concat($scope.model.similarweb1);
+                storage.saveValue('similarweb', $scope.model.similarweb);
+                $scope.model.similarweb1 = [];
+            },
             getIdentity: () => {
                 storage.getValue(CONFIG.IDENTITY, item => {
                     if (item == undefined) {
@@ -351,14 +389,29 @@ angular.module('app.controllers', [])
             // 제약 사항 정리
             // https://github.com/Xwilarg/NHentaiAnalytics/blob/780ce6c571e1095ab2af375a61c496a3b49bdeee/js/background.js
             sync: row => {
-                // var collection;
-                // var variable;
                 if ($scope.model.identity['id'] == null) {
-                    console.log(222,$scope.model.identity);
+                    console.log(222, $scope.model.identity);
                     alert('로그인 정보가 없습니다.');
                     return;
                 }
-                if (row.direction == 'local_to_chrome') {
+                
+                if (row.direction == 'similarweb_to_cloud') {
+                    storage.getValue('similarweb', item => {
+                        $scope.model.similarweb = item;
+                        $http({
+                            url: "http://localhost:8080/api/v1/analytics/simila/sync",
+                            method: "PUT",
+                            data: {payload:item}
+                        }).finally(function () {
+                            console.log('finally')
+                        }).then(function (response) {
+                            console.log(response.data)
+                        }, function (response) {
+                            console.log('ERROR')
+                        });
+                    });
+
+                } else if (row.direction == 'local_to_chrome') {
                     var result = {};
                     for (var collection in COLLECTIONS) {
                         var variable = collection;
@@ -457,7 +510,7 @@ angular.module('app.controllers', [])
                                 result[field] = item;
                                 if (Object.keys(result).length == Object.keys(COLLECTIONS).length) {
                                     $http({
-                                        url: "http://localhost:8888/api/v1/sync",
+                                        url: "http://localhost:8080/api/v1/sync",
                                         method: "PUT",
                                         data: { user_id: $scope.model.identity.id, payload: JSON.stringify(result) }
                                     }).finally(function () {
@@ -474,7 +527,7 @@ angular.module('app.controllers', [])
                 } else if (row.direction == 'cloud_to_local') {
                     // jwt를 사용하여 따로 사용자 id를 받지 않도록 구현
                     $http({
-                        url: "http://localhost:8888/api/v1/sync/" + $scope.model.identity.id,
+                        url: "http://localhost:8080/api/v1/sync/" + $scope.model.identity.id,
                         method: "GET"
                     }).finally(function () {
                         console.log('finally')
@@ -501,10 +554,6 @@ angular.module('app.controllers', [])
         $scope.model = {
             collections: COLLECTIONS
         };
-
-        // $scope.fileNameChanged = (e) => {
-        //     console.log(e)
-        // }
         $scope.run = {
             clear: () => {
                 chrome.storage.local.set({ 'tabs': null });

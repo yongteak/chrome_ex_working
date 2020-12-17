@@ -6,6 +6,7 @@ class Activity {
             if (tab.id && (tab.id != 0)) {
                 tabs = tabs || [];
                 var domain = this.extractHostname(tab.url);
+                if (domain == 'data.similarweb.com') return;
                 var isDifferentUrl = false;
                 if (currentTab !== tab.url) {
                     isDifferentUrl = true;

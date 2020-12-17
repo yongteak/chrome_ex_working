@@ -6,6 +6,28 @@ Useage.js에서 수집되는 데이터와 통합 필요
 'use strict';
 
 
+function open_tab(domains) {
+    domains.forEach(d => {
+        chrome.tabs.create({
+            url: "https://data.similarweb.com/api/v1/data?domain="+d,
+            active: false
+        });
+    });
+}
+function get_reports(callback) {
+    chrome.tabs.query({ url: "*://data.similarweb.com/api/*", status: "complete" }, tab => {
+        tab.forEach(t => {
+            chrome.tabs.sendMessage(t.id, { req: EVENT_SIMILARWEB_REPORT }, response => {
+                callback(t.url, response);
+                // console.log(t.status);
+                // t.status = 'end_of_task';
+                chrome.tabs.remove(t.id, () => console.log('close', response))
+            });
+        })
+        // console.log(4444,tab);
+    });
+
+}
 
 
 var tabs;
@@ -38,7 +60,29 @@ function updateStorage() {
     setInterval(backgroundUpdateStorage, SETTINGS_INTERVAL_SAVE_STORAGE_DEFAULT);
 }
 
+// if (tab.url == 'data.similarweb.com') {
+//     // data.similarweb.com
+//     console.log('event!');
+// chrome.tabs.sendMessage(id, { req: EVENT_SIMILARWEB_REPORT }, response => {
+//     console.log(response);
+//     if (response !== undefined) {
+//         tab.completed = true;
+//     }
+// });
+// }
+
 function backgroundCheck() {
+    // chrome.tabs.query({ url: "*://data.similarweb.com/api/*", status: "complete" }, tab => {
+    //     tab.forEach(t => {
+    //         chrome.tabs.sendMessage(t.id, { req: EVENT_SIMILARWEB_REPORT }, response => {
+    //             // console.log(t.status);
+    //             // t.status = 'end_of_task';
+    //             chrome.tabs.remove(t.id, () => console.log('close', response))
+    //         });
+    //     })
+    //     // console.log(4444,tab);
+    // });
+
     chrome.windows.getLastFocused({ populate: true }, function (currentWindow) {
         if (currentWindow.focused) {
             var activeTab = currentWindow.tabs.find(t => t.active === true);
@@ -70,7 +114,7 @@ function backgroundCheck() {
                         var item = setting_restriction_list.find(e => e.domain === domain);
                         if (item !== undefined) {
                             item.count += 1;
-                            storage.saveValue(STORAGE_RESTRICTION_LIST,setting_restriction_list);
+                            storage.saveValue(STORAGE_RESTRICTION_LIST, setting_restriction_list);
                         };
                         var today = formatDate();
                         item = setting_restriction_access_list.find(o => o.domain === domain && o.day == today);
@@ -84,20 +128,12 @@ function backgroundCheck() {
                                 count: 1
                             });
                         }
-                        storage.saveValue(STORAGE_RESTRICTION_ACCESS_LIST,setting_restriction_access_list);
+                        storage.saveValue(STORAGE_RESTRICTION_ACCESS_LIST, setting_restriction_access_list);
                     }
                 } else {
                     if (tab !== undefined) {
                         if (currentTab !== tab.url) {
                             activity.setCurrentActiveTab(tab.url);
-                        }  
-                        if (tab.url == 'data.similarweb.com') {
-                            chrome.tabs.sendMessage(id, { req: EVENT_SIMILARWEB_REPORT }, response => {
-                                console.log(response);
-                                if (response !== undefined) {
-                                    tab.completed = true;
-                                }
-                            });
                         }
                         // console.log(activeTab.title,activeTab.url);
                         // activeTab : title, url 수집필요
@@ -164,16 +200,16 @@ function mainTRacker(activeUrl, tab, activeTab) {
         });
     }
     // if (true)//(setting_view_in_badge === true) {
-        // chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] })
-        // var today = formatDate();
-        // // console.log("today > ",today);
-        // // console.log(tab);
-        // var summary = tab.days.find(s => s.date === today).summary;
-        // // console.log(tab.url," > ",today, String(convertSummaryTimeToBadgeString(summary)));
-        // chrome.browserAction.setBadgeText({
-        //     tabId: activeTab.id,
-        //     text: String(convertSummaryTimeToBadgeString(summary))
-        // });
+    // chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] })
+    // var today = formatDate();
+    // // console.log("today > ",today);
+    // // console.log(tab);
+    // var summary = tab.days.find(s => s.date === today).summary;
+    // // console.log(tab.url," > ",today, String(convertSummaryTimeToBadgeString(summary)));
+    // chrome.browserAction.setBadgeText({
+    //     tabId: activeTab.id,
+    //     text: String(convertSummaryTimeToBadgeString(summary))
+    // });
     // } else {
     //     // chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] })
     //     // chrome.browserAction.setBadgeText({
@@ -572,8 +608,3 @@ loadAddDataFromStorage();
 updateSummaryTime();
 updateStorage();
 // storage.clearTabs();
-
-chrome.tabs.create({url: "https://data.similarweb.com/api/v1/data?domain=https://www.brainyquote.com/", active: false}
-    ,(tab) => console.log(tab));
-// chrome.tabs.create({url: "https://data.similarweb.com/api/v1/data?domain=https://www.clien.net/",active: false}
-//     ,(tab) => console.log(tab));
