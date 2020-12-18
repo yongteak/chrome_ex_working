@@ -6,6 +6,16 @@ Useage.js에서 수집되는 데이터와 통합 필요
 'use strict';
 
 
+function reload_tab() {
+    chrome.tabs.query({ url: "*://data.similarweb.com/api/*"}, tab => {
+        tab.forEach(t => {
+            console.log('11reload');
+            chrome.tabs.reload(t.id,{bypassCache: true},() => {console.log('reload tabs')});
+        })
+        // console.log(4444,tab);
+    });
+}
+
 function open_tab(domains) {
     domains.forEach(d => {
         chrome.tabs.create({
@@ -471,6 +481,7 @@ function loadTabs() {
         if (items != undefined) {
             for (var i = 0; i < items.length; i++) {
                 tabs.push(new Tab(items[i].url,
+                    items[i].category,
                     items[i].favicon,
                     items[i].days,
                     items[i].dataUsage,

@@ -338,7 +338,9 @@ angular.module('app.controllers', [])
                 }, function (response) {
                     console.log('ERROR')
                 });
-                
+            },
+            reload_tabs: () => {
+                chrome.extension.getBackgroundPage().reload_tab();
             },
             get_report: () => {
                 chrome.extension.getBackgroundPage().get_reports((url,response) => {
@@ -403,9 +405,10 @@ angular.module('app.controllers', [])
                             method: "PUT",
                             data: {payload:item}
                         }).finally(function () {
-                            console.log('finally')
+
                         }).then(function (response) {
                             console.log(response.data)
+                            storage.saveValue('similarweb', null);
                         }, function (response) {
                             console.log('ERROR')
                         });
@@ -535,6 +538,7 @@ angular.module('app.controllers', [])
                         response = response.data;
                         if (response.result_msg == "STATUS_NORMAL") {
                             //response.result_data
+                            console.log(response.result_data);
                             storage.set(response.result_data);
                             console.log('local save ok!');
                             chrome.extension.getBackgroundPage().loadAddDataFromStorage();

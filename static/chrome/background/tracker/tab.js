@@ -1,7 +1,7 @@
 'use strict';
 
 class Tab {
-    constructor(url, favicon, days, dataUsage, summary, counter) {
+    constructor(url, category, favicon, days, dataUsage, summary, counter) {
         this.url = url;
         this.favicon = favicon;
         if (summary !== undefined)
@@ -17,6 +17,11 @@ class Tab {
             this.dataUsage = dataUsage;
         else
             this.dataUsage = 0;
+
+        if (category !== undefined)
+            this.category = category;
+        else
+            this.category = 'wait_analytic';
 
         if (days !== undefined)
             this.days = days;
