@@ -169,6 +169,42 @@ function zeroAppend(time) {
 	else return time;
 }
 
+// https://stackoverflow.com/questions/26580509/calculate-time-difference-between-two-date-in-hhmmss-javascript
+// "13:47:46-13:48:45"
+// "13:56:37-20:57:2"
+// 13:56:37-14:57:2"
+app.filter('hmsToSeconds', function () {
+	return function (s) {
+		// console.log(s);
+		var format = "HH:mm:ss";
+		var str = s.split("-");
+		var ah = parseInt(str[0].split(':')[0]);
+		var bh = parseInt(str[1].split(':')[0]);
+		var diff = bh - ah;
+		var acc = [];
+		if (diff == 0) {
+			acc.push({'hour':ah,'value':
+				moment.duration(moment(str[1],format).diff(moment(str[0],format))).asSeconds()});
+		} else if (diff == 1) {
+			acc.push({'hour':ah,'value':
+				moment.duration(moment(ah+":59:59",format).diff(moment(str[0],format))).asSeconds()});
+			acc.push({'hour':bh,'value':
+				moment.duration(moment(str[1],format).diff(moment(bh+"00:00",format))).asSeconds()});
+		} else if (diff >= 2) {
+			var range = Array(diff-1).fill(0).map((e,i)=>i+(ah+1));
+			acc.push({'hour':ah,'value':
+				moment.duration(moment(ah+":59:59",format).diff(moment(str[0],format))).asSeconds()});
+			range.forEach(h => {
+				acc.push({'hour':h,'value':3600});	
+			});
+			acc.push({'hour':bh,'value':
+				moment.duration(moment(str[1],format).diff(moment(bh+"00:00",format))).asSeconds()});
+		}
+		return acc;
+	}
+});
+			
+	
 app.filter('num_comma', function () {
 	return function (num) {
 		if (num) {

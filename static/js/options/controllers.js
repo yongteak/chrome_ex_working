@@ -543,7 +543,7 @@ angular.module('app.controllers', [])
                             console.log('local save ok!');
                             chrome.extension.getBackgroundPage().loadAddDataFromStorage();
                         } else {
-
+                            // error msg?
                         }
                     }, function (response) {
                         console.log('ERROR')
@@ -857,9 +857,70 @@ angular.module('app.controllers', [])
     })
     .controller('statusController', function ($scope, $filter, $location, moment, storage, CONFIG) {
         $scope.model = { rows: [], todal_total_times: 0 };
+        // time_interval 목록 조회
+//         var arr = [];
+//         var arr1 = [];
+//         ["13:46:3-13:46:8"
+// ,"13:47:46-13:48:45"
+// ,"13:55:38-13:56:22"
+// ,"13:56:37-20:57:2"
+// ,"21:16:7-21:16:11"
+// ,"21:17:30-21:18:1"
+// ,"21:33:6-21:39:51"
+// ,"21:40:12-21:40:12"
+// ,"21:58:6-21:58:9"
+// ,"21:58:20-21:58:22"
+// , "21:58:32-21:58:43"
+// , "22:4:44-22:4:46"
+// , "22:4:46-22:5:1"
+// , "22:27:10-22:27:13"
+// , "22:35:16-22:35:18"
+// , "22:35:25-22:35:31"
+// , "22:35:40-22:35:52"
+// , "22:36:53-22:37:6"].forEach(t => {
+//     var res = $filter('hmsToSeconds')(t);
+//     res.forEach(r => arr1.push(r));
+// });
+
+
+// var acc = [];
+// Array(24).fill(0).map((e,i)=>i).forEach(t => {
+//     var elem = arr1.filter(a => { return a.hour == t });
+//     if (elem.length > 0) {
+//         var sum = 0;
+//         elem.forEach(el => sum += el.value);
+//         acc.push({hour:t, value:sum});
+//     } else {
+//         acc.push({hour:t, value:0});
+//     }
+// })
+
+storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
+    // day, domain, intervals
+    var summary = [];
+    rows.forEach(row => {
+        var acc = [], arr1 = [];
+        row.intervals.forEach(item => $filter('hmsToSeconds')(item).forEach(r => arr1.push(r)) );
+        Array(24).fill(0).map((e,i)=>i).forEach(t => {
+            var elem = arr1.filter(a => { return a.hour == t });
+            if (elem.length > 0) {
+                var sum = 0;
+                elem.forEach(el => sum += el.value);
+                acc.push({hour:t, value:sum});
+            } else {
+                acc.push({hour:t, value:0});
+            }
+        })
+        summary.push({domain:row.domain,day:row.day,category:null,times:acc});
+    });
+    console.log(11111,summary);
+});
+
+
         $scope.all = function () {
             $scope.model.todal_total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
+                console.log(1111,rows);
                 rows.forEach(e => {
                     e.part = {
                         counter: e.counter,
