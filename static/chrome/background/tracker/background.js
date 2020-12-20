@@ -482,6 +482,8 @@ function loadTabs() {
             for (var i = 0; i < items.length; i++) {
                 tabs.push(new Tab(items[i].url,
                     items[i].category,
+                    items[i].category_top,
+                    items[i].category_sub,
                     items[i].favicon,
                     items[i].days,
                     items[i].dataUsage,

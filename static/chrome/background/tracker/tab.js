@@ -1,7 +1,7 @@
 'use strict';
 
 class Tab {
-    constructor(url, category, favicon, days, dataUsage, summary, counter) {
+    constructor(url, category, category_top, category_sub, favicon, days, dataUsage, summary, counter) {
         this.url = url;
         this.favicon = favicon;
         if (summary !== undefined)
@@ -22,6 +22,16 @@ class Tab {
             this.category = category;
         else
             this.category = 'wait_analytic';
+
+        if (category_top !== undefined)
+            this.category_top = category_top;
+        else
+            this.category_top = 'wait_analytic';
+
+        if (category_sub !== undefined)
+            this.category_sub = category_sub;
+        else
+            this.category_sub = 'wait_analytic';
 
         if (days !== undefined)
             this.days = days;
@@ -56,15 +66,15 @@ class Tab {
                 return 0;
             } else {
                 return data;
-            }    
+            }
         } catch (_error) {
             this.incDataUsaged(true);
             return 0;
         }
-        
+
     }
 
-    incDataUsaged(init,increasedSize) {
+    incDataUsaged(init, increasedSize) {
         init = init || false;
         increasedSize = increasedSize || 1;
 
@@ -89,7 +99,7 @@ class Tab {
 
     incCounter() {
         this.counter += 1;
-        console.log('this.counter > ',this.counter);
+        console.log('this.counter > ', this.counter);
         var today = formatDate();
         var day = this.days.find(x => x.date == today);
         if (day === undefined) {
