@@ -309,7 +309,7 @@ angular.module('app.controllers', [])
             ],
             identity: undefined,
             history: [],
-            similarweb:[],
+            similarweb: [],
             similarweb1: [],
         };
 
@@ -319,7 +319,7 @@ angular.module('app.controllers', [])
             return str.length + (m ? m.length : 0);
         };
 
-        storage.getValue('similarweb', item => $scope.model.similarweb = item||[]);
+        storage.getValue('similarweb', item => $scope.model.similarweb = item || []);
 
         $scope.run = {
             open_tab: () => {
@@ -327,7 +327,7 @@ angular.module('app.controllers', [])
                     url: "http://localhost:8080/api/v1/system/queue/analytics/5",
                     method: "GET"
                 }).finally(function () {
-                    
+
                 }).then(function (response) {
                     response = response.data;
                     if (response.result_msg == "STATUS_NORMAL") {
@@ -343,7 +343,7 @@ angular.module('app.controllers', [])
                 chrome.extension.getBackgroundPage().reload_tab();
             },
             get_report: () => {
-                chrome.extension.getBackgroundPage().get_reports((url,response) => {
+                chrome.extension.getBackgroundPage().get_reports((url, response) => {
                     // 로컬에 저장후 일괄 업로드
                     url = url.split("v1/data?domain=")[1];
                     response = JSON.parse(response);
@@ -396,14 +396,14 @@ angular.module('app.controllers', [])
                     alert('로그인 정보가 없습니다.');
                     return;
                 }
-                
+
                 if (row.direction == 'similarweb_to_cloud') {
                     storage.getValue('similarweb', item => {
                         $scope.model.similarweb = item;
                         $http({
                             url: "http://localhost:8080/api/v1/analytics/simila/sync",
                             method: "PUT",
-                            data: {payload:item}
+                            data: { payload: item }
                         }).finally(function () {
 
                         }).then(function (response) {
@@ -858,69 +858,85 @@ angular.module('app.controllers', [])
     .controller('statusController', function ($scope, $filter, $location, moment, storage, CONFIG) {
         $scope.model = { rows: [], todal_total_times: 0 };
         // time_interval 목록 조회
-//         var arr = [];
-//         var arr1 = [];
-//         ["13:46:3-13:46:8"
-// ,"13:47:46-13:48:45"
-// ,"13:55:38-13:56:22"
-// ,"13:56:37-20:57:2"
-// ,"21:16:7-21:16:11"
-// ,"21:17:30-21:18:1"
-// ,"21:33:6-21:39:51"
-// ,"21:40:12-21:40:12"
-// ,"21:58:6-21:58:9"
-// ,"21:58:20-21:58:22"
-// , "21:58:32-21:58:43"
-// , "22:4:44-22:4:46"
-// , "22:4:46-22:5:1"
-// , "22:27:10-22:27:13"
-// , "22:35:16-22:35:18"
-// , "22:35:25-22:35:31"
-// , "22:35:40-22:35:52"
-// , "22:36:53-22:37:6"].forEach(t => {
-//     var res = $filter('hmsToSeconds')(t);
-//     res.forEach(r => arr1.push(r));
-// });
+        //         var arr = [];
+        //         var arr1 = [];
+        //         ["13:46:3-13:46:8"
+        // ,"13:47:46-13:48:45"
+        // ,"13:55:38-13:56:22"
+        // ,"13:56:37-20:57:2"
+        // ,"21:16:7-21:16:11"
+        // ,"21:17:30-21:18:1"
+        // ,"21:33:6-21:39:51"
+        // ,"21:40:12-21:40:12"
+        // ,"21:58:6-21:58:9"
+        // ,"21:58:20-21:58:22"
+        // , "21:58:32-21:58:43"
+        // , "22:4:44-22:4:46"
+        // , "22:4:46-22:5:1"
+        // , "22:27:10-22:27:13"
+        // , "22:35:16-22:35:18"
+        // , "22:35:25-22:35:31"
+        // , "22:35:40-22:35:52"
+        // , "22:36:53-22:37:6"].forEach(t => {
+        //     var res = $filter('hmsToSeconds')(t);
+        //     res.forEach(r => arr1.push(r));
+        // });
 
 
-// var acc = [];
-// Array(24).fill(0).map((e,i)=>i).forEach(t => {
-//     var elem = arr1.filter(a => { return a.hour == t });
-//     if (elem.length > 0) {
-//         var sum = 0;
-//         elem.forEach(el => sum += el.value);
-//         acc.push({hour:t, value:sum});
-//     } else {
-//         acc.push({hour:t, value:0});
-//     }
-// })
+        // var acc = [];
+        // Array(24).fill(0).map((e,i)=>i).forEach(t => {
+        //     var elem = arr1.filter(a => { return a.hour == t });
+        //     if (elem.length > 0) {
+        //         var sum = 0;
+        //         elem.forEach(el => sum += el.value);
+        //         acc.push({hour:t, value:sum});
+        //     } else {
+        //         acc.push({hour:t, value:0});
+        //     }
+        // })
 
-storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
-    // day, domain, intervals
-    var summary = [];
-    rows.forEach(row => {
-        var acc = [], arr1 = [];
-        row.intervals.forEach(item => $filter('hmsToSeconds')(item).forEach(r => arr1.push(r)) );
-        Array(24).fill(0).map((e,i)=>i).forEach(t => {
-            var elem = arr1.filter(a => { return a.hour == t });
-            if (elem.length > 0) {
-                var sum = 0;
-                elem.forEach(el => sum += el.value);
-                acc.push({hour:t, value:sum});
-            } else {
-                acc.push({hour:t, value:0});
-            }
-        })
-        summary.push({domain:row.domain,day:row.day,category:null,times:acc});
-    });
-    console.log(11111,summary);
-});
+        storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
+            // 카테고리 메칭 todo cache
+            storage.getValue(CONFIG.STORAGE_TABS, tabs => {
+                var summary = [];
+                rows.forEach(row => {
+                    var acc = [], arr1 = [];
+                    row.intervals.forEach(item => $filter('hmsToSeconds')(item).forEach(r => arr1.push(r)));
+                    Array(24).fill(0).map((e, i) => i).forEach(t => {
+                        var elem = arr1.filter(a => { return a.hour == t });
+                        if (elem.length > 0) {
+                            var sum = 0;
+                            elem.forEach(el => sum += el.value);
+                            acc.push({ hour: t, value: sum });
+                        } else {
+                            acc.push({ hour: t, value: 0 });
+                        }
+                    })
+                    var cat_nm = tabs.find(s => s.url === row.domain).category_sub;
+                    summary.push({ domain: row.domain, day: row.day, category: cat_nm, times: acc });
+                });
+                console.log(11111, summary);
+                // category_sub을 키값으로 24시 데이터 sum
+                var sum = {}; // category, value[]
+                summary.forEach(data => {
+                    if (sum.hasOwnProperty(data.category)) {
+                        sum[data.category].times.forEach((_data1,index) => {
+                            // console.log(data.times[index]);
+                            sum[data.category].times[index].value += data.times[index].value;
+                        })
+                    } else {
+                        sum[data.category] = {times:data.times};
+                    }
+                })
+                console.log(22222,sum);
+            })
+        });
 
 
         $scope.all = function () {
             $scope.model.todal_total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
-                console.log(1111,rows);
+                console.log(1111, rows);
                 rows.forEach(e => {
                     e.part = {
                         counter: e.counter,
