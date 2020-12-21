@@ -10,7 +10,7 @@
     "bootstrap": "4",
     "mdi": "^5.8.55",
     "angular-route": "^1.8.2",
-    "angular-echarts3": "^0.0.4",
+    "angular-echarts3": "https://github.com/yongteak/angular-echarts5.git#master",
     "angular-calendar-heatmap": "https://github.com/yongteak/angular-calendar-heatmap.git#master",
     "echarts": "^5.0.0",
     "clockpicker": "^0.0.7",

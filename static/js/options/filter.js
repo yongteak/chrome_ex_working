@@ -191,7 +191,7 @@ angular.module('app.filter', [])
             kv['performing_arts'] = '공연예술';
             kv['tv_movies_and_streaming'] = '스트리밍';
             kv['visual_arts_and_design'] = '시각예술';
-            kv['business_and_consumer_services'] = '비즈니스 및 소비자 서비스';
+            kv['business_and_consumer_services'] = '고객 서비스';
             kv['business_services'] = '비지니스 서비스';
             kv['marketing_and_advertising'] = '마케팅및 광고';
             kv['online_marketing'] = '온라인 마케팅';
@@ -236,7 +236,7 @@ angular.module('app.filter', [])
             kv['groceries'] = '잡화';
             kv['restaurants_and_delivery'] = '음식및 배달';
             kv['vegetarian_and_vegan'] = '채식주의';
-            kv['gambling'] = '겜플링';
+            kv['gambling'] = '도박';
             kv['bingo'] = '빙고';
             kv['casinos'] = '카지노';
             kv['lottery'] = '로또';

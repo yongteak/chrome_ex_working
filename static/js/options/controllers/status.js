@@ -1,17 +1,22 @@
 angular.module('app.controller.status', [])
     .controller('statusController', function ($scope, $filter, $location, moment, storage, CONFIG) {
         $scope.model = {
-            rows: [], todal_total_times: 0, summary: {},
+            rows: [], todal_times: 0, summary: {}, interval_summary: [],
             options: { category: [], date: [], times: [], series: [] },
-            category_name: []
+            category_name: [],
+            show_full_list:true,
+            show_limit_list:false
         };
 
         storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
             // 카테고리 메칭 todo cache
-            console.log(000, rows);
-            var sday = rows[0].day, eday = rows[rows.length - 1].day;
+            
+            // var sday = rows[0].day, eday = rows[rows.length - 1].day;
+            const today = 20201221;
+            rows = rows.filter(iv => { return iv.day == today });
+            // console.log(999, rows);
             storage.getValue(CONFIG.STORAGE_TABS, tabs => {
-                var summary = [];
+                $scope.interval_summary = [];
                 rows.forEach(row => {
                     var acc = [], arr1 = [];
                     row.intervals.forEach(item => $filter('hmsToSeconds')(item).forEach(r => arr1.push(r)));
@@ -19,55 +24,43 @@ angular.module('app.controller.status', [])
                         var elem = arr1.filter(a => { return a.hour == t });
                         if (elem.length > 0) {
                             var sum = 0;
-                            elem.forEach(el => sum += el.value);
+                            // el.value가 -32293일떄가 있음.. 왜?
+                            elem.forEach(el => sum += (el.value < 0 ? 0 : el.value));
                             acc.push({ hour: t, value: sum });
                         } else {
                             acc.push({ hour: t, value: 0 });
                         }
                     })
                     var cat_nm = tabs.find(s => s.url === row.domain).category_top;
-                    summary.push({ domain: row.domain, day: row.day, category: cat_nm, times: acc });
+                    $scope.interval_summary.push({ domain: row.domain, day: row.day, category: cat_nm, times: acc });
                 });
                 // console.log(11111, summary);
                 // category_sub을 키값으로 24시 데이터 sum
                 // options: { category: [], times: [] }
                 // var sum = {}; // category, value[]
-                summary.forEach(data => {
+                $scope.interval_summary.forEach(data => {
                     if ($scope.model.summary.hasOwnProperty(data.category)) {
                         $scope.model.summary[data.category].times.forEach((_data1, index) => {
                             $scope.model.summary[data.category].times[index].value += data.times[index].value;
                         })
                     } else {
-                        $scope.model.summary[data.category] = { times: data.times };
-                        // $scope.model.category_name.push($filter('category_to_name')(data.category));
-                        // console.log('111111',data.category);
-                        // $scope.model.summary[$filter('category_to_name')(data.category)] = { times: data.times };
+                        $scope.model.summary[data.category] = { day:data.day, times: data.times };
                     }
                 });
-                // console.log(Object.keys($scope.model.summary).forEach(e => $filter('category_to_name')(e)));
-                // console.log(22222, $scope.model.summary);
             });
         });
-        /*
-        $scope.model.options.category;
-        $scope.model.options.date;
-        $scope.model.options.times;
-        카테고리 목록['Direct', 'Mail Ad', 'Affiliate Ad', 'Video Ad', 'Search Engine']
-        y축 데이터(시간 단위) data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        카테고리 데이터(목록과 같은 index) data: [320, 302, 301, 334, 390, 330, 320]
-        */
-
+       
         $scope.all = function () {
-            $scope.model.todal_total_times = 0;
+            $scope.model.total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
-                console.log(1111, rows);
+                // console.log(1111, rows);
                 rows.forEach(e => {
                     e.part = {
                         counter: e.counter,
                         dataUsage: e.dataUsage,
                         summary: e.summaryTime
                     }
-                    $scope.model.todal_total_times += e.part.summary;
+                    $scope.model.total_times += e.part.summary;
                 });
                 rows = rows.sort(function (a, b) {
                     return b.part.summary - a.part.summary;
@@ -78,14 +71,14 @@ angular.module('app.controller.status', [])
             })
         }
         $scope.today = function () {
-            $scope.model.todal_total_times = 0;
+            $scope.model.total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
                 var today = $filter('formatDate')();
                 var targetTabs = rows.filter(x => x.days.find(s => s.date === today));
                 console.log(today, targetTabs);
                 targetTabs.forEach(e => {
                     e.part = e.days.filter(x => x.date == today)[0];
-                    $scope.model.todal_total_times += e.part.summary;
+                    $scope.model.total_times += e.part.summary;
                 });
                 targetTabs = targetTabs.sort(function (a, b) {
                     return b.days.find(s => s.date === today).summary - a.days.find(s => s.date === today).summary;
@@ -96,9 +89,11 @@ angular.module('app.controller.status', [])
                 // 오늘날짜만 뽑기 또는 최근 마지막 날짜 뽑기
             });
 
+            // 20201221
+
             for (var p in $scope.model.summary) {
                 $scope.model.options.series.push({
-                    name: $filter('category_to_name')(p),
+                    name: p+'|'+$filter('category_to_name')(p),
                     type: 'bar',
                     stack: 'total',
                     label: {
@@ -109,8 +104,24 @@ angular.module('app.controller.status', [])
                 });
 
                 $scope.model.options.date = Array(24).fill(0).map((e, i) => i);
-            };
-            $scope.option = opt();
+            }
+            // !!
+            $scope.param = {'option':opt(),'click':e=> {
+                // 날짜정보가 없는경우 해당 시간대의 모든 카테고리에 해당하는 도메인 조회
+                // var req_kv = {,value:e.seriesName.hour};
+                const filter = e.seriesName.split('|')[0];
+                const hour = e.data.hour;
+                $scope.model.rows = $scope.interval_summary
+                                        .filter(item => item.category === filter)
+                                        .filter(t => t.times[hour].value > 0);
+                $scope.model.rows.forEach(h => h['seconds'] = h.times[hour].value);
+                $scope.model.rows.sort(function (a, b) {
+                    return b.seconds - a.seconds;
+                });
+                $scope.model.show_full_list = false;
+                $scope.model.show_limit_list = !$scope.model.show_full_list;
+                $scope.$apply();
+            }}
         }
 
         var now = moment().endOf('day').toDate();
@@ -179,13 +190,32 @@ angular.module('app.controller.status', [])
                 },
                 tooltip: {
                     trigger: 'axis',
-                    
+                    formatter: series => {
+                        let tooltip = '';
+                        let sum = 0;
+                        const [firstSeries] = series;
+                        const title = firstSeries.axisValue+'시'
+                        
+                       // tooltip += `<div><h5><b>#${title} | ${sum}</b></h5></div>`;
+
+                        series.forEach(s => {
+                            sum += s.value;
+                            s.seriesName = s.seriesName.split('|')[1];
+                            s.value = s.value > 60 ? $filter('secondToFormat')(s.value,'mm분ss초') : s.value == 0 ? '-' : s.value +'초';
+                            tooltip += `<div>${s.marker} ${s.seriesName}: <code>${s.value}</code></div>`;
+                        });
+                        sum = sum > 60 ? $filter('secondToFormat')(sum,'mm분ss초') : sum == 0 ? '-' : sum +'초';
+                        // title = title +' | '+sum;
+                        tooltip = `<div><h5><b>#${title} </b><code><u>${sum}</u></code></h5></div>` + tooltip;
+                        return tooltip;
+                    }
+
                     // formatter: params => {
-                        // console.log(params);
-                        // return $filter('secondToFormat')(params[0].axisValueLabel, 'mm분ss초')
-                        // return params.forEach(e => {
-                        //     e.axisValueLabel = $filter('secondToFormat')(e.axisValueLabel, 'mm분ss초')
-                        // })
+                    // console.log(params);
+                    // return $filter('secondToFormat')(params[0].axisValueLabel, 'mm분ss초')
+                    // return params.forEach(e => {
+                    //     e.axisValueLabel = $filter('secondToFormat')(e.axisValueLabel, 'mm분ss초')
+                    // })
                     // }
                 },
                 // grid: {
@@ -193,10 +223,12 @@ angular.module('app.controller.status', [])
                 // },
                 legend: {
                     // data: Object.keys($scope.model.summary),
-                    data: Object.keys($scope.model.summary).forEach(e => $filter('category_to_name')(e))
-                    // formatter: name => {
-                    //     return $filter('category_to_name')(name)
-                    // }
+                    data: Object.keys($scope.model.summary).forEach(e => e+'|'+$filter('category_to_name')(e))
+                    ,
+                    formatter: name => {
+                        return name.split('|')[1];
+                        // return $filter('category_to_name')(name)
+                    }
 
                     // legend: {
                     //     show: props.legend ? true : false,
