@@ -33,8 +33,12 @@
                             <tr ng-repeat="row in model.rows">
                                 <td>{{ $index+1}}</td>
                                 <td>
-                                    <!-- <img alt width="15" height="15" ng-src="{{ row.favicon }}" onerror="this.src=''"> &nbsp; -->
-                                    {{ row.url }} <i class="mdi mdi-link-variant"></i></td>
+                                    {{ row.url }} <i class="mdi mdi-link-variant"></i>
+                                    <div>
+                                        <code>{{ row.category_top }}</code><br >
+                                        <code>{{ row.category_sub }}</code>
+                                    </div>
+                                </td>
                                 <!-- <td>{{ row.url }}</td> -->
                                 <td class="text-info">{{ row.part.counter | num_comma }} <em class="mdi mdi-arrow-up"></em></td>
                                 <td class="text-danger">{{ row.part.dataUsage | dataSizeToUnit }} <em class="mdi mdi-arrow-down"></em></td>
