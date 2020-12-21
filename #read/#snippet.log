@@ -1,4 +1,5 @@
 # moment 주간 날짜 계산하기
+https://momentjs.com/
 https://stackoverflow.com/questions/34871998/how-to-get-the-days-b-w-current-week-in-moment-js
  var currentDate = moment();
    var weekStart = currentDate.clone().startOf('week');
@@ -14,8 +15,14 @@ https://stackoverflow.com/questions/34871998/how-to-get-the-days-b-w-current-wee
    console.log(moment('01/19/2016').format("MMMM Do,dddd"));
 
 var start = moment('20201220',"YYYYMMDD");
-moment(start).add(-1,'day');
+moment(start).add(-1,'day').format('YYYYMMDD');
 
+var start = moment().format("YYYYMMDD");
+Array.apply(null, Array(30)).map(function (_, i){
+    return moment(start).add(-i,'day').format('YYYYMMDD')
+});
+    
+};
 Array.apply(null, Array(7)).map(function (_, i) {
     return moment(i, 'e').startOf('week').isoWeekday(i + 1).format('YYYYMMDD');
 });

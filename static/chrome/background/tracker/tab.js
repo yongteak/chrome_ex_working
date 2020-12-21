@@ -21,17 +21,17 @@ class Tab {
         if (category !== undefined)
             this.category = category;
         else
-            this.category = 'wait_analytic';
+            this.category = 'Other';
 
         if (category_top !== undefined)
             this.category_top = category_top;
         else
-            this.category_top = 'wait_analytic';
+            this.category_top = 'Other';
 
         if (category_sub !== undefined)
             this.category_sub = category_sub;
         else
-            this.category_sub = 'wait_analytic';
+            this.category_sub = 'Other';
 
         if (days !== undefined)
             this.days = days;

@@ -1,6 +1,6 @@
 angular.module('app.controller.status', [])
     .controller('statusController', function ($scope, $filter, $location, moment, storage, CONFIG) {
-        $scope.model = { rows: [], todal_total_times: 0 };
+        $scope.model = { rows: [], todal_total_times: 0, summary:{},options: { category: [], date: [], times: [], series:[] } };
         // time_interval 목록 조회
         //         var arr = [];
         //         var arr1 = [];
@@ -41,6 +41,8 @@ angular.module('app.controller.status', [])
 
         storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
             // 카테고리 메칭 todo cache
+            console.log(000, rows);
+            var sday = rows[0].day, eday = rows[rows.length - 1].day;
             storage.getValue(CONFIG.STORAGE_TABS, tabs => {
                 var summary = [];
                 rows.forEach(row => {
@@ -56,26 +58,39 @@ angular.module('app.controller.status', [])
                             acc.push({ hour: t, value: 0 });
                         }
                     })
-                    var cat_nm = tabs.find(s => s.url === row.domain).category_sub;
+                    var cat_nm = tabs.find(s => s.url === row.domain).category_top;
                     summary.push({ domain: row.domain, day: row.day, category: cat_nm, times: acc });
                 });
                 // console.log(11111, summary);
                 // category_sub을 키값으로 24시 데이터 sum
-                var sum = {}; // category, value[]
+                // options: { category: [], times: [] }
+                // var sum = {}; // category, value[]
                 summary.forEach(data => {
-                    if (sum.hasOwnProperty(data.category)) {
-                        sum[data.category].times.forEach((_data1, index) => {
-                            // console.log(data.times[index]);
-                            sum[data.category].times[index].value += data.times[index].value;
+                    if ($scope.model.summary.hasOwnProperty(data.category)) {
+                        $scope.model.summary[data.category].times.forEach((_data1, index) => {
+                            $scope.model.summary[data.category].times[index].value += data.times[index].value;
                         })
                     } else {
-                        sum[data.category] = { times: data.times };
+                        $scope.model.summary[data.category] = { times: data.times };
                     }
-                })
-                console.log(22222, sum);
-            })
+                });
+                // for (var p in sum) {
+                //     Object.keys($scope.model.summary);
+                //     $scope.model.options.category[p] = sum[p].times;;
+                //     // $scope.model.options.times.push(sum[p].times);
+                // };
+                // $scope.model.options.date.push('20201223');
+                console.log(22222, $scope.model.summary);
+            });   
         });
-
+    /*
+    $scope.model.options.category;
+    $scope.model.options.date;
+    $scope.model.options.times;
+    카테고리 목록['Direct', 'Mail Ad', 'Affiliate Ad', 'Video Ad', 'Search Engine']
+    y축 데이터(시간 단위) data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    카테고리 데이터(목록과 같은 index) data: [320, 302, 301, 334, 390, 330, 320]
+    */
 
         $scope.all = function () {
             $scope.model.todal_total_times = 0;
@@ -115,6 +130,24 @@ angular.module('app.controller.status', [])
                 // console.log($scope.model.today);
                 // 오늘날짜만 뽑기 또는 최근 마지막 날짜 뽑기
             });
+
+            for (var p in $scope.model.summary) {
+                $scope.model.options.series.push({
+                    name: p,
+                    type: 'bar',
+                    stack: 'total',
+                    label: {
+                        show: true
+                    },
+                    emphasis: { focus: 'series' },
+                    data: $scope.model.summary[p].times
+                });
+                
+                $scope.model.options.date = Array(24).fill(0).map((e, i) => i);
+                // console.log('ccccc', $scope.model.options.series);
+                // $scope.$apply();
+            };
+            $scope.option = opt();
         }
 
         var now = moment().endOf('day').toDate();
@@ -161,16 +194,47 @@ angular.module('app.controller.status', [])
         };
 
         var type = false;
-        $scope.option = loadDataWithType(type);
+        // $scope.option = opt();//loadDataWithType(type);
 
 
-        $scope.change = function () {
-            type = !type;
-            $scope.option = loadDataWithType(type);
-            console.log($scope.option)
-        }
+        // $scope.change = function () {
+        //     type = !type;
+        //     $scope.option = opt();//loadDataWithType();
+        //     console.log($scope.option)
+        // }
 
         $scope.today();
+
+
+        function opt() {
+            return {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {            // Use axis to trigger tooltip
+                        type: 'shadow'        // 'shadow' as default; can also be 'line' or 'shadow'
+                    }
+                },
+                legend: {
+                    data: Object.keys($scope.model.summary)
+                    // data: ['Direct', 'Mail Ad', 'Affiliate Ad', 'Video Ad', 'Search Engine']
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                xAxis: {
+                    type: 'category',
+                    data : $scope.model.options.date
+                    // data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                },
+                series: $scope.model.options.series
+            }
+        }
 
         function loadDataWithType(type) {
             if (type) {
