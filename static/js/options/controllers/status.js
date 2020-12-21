@@ -1,43 +1,10 @@
 angular.module('app.controller.status', [])
     .controller('statusController', function ($scope, $filter, $location, moment, storage, CONFIG) {
-        $scope.model = { rows: [], todal_total_times: 0, summary:{},options: { category: [], date: [], times: [], series:[] } };
-        // time_interval 목록 조회
-        //         var arr = [];
-        //         var arr1 = [];
-        //         ["13:46:3-13:46:8"
-        // ,"13:47:46-13:48:45"
-        // ,"13:55:38-13:56:22"
-        // ,"13:56:37-20:57:2"
-        // ,"21:16:7-21:16:11"
-        // ,"21:17:30-21:18:1"
-        // ,"21:33:6-21:39:51"
-        // ,"21:40:12-21:40:12"
-        // ,"21:58:6-21:58:9"
-        // ,"21:58:20-21:58:22"
-        // , "21:58:32-21:58:43"
-        // , "22:4:44-22:4:46"
-        // , "22:4:46-22:5:1"
-        // , "22:27:10-22:27:13"
-        // , "22:35:16-22:35:18"
-        // , "22:35:25-22:35:31"
-        // , "22:35:40-22:35:52"
-        // , "22:36:53-22:37:6"].forEach(t => {
-        //     var res = $filter('hmsToSeconds')(t);
-        //     res.forEach(r => arr1.push(r));
-        // });
-
-
-        // var acc = [];
-        // Array(24).fill(0).map((e,i)=>i).forEach(t => {
-        //     var elem = arr1.filter(a => { return a.hour == t });
-        //     if (elem.length > 0) {
-        //         var sum = 0;
-        //         elem.forEach(el => sum += el.value);
-        //         acc.push({hour:t, value:sum});
-        //     } else {
-        //         acc.push({hour:t, value:0});
-        //     }
-        // })
+        $scope.model = {
+            rows: [], todal_total_times: 0, summary: {},
+            options: { category: [], date: [], times: [], series: [] },
+            category_name: []
+        };
 
         storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
             // 카테고리 메칭 todo cache
@@ -72,25 +39,23 @@ angular.module('app.controller.status', [])
                         })
                     } else {
                         $scope.model.summary[data.category] = { times: data.times };
+                        // $scope.model.category_name.push($filter('category_to_name')(data.category));
+                        // console.log('111111',data.category);
+                        // $scope.model.summary[$filter('category_to_name')(data.category)] = { times: data.times };
                     }
                 });
-                // for (var p in sum) {
-                //     Object.keys($scope.model.summary);
-                //     $scope.model.options.category[p] = sum[p].times;;
-                //     // $scope.model.options.times.push(sum[p].times);
-                // };
-                // $scope.model.options.date.push('20201223');
-                console.log(22222, $scope.model.summary);
-            });   
+                // console.log(Object.keys($scope.model.summary).forEach(e => $filter('category_to_name')(e)));
+                // console.log(22222, $scope.model.summary);
+            });
         });
-    /*
-    $scope.model.options.category;
-    $scope.model.options.date;
-    $scope.model.options.times;
-    카테고리 목록['Direct', 'Mail Ad', 'Affiliate Ad', 'Video Ad', 'Search Engine']
-    y축 데이터(시간 단위) data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    카테고리 데이터(목록과 같은 index) data: [320, 302, 301, 334, 390, 330, 320]
-    */
+        /*
+        $scope.model.options.category;
+        $scope.model.options.date;
+        $scope.model.options.times;
+        카테고리 목록['Direct', 'Mail Ad', 'Affiliate Ad', 'Video Ad', 'Search Engine']
+        y축 데이터(시간 단위) data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        카테고리 데이터(목록과 같은 index) data: [320, 302, 301, 334, 390, 330, 320]
+        */
 
         $scope.all = function () {
             $scope.model.todal_total_times = 0;
@@ -133,19 +98,17 @@ angular.module('app.controller.status', [])
 
             for (var p in $scope.model.summary) {
                 $scope.model.options.series.push({
-                    name: p,
+                    name: $filter('category_to_name')(p),
                     type: 'bar',
                     stack: 'total',
                     label: {
-                        show: true
+                        show: false
                     },
                     emphasis: { focus: 'series' },
                     data: $scope.model.summary[p].times
                 });
-                
+
                 $scope.model.options.date = Array(24).fill(0).map((e, i) => i);
-                // console.log('ccccc', $scope.model.options.series);
-                // $scope.$apply();
             };
             $scope.option = opt();
         }
@@ -208,28 +171,79 @@ angular.module('app.controller.status', [])
 
         function opt() {
             return {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {            // Use axis to trigger tooltip
-                        type: 'shadow'        // 'shadow' as default; can also be 'line' or 'shadow'
+                toolbox: {
+                    show: true,
+                    feature: {
+                        saveAsImage: {}
                     }
                 },
+                tooltip: {
+                    trigger: 'axis',
+                    
+                    // formatter: params => {
+                        // console.log(params);
+                        // return $filter('secondToFormat')(params[0].axisValueLabel, 'mm분ss초')
+                        // return params.forEach(e => {
+                        //     e.axisValueLabel = $filter('secondToFormat')(e.axisValueLabel, 'mm분ss초')
+                        // })
+                    // }
+                },
+                // grid: {
+                //     containLabel: false
+                // },
                 legend: {
-                    data: Object.keys($scope.model.summary)
+                    // data: Object.keys($scope.model.summary),
+                    data: Object.keys($scope.model.summary).forEach(e => $filter('category_to_name')(e))
+                    // formatter: name => {
+                    //     return $filter('category_to_name')(name)
+                    // }
+
+                    // legend: {
+                    //     show: props.legend ? true : false,
+                    //     orient: 'horizontal',
+                    //     x: 'left',
+                    //     y: 'bottom',
+                    //     formatter: props.legendValue ? function (name) {
+                    //       let itemValue = data.filter(item => item.name === name)
+                    //       return `${name}: ${itemValue[0].value}`
+                    //   } : "{name}",
+                    //     data: props.legend
+                    //   }
+
                     // data: ['Direct', 'Mail Ad', 'Affiliate Ad', 'Video Ad', 'Search Engine']
                 },
                 grid: {
-                    left: '3%',
+                    left: '10%',
                     right: '4%',
-                    bottom: '3%',
-                    containLabel: true
+                    bottom: '10%',
+                    containLabel: false
                 },
+                // itemStyle: {
+                //     normal: {
+                //         label: {
+                //             show: false
+                //         },
+                //         labelLine: {
+                //             show: false
+                //         }
+                //     }
+                // },
+                // yAxis: [
+                //     {
+                //       show: false,
+                //       type: "log",
+                //     }
+                //   ],
                 yAxis: {
-                    type: 'value'
+                    type: 'value',
+                    // min: 60,
+                    axisLabel: {
+                        formatter: value => $filter('secondToFormat')(value, 'mm분ss초')// '{value} Mbps'
+                    }
                 },
                 xAxis: {
                     type: 'category',
-                    data : $scope.model.options.date
+                    data: $scope.model.options.date
                     // data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
                 },
                 series: $scope.model.options.series
