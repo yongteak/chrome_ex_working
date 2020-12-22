@@ -106,30 +106,29 @@ angular.module('app.filter', [])
             var acc = [];
             if (diff == 0) {
                 acc.push({
-                    'hour': ah, 'value':
+                    'hour': parseInt(ah), 'value':
                         moment.duration(moment(btime, format).diff(moment(atime, format))).asSeconds()
                 });
             } else if (diff == 1) {
                 acc.push({
-                    'hour': ah, 'value':
+                    'hour': parseInt(ah), 'value':
                         moment.duration(moment(ah + ":59:59", format).diff(moment(atime, format))).asSeconds()
                 });
                 acc.push({
-                    'hour': bh, 'value':
+                    'hour': parseInt(bh), 'value':
                         moment.duration(moment(btime, format).diff(moment(bh + "00:00", format))).asSeconds()
                 });
             } else if (diff >= 2) {
-                var range = Array(diff - 1).fill(0).map((e, i) => i + (ah + 1));
+                var range = Array(diff - 1).fill(0).map((e, i) => i + (parseInt(ah) + 1));
                 acc.push({
-                    'hour': ah, 'value':
+                    'hour': parseInt(ah), 'value':
                         moment.duration(moment(ah + ":59:59", format).diff(moment(atime, format))).asSeconds()
                 });
                 range.forEach(h => {
-                    // console.log('3600!',s,h);
                     acc.push({ 'hour': h, 'value': 3600 });
                 });
                 acc.push({
-                    'hour': bh, 'value':
+                    'hour': parseInt(bh), 'value':
                         moment.duration(moment(btime, format).diff(moment(bh + "00:00", format))).asSeconds()
                 });
             }

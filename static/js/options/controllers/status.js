@@ -9,6 +9,19 @@ angular.module('app.controller.status', [])
         };
 
         $scope.run = {
+            setup: () => {
+                // array reference떄문에 deep copy필수..
+                const copy = JSON.parse(JSON.stringify( $scope.interval_summary ));
+                copy.forEach(data => {
+                    if ($scope.model.summary.hasOwnProperty(data.category)) {
+                        $scope.model.summary[data.category].times.forEach((_data1, index) => {
+                            $scope.model.summary[data.category].times[index].value += data.times[index].value;
+                        })
+                    } else {
+                        $scope.model.summary[data.category] = { day:data.day, times: data.times };
+                    }
+                });
+            },
             info: row => {
                 var url = "http://localhost:8080/api/v1/analytics/data?domain=" + row.domain;
                 console.log(url);
@@ -32,22 +45,19 @@ angular.module('app.controller.status', [])
         }
 
         storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
-            // 카테고리 메칭 todo cache
-            
-            // var sday = rows[0].day, eday = rows[rows.length - 1].day;
             const today = 20201222;
             rows = rows.filter(iv => { return iv.day == today });
-            console.log(234, rows);
             storage.getValue(CONFIG.STORAGE_TABS, tabs => {
                 $scope.interval_summary = [];
-                rows.forEach(row => {
+                rows.forEach((row,i,a) => {
+                    
                     var acc = [], arr1 = [];
                     // 시간 변환
                     row.intervals
                         .forEach(item => $filter('hmsToSeconds')(item)
-                        .forEach(r => arr1.push(r)));
+                            .forEach(r => {arr1.push(r)})
+                        );
                     // 0-23시 기준으로 sum
-                    // console.log('arr',arr1);
                     Array(24).fill(0).map((e, i) => i).forEach(t => {
                         var sum = arr1
                                     .filter(a => { return a.hour == t })
@@ -56,16 +66,8 @@ angular.module('app.controller.status', [])
                     });
                     var cat_nm = tabs.find(s => s.url === row.domain).category_top;
                     $scope.interval_summary.push({ domain: row.domain, day: row.day, category: cat_nm, times: acc });
-                });
-                // console.log(0,$scope.interval_summary);
-               
-                $scope.interval_summary.forEach(data => {
-                    if ($scope.model.summary.hasOwnProperty(data.category)) {
-                        $scope.model.summary[data.category].times.forEach((_data1, index) => {
-                            $scope.model.summary[data.category].times[index].value += data.times[index].value;
-                        })
-                    } else {
-                        $scope.model.summary[data.category] = { day:data.day, times: data.times };
+                    if (i == a.length - 1) {
+                        $scope.run.setup();
                     }
                 });
             });
@@ -74,7 +76,6 @@ angular.module('app.controller.status', [])
         $scope.all = function () {
             $scope.model.total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
-                // console.log(1111, rows);
                 rows.forEach(e => {
                     e.part = {
                         counter: e.counter,
@@ -108,8 +109,6 @@ angular.module('app.controller.status', [])
                 });
                 $scope.model.rows = targetTabs;
                 $scope.$apply();
-                // console.log($scope.model.today);
-                // 오늘날짜만 뽑기 또는 최근 마지막 날짜 뽑기
             });
 
             // 20201221
@@ -134,7 +133,7 @@ angular.module('app.controller.status', [])
                 // var req_kv = {,value:e.seriesName.hour};
                 const filter = e.seriesName.split('|')[0];
                 const hour = e.data.hour;
-                console.log(hour,filter,$scope.interval_summary);
+                // console.log(hour,filter,$scope.interval_summary);
                 $scope.model.rows = $scope.interval_summary
                                         .filter(item => item.category === filter)
                                         .filter(t => t.times[hour].value > 0);
