@@ -12,9 +12,10 @@ angular.module('app.controller.status', [])
             // 카테고리 메칭 todo cache
             
             // var sday = rows[0].day, eday = rows[rows.length - 1].day;
-            const today = 20201221;
+            const today = 20201222;
+            // console.log(rows);
             rows = rows.filter(iv => { return iv.day == today });
-            // console.log(999, rows);
+            console.log(234, rows);
             storage.getValue(CONFIG.STORAGE_TABS, tabs => {
                 $scope.interval_summary = [];
                 rows.forEach(row => {
@@ -75,13 +76,15 @@ angular.module('app.controller.status', [])
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
                 var today = $filter('formatDate')();
                 var targetTabs = rows.filter(x => x.days.find(s => s.date === today));
-                console.log(today, targetTabs);
+                // console.log(today, targetTabs);
                 targetTabs.forEach(e => {
                     e.part = e.days.filter(x => x.date == today)[0];
                     $scope.model.total_times += e.part.summary;
                 });
                 targetTabs = targetTabs.sort(function (a, b) {
-                    return b.days.find(s => s.date === today).summary - a.days.find(s => s.date === today).summary;
+                    return b.days
+                        .find(s => s.date === today).summary - a.days
+                        .find(s => s.date === today).summary;
                 });
                 $scope.model.rows = targetTabs;
                 $scope.$apply();
@@ -102,7 +105,7 @@ angular.module('app.controller.status', [])
                     emphasis: { focus: 'series' },
                     data: $scope.model.summary[p].times
                 });
-
+                // console.log(p,$scope.model.summary[p].times);
                 $scope.model.options.date = Array(24).fill(0).map((e, i) => i);
             }
             // !!
@@ -118,6 +121,7 @@ angular.module('app.controller.status', [])
                 $scope.model.rows.sort(function (a, b) {
                     return b.seconds - a.seconds;
                 });
+                // console.log(hour$scope.model.rows);
                 $scope.model.show_full_list = false;
                 $scope.model.show_limit_list = !$scope.model.show_full_list;
                 $scope.$apply();
@@ -201,15 +205,14 @@ angular.module('app.controller.status', [])
                         series.forEach(s => {
                             sum += s.value;
                             s.seriesName = s.seriesName.split('|')[1];
-                            s.value = s.value > 60 ? $filter('secondToFormat')(s.value,'mm분ss초') : s.value == 0 ? '-' : s.value +'초';
+                            s.value = s.value > 60 ? $filter('secondToFormat')(s.value, s.value >= 3600 ? 'HH시간mm분ss초':'mm분ss초') : s.value == 0 ? '-' : s.value +'초';
                             tooltip += `<div>${s.marker} ${s.seriesName}: <code>${s.value}</code></div>`;
                         });
-                        sum = sum > 60 ? $filter('secondToFormat')(sum,'mm분ss초') : sum == 0 ? '-' : sum +'초';
+                        sum = sum > 60 ? $filter('secondToFormat')(sum, sum >= 3600 ? 'HH시간mm분ss초':'mm분ss초') : sum == 0 ? '-' : sum +'초';
                         // title = title +' | '+sum;
                         tooltip = `<div><h5><b>#${title} </b><code><u>${sum}</u></code></h5></div>` + tooltip;
                         return tooltip;
                     }
-
                     // formatter: params => {
                     // console.log(params);
                     // return $filter('secondToFormat')(params[0].axisValueLabel, 'mm분ss초')
@@ -268,9 +271,9 @@ angular.module('app.controller.status', [])
                 //   ],
                 yAxis: {
                     type: 'value',
-                    // min: 60,
+                    max : 3600,
                     axisLabel: {
-                        formatter: value => $filter('secondToFormat')(value, 'mm분ss초')// '{value} Mbps'
+                        formatter: value => $filter('secondToFormat')(value, value >= 3600 ? 'HH시mm분':'mm분ss초')// '{value} Mbps'
                     }
                 },
                 xAxis: {

@@ -100,6 +100,7 @@ angular.module('app.filter', [])
             var bh = parseInt(str[1].split(':')[0]);
             var diff = bh - ah;
             var acc = [];
+            // console.log(n);
             if (diff == 0) {
                 acc.push({
                     'hour': ah, 'value':
@@ -121,6 +122,7 @@ angular.module('app.filter', [])
                         moment.duration(moment(ah + ":59:59", format).diff(moment(str[0], format))).asSeconds()
                 });
                 range.forEach(h => {
+                    // console.log('3600!',s,h);
                     acc.push({ 'hour': h, 'value': 3600 });
                 });
                 acc.push({
@@ -176,7 +178,7 @@ angular.module('app.filter', [])
         return function (n) {
             n = n.toLowerCase();
             var kv = {};
-            console.log(n);
+            // console.log(n);
             kv['wait_analytic'] = '기타';
             kv['news_and_media'] = '뉴스미디어';
             kv['finance'] = '금융';
