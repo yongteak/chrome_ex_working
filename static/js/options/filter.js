@@ -91,35 +91,38 @@ angular.module('app.filter', [])
     // "13:47:46-13:48:45"
     // "13:56:37-20:57:2"
     // 13:56:37-14:57:2"
+    // 0:59:3-1:1:47
+    // 3:59:3-4:1:47
     .filter('hmsToSeconds', function () {
         return function (s) {
             // console.log(s);
             var format = "HH:mm:ss";
             var str = s.split("-");
-            var ah = parseInt(str[0].split(':')[0]);
-            var bh = parseInt(str[1].split(':')[0]);
+            var atime = str[0].split(':').map(e => e.padStart(2, 0)).join(':');
+            var btime = str[1].split(':').map(e => e.padStart(2, 0)).join(':');
+            var ah = atime.split(':')[0];
+            var bh = btime.split(':')[0];
             var diff = bh - ah;
             var acc = [];
-            // console.log(n);
             if (diff == 0) {
                 acc.push({
                     'hour': ah, 'value':
-                        moment.duration(moment(str[1], format).diff(moment(str[0], format))).asSeconds()
+                        moment.duration(moment(btime, format).diff(moment(atime, format))).asSeconds()
                 });
             } else if (diff == 1) {
                 acc.push({
                     'hour': ah, 'value':
-                        moment.duration(moment(ah + ":59:59", format).diff(moment(str[0], format))).asSeconds()
+                        moment.duration(moment(ah + ":59:59", format).diff(moment(atime, format))).asSeconds()
                 });
                 acc.push({
                     'hour': bh, 'value':
-                        moment.duration(moment(str[1], format).diff(moment(bh + "00:00", format))).asSeconds()
+                        moment.duration(moment(btime, format).diff(moment(bh + "00:00", format))).asSeconds()
                 });
             } else if (diff >= 2) {
                 var range = Array(diff - 1).fill(0).map((e, i) => i + (ah + 1));
                 acc.push({
                     'hour': ah, 'value':
-                        moment.duration(moment(ah + ":59:59", format).diff(moment(str[0], format))).asSeconds()
+                        moment.duration(moment(ah + ":59:59", format).diff(moment(atime, format))).asSeconds()
                 });
                 range.forEach(h => {
                     // console.log('3600!',s,h);
@@ -127,9 +130,10 @@ angular.module('app.filter', [])
                 });
                 acc.push({
                     'hour': bh, 'value':
-                        moment.duration(moment(str[1], format).diff(moment(bh + "00:00", format))).asSeconds()
+                        moment.duration(moment(btime, format).diff(moment(bh + "00:00", format))).asSeconds()
                 });
             }
+            // acc.forEach(e => e ? (e.value < 0 ? console.log(s,e.value):''):'');
             return acc;
         }
     })

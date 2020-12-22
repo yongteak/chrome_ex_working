@@ -116,6 +116,17 @@ function backgroundCheck() {
                             text: 'n/a'
                         });
                     }
+                    // 일정시간동안 비활성 상태인 tab검출
+                    // if (tab !== undefined) {
+                    //     if (currentTab !== tab.url) {
+                    //         activity.setCurrentActiveTab(tab.url);
+                    //     }
+                    //     chrome.idle.queryState(parseInt(setting_interval_inactivity), function(state) {
+                    //         if (state === 'active') {
+                    //             mainTRacker(activeUrl, tab, activeTab);
+                    //         } else checkDOM(state, activeUrl, tab, activeTab);
+                    //     });
+                    // }
 
                     if (isLimitList && tab !== undefined) {
                         setBlockPageToCurrent(activeUrl);
@@ -506,7 +517,7 @@ function deleteTimeIntervalFromTabs() {
 }
 
 function deleteYesterdayTimeInterval() {
-    timeIntervalList = timeIntervalList.filter(x => x.day == formatDate());
+    // timeIntervalList = timeIntervalList.filter(x => x.day == formatDate());
 }
 
 function loadBlackList() {
@@ -522,7 +533,10 @@ function loadTimeIntervals() {
             for (var i = 0; i < items.length; i++) {
                 timeIntervalList.push(new TimeInterval(items[i].day, items[i].domain, items[i].intervals));
             }
-            deleteYesterdayTimeInterval();
+            // TODO 
+            // [2020-12-22 22:10:49]
+            // 언제까지 어떻게 관리할지?
+            // deleteYesterdayTimeInterval();
         }
     });
 }

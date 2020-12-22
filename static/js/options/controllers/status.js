@@ -36,28 +36,28 @@ angular.module('app.controller.status', [])
             
             // var sday = rows[0].day, eday = rows[rows.length - 1].day;
             const today = 20201222;
-            // console.log(rows);
             rows = rows.filter(iv => { return iv.day == today });
             console.log(234, rows);
             storage.getValue(CONFIG.STORAGE_TABS, tabs => {
                 $scope.interval_summary = [];
                 rows.forEach(row => {
                     var acc = [], arr1 = [];
-                    row.intervals.forEach(item => $filter('hmsToSeconds')(item).forEach(r => arr1.push(r)));
+                    // 시간 변환
+                    row.intervals
+                        .forEach(item => $filter('hmsToSeconds')(item)
+                        .forEach(r => arr1.push(r)));
+                    // 0-23시 기준으로 sum
+                    // console.log('arr',arr1);
                     Array(24).fill(0).map((e, i) => i).forEach(t => {
-                        var elem = arr1.filter(a => { return a.hour == t });
-                        if (elem.length > 0) {
-                            var sum = 0;
-                            // el.value가 -32293일떄가 있음.. 왜?
-                            elem.forEach(el => sum += (el.value < 0 ? 0 : el.value));
-                            acc.push({ hour: t, value: sum });
-                        } else {
-                            acc.push({ hour: t, value: 0 });
-                        }
-                    })
+                        var sum = arr1
+                                    .filter(a => { return a.hour == t })
+                                    .reduce((a, b) => a + b.value,0);
+                        acc.push({ hour: t, value: sum });
+                    });
                     var cat_nm = tabs.find(s => s.url === row.domain).category_top;
                     $scope.interval_summary.push({ domain: row.domain, day: row.day, category: cat_nm, times: acc });
                 });
+                // console.log(0,$scope.interval_summary);
                
                 $scope.interval_summary.forEach(data => {
                     if ($scope.model.summary.hasOwnProperty(data.category)) {
