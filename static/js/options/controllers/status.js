@@ -1,5 +1,5 @@
 angular.module('app.controller.status', [])
-    .controller('statusController', function ($scope, $filter, $location, moment, storage, CONFIG) {
+    .controller('statusController', function ($scope, $filter, $location, $http, moment, storage, CONFIG) {
         $scope.model = {
             rows: [], todal_times: 0, summary: {}, interval_summary: [],
             options: { category: [], date: [], times: [], series: [] },
@@ -7,6 +7,29 @@ angular.module('app.controller.status', [])
             show_full_list:true,
             show_limit_list:false
         };
+
+        $scope.run = {
+            info: row => {
+                var url = "http://localhost:8080/api/v1/analytics/data?domain=" + row.domain;
+                console.log(url);
+                $http({
+                    url: "http://localhost:8080/api/v1/analytics/data?domain="+row.domain,
+                    method: "GET"
+                }).finally(function () {
+
+                }).then(function (response) {
+                    response = response.data;
+                    console.log(response);
+                    if (response.result_msg == "STATUS_NORMAL") {
+                        
+                    } else {
+
+                    }
+                }, function (response) {
+                    console.log('ERROR')
+                });
+            }
+        }
 
         storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
             // 카테고리 메칭 todo cache
@@ -35,10 +58,7 @@ angular.module('app.controller.status', [])
                     var cat_nm = tabs.find(s => s.url === row.domain).category_top;
                     $scope.interval_summary.push({ domain: row.domain, day: row.day, category: cat_nm, times: acc });
                 });
-                // console.log(11111, summary);
-                // category_sub을 키값으로 24시 데이터 sum
-                // options: { category: [], times: [] }
-                // var sum = {}; // category, value[]
+               
                 $scope.interval_summary.forEach(data => {
                     if ($scope.model.summary.hasOwnProperty(data.category)) {
                         $scope.model.summary[data.category].times.forEach((_data1, index) => {
@@ -114,6 +134,7 @@ angular.module('app.controller.status', [])
                 // var req_kv = {,value:e.seriesName.hour};
                 const filter = e.seriesName.split('|')[0];
                 const hour = e.data.hour;
+                console.log(hour,filter,$scope.interval_summary);
                 $scope.model.rows = $scope.interval_summary
                                         .filter(item => item.category === filter)
                                         .filter(t => t.times[hour].value > 0);

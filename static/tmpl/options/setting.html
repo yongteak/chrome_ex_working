@@ -1,5 +1,5 @@
 <h2>설정</h2>
-<hr >
+<hr>
 <div class="row">
     <div class="col-lg-12">
         <div class="grid">
@@ -13,8 +13,10 @@
                                     <label>아이콘 표시정보</label>
                                 </div>
                                 <div class="col-md-9 showcase_content_area">
-                                    <select class="custom-select" ng-change="run.selected('activity_detected',model.select.activity_detected)" ng-model='model.select.activity_detected'
-                                    ng-options="item.id as item.name for item in model.options.activity_detected"></select>
+                                    <select class="custom-select"
+                                        ng-change="run.selected('activity_detected',model.select.activity_detected)"
+                                        ng-model='model.select.activity_detected'
+                                        ng-options="item.id as item.name for item in model.options.activity_detected"></select>
                                     <code>* 확장 기능의 아이콘 아래 표시되는 정보</code>
                                 </div>
                             </div>
@@ -51,14 +53,16 @@
                                             <td>{{ row.created | yyyymmdd_to_format_kr }}</td>
                                             <td>
                                                 <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input" 
-                                                        id="switch{{ $index }}" ng-change="enabledChange(row)" ng-model="row.enabled" ng-checked="{{ row.enabled }}">
-                                                    <label class="custom-control-label" for="switch{{ $index }}"></label>
+                                                    <input type="checkbox" class="custom-control-input"
+                                                        id="switch{{ $index }}" ng-change="enabledChange(row)"
+                                                        ng-model="row.enabled" ng-checked="{{ row.enabled }}">
+                                                    <label class="custom-control-label"
+                                                        for="switch{{ $index }}"></label>
                                                 </div>
                                             </td>
-                                            <!-- <td>{{ row.updated | yyyymmdd_to_format_kr }}</td> -->
                                             <td>
-                                                <button type="button" ng-click="run.remove(row)" class="btn btn-danger btn-xs">삭제</button>
+                                                <button type="button" ng-click="run.remove(row)"
+                                                    class="btn btn-danger btn-xs">삭제</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -72,12 +76,13 @@
                         <div class="mx-auto form-group row showcase_row_area">
 
                             <div class="col-md-10 showcase_content_area">
-                                
-                                <input class="form-control" ng-model="model.domain" maxlength="100" name="defaultconfig" id="defaultconfig"
-                                    type="text" placeholder="도메인을 입력해주세요. (예. naver.com)">
+
+                                <input class="form-control" ng-model="model.domain" maxlength="100" name="defaultconfig"
+                                    id="defaultconfig" type="text" placeholder="도메인을 입력해주세요. (예. naver.com)">
                             </div>
-                            
-                            <button class="btn btn-primary btn-sm" ng-click="run.add_domain()" type="submit">도메인 등록</button>
+
+                            <button class="btn btn-primary btn-sm" ng-click="run.add_domain()" type="submit">도메인
+                                등록</button>
                         </div>
                     </form>
                 </div>

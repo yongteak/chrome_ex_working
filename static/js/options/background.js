@@ -1,3 +1,8 @@
+// TODO
+// 할일들
+
+// FIXME
+// 수정할것들
 chrome.runtime.onStartup.addListener(function() {
     console.log("@@onStartup");
     // you can add more and more dependencies as long as it is declared in the manifest.json
