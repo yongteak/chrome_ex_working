@@ -3,7 +3,6 @@ angular.module('app.controller.status', [])
         $scope.model = {
             rows: [], todal_times: 0, summary: {}, interval_summary: [],
             options: { category: [], date: [], times: [], series: [] },
-            category_name: [],
             show_full_list:true,
             show_limit_list:false
         };
@@ -64,7 +63,7 @@ angular.module('app.controller.status', [])
                                     .reduce((a, b) => a + b.value,0);
                         acc.push({ hour: t, value: sum });
                     });
-                    var cat_nm = tabs.find(s => s.url === row.domain).category_top;
+                    var cat_nm = tabs.find(s => s.url === row.domain).category_sub;
                     $scope.interval_summary.push({ domain: row.domain, day: row.day, category: cat_nm, times: acc });
                     if (i == a.length - 1) {
                         $scope.run.setup();
@@ -219,27 +218,19 @@ angular.module('app.controller.status', [])
                         let sum = 0;
                         const [firstSeries] = series;
                         const title = firstSeries.axisValue+'시'
-                        
-                       // tooltip += `<div><h5><b>#${title} | ${sum}</b></h5></div>`;
 
                         series.forEach(s => {
                             sum += s.value;
                             s.seriesName = s.seriesName.split('|')[1];
                             s.value = s.value > 60 ? $filter('secondToFormat')(s.value, s.value >= 3600 ? 'HH시간mm분ss초':'mm분ss초') : s.value == 0 ? '-' : s.value +'초';
-                            tooltip += `<div>${s.marker} ${s.seriesName}: <code>${s.value}</code></div>`;
+                            if (s.value != '-') {
+                                tooltip += `<div>${s.marker} ${s.seriesName}: <code>${s.value}</code></div>`;
+                            }
                         });
-                        sum = sum > 60 ? $filter('secondToFormat')(sum, sum >= 3600 ? 'HH시간mm분ss초':'mm분ss초') : sum == 0 ? '-' : sum +'초';
-                        // title = title +' | '+sum;
+                        sum = sum > 60 ? $filter('secondToFormat')(sum, sum >= 3600 ? 'HH시간mm분ss초':'mm분ss초') : sum == 0 ? '' : sum +'초';
                         tooltip = `<div><h5><b>#${title} </b><code><u>${sum}</u></code></h5></div>` + tooltip;
                         return tooltip;
                     }
-                    // formatter: params => {
-                    // console.log(params);
-                    // return $filter('secondToFormat')(params[0].axisValueLabel, 'mm분ss초')
-                    // return params.forEach(e => {
-                    //     e.axisValueLabel = $filter('secondToFormat')(e.axisValueLabel, 'mm분ss초')
-                    // })
-                    // }
                 },
                 // grid: {
                 //     containLabel: false
