@@ -1,3 +1,8 @@
+[2020-12-23 14:21:25]
+ehcarts Uncaught Error: series.type should be specified
+ => https://www.programmersought.com/article/5682932615/
+ => 동적 데이터를 넣는문제, timer를 사용하거나 고정된 x,y 데이터 사용필요
 [2020-12-22 11:44:59]
 daily-hours 차트에서 하나의 series는 최대 1시간까지만 표시되어야함.
  => series클릭시 해당 카테고리의 도메인이 조회되는데, 1시간짜리 2개이상 나타남
+ => [2020-12-23 14:22:16] 코드 수정 완료

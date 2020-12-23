@@ -1,31 +1,138 @@
 angular.module('app.controller.status', [])
     .controller('statusController', function ($scope, $filter, $location, $http, moment, storage, CONFIG) {
+        moment.locale('ko');
         $scope.model = {
             rows: [], todal_times: 0, summary: {}, interval_summary: [],
             options: { category: [], date: [], times: [], series: [] },
-            show_full_list:true,
-            show_limit_list:false
+            times: { today: null, hours: [], weeks: [] },
+            show_full_list: true,
+            show_limit_list: false
         };
+        $scope.param = null;
 
         $scope.run = {
+            init: () => {
+                console.log('^init');
+                console.log('# 주간 날짜 생성');
+                Array.apply(null, Array(7)).map(function (_, i) {
+                    $scope.model.times.weeks.push(moment().clone().startOf('week').add(i, 'days').format("YYYYMMDD"));
+                });
+                // console.log('# 23시간 생성');
+                console.log('# interval 데이터 수집');
+                storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
+                    // const today = 20201223;
+                    // rows = rows.filter(iv => { return iv.day == today });
+                    storage.getValue(CONFIG.STORAGE_TABS, tabs => {
+                        $scope.interval_summary = [];
+                        rows.forEach((row, i, a) => {
+                            var acc = [], arr1 = [];
+                            // 시간 변환
+                            row.intervals
+                                .forEach(item => $filter('hmsToSeconds')(item)
+                                    .forEach(r => { arr1.push(r) })
+                                );
+                            // 0-23시 기준으로 sum
+                            Array(24).fill(0).map((e, i) => i).forEach(t => {
+                                var sum = arr1
+                                    .filter(a => { return a.hour == t })
+                                    .reduce((a, b) => a + b.value, 0);
+                                acc.push({ hour: t, value: sum });
+                            });
+                            var cat_nm = tabs.find(s => s.url === row.domain).category_top;
+                            $scope.interval_summary.push({ 
+                                domain: row.domain, 
+                                day: row.day, 
+                                category: cat_nm, 
+                                times: acc 
+                            });
+
+                            if (i == a.length - 1) {
+                                $scope.run.setup();
+                            }
+                        });
+                    });
+                });
+            },
             setup: () => {
-                // array reference떄문에 deep copy필수..
-                const copy = JSON.parse(JSON.stringify( $scope.interval_summary ));
+                console.log("^setup");
+                const copy = JSON.parse(JSON.stringify($scope.interval_summary));
                 copy.forEach(data => {
                     if ($scope.model.summary.hasOwnProperty(data.category)) {
                         $scope.model.summary[data.category].times.forEach((_data1, index) => {
                             $scope.model.summary[data.category].times[index].value += data.times[index].value;
                         })
                     } else {
-                        $scope.model.summary[data.category] = { day:data.day, times: data.times };
+                        $scope.model.summary[data.category] = { day: data.day, times: data.times };
                     }
                 });
+
+                console.log('# day 차트 데이터 생성');
+                console.log($scope.model.summary);
+                for (var p in $scope.model.summary) {
+                    var fill = new Array($scope.model.times.weeks.length - 1).fill(0);
+                    var sum = $scope.model.summary[p].times.reduce((a, b) => a + b.value, 0);
+                    // {day:, time:[24], days:[7]}
+                    // 7개의 데이터에서 자기에게 해당되지 않는 데이터는 0으로 push
+                    var idx = $scope.model.times.weeks.indexOf('' + $scope.model.summary[p].day);
+                    idx = idx == -1 ? 0 : idx;
+                    fill.splice(idx, 0, sum);
+                    $scope.model.options.series.push({
+                        name: p + '|' + $filter('category_to_name')(p),
+                        type: 'bar',
+                        stack: 'total',
+                        label: {
+                            show: false
+                        },
+                        emphasis: { focus: 'series' },
+                        data: fill
+                    });
+                }
+
+                // });
+                // console.log($scope.model.options.series.length);
+                // for (var p in $scope.model.summary) {
+                //     $scope.model.options.series.push({
+                //         name: p + '|' + $filter('category_to_name')(p),
+                //         type: 'bar',
+                //         stack: 'total',
+                //         label: {
+                //             show: false
+                //         },
+                //         emphasis: { focus: 'series' },
+                //         data: $scope.model.summary[p].times
+                //     });
+                // };
+                // console.log($scope.model.summary);
+            },
+            charts: () => {
+                console.log('# opt1 차트 데이터 적용');
+                // var gen_opt = opt1();
+                $scope.param = {
+                    // 24시간
+                    // $scope.model.options.series
+                    'option': opt1(), 'click': e => {
+                        // 날짜정보가 없는경우 해당 시간대의 모든 카테고리에 해당하는 도메인 조회
+                        // var req_kv = {,value:e.seriesName.hour};
+                        const filter = e.seriesName.split('|')[0];
+                        const hour = e.data.hour;
+                        // console.log(hour,filter,$scope.interval_summary);
+                        $scope.model.rows = $scope.interval_summary
+                            .filter(item => item.category === filter)
+                            .filter(t => t.times[hour].value > 0);
+                        $scope.model.rows.forEach(h => h['seconds'] = h.times[hour].value);
+                        $scope.model.rows.sort(function (a, b) {
+                            return b.seconds - a.seconds;
+                        });
+                        // console.log(hour$scope.model.rows);
+                        $scope.model.show_full_list = false;
+                        $scope.model.show_limit_list = !$scope.model.show_full_list;
+                        $scope.$apply();
+                    }
+                };
             },
             info: row => {
-                var url = "http://localhost:8080/api/v1/analytics/data?domain=" + row.domain;
-                console.log(url);
                 $http({
-                    url: "http://localhost:8080/api/v1/analytics/data?domain="+row.domain,
+                    url: "http://localhost:8080/api/v1/analytics/data?domain=" + row.domain,
                     method: "GET"
                 }).finally(function () {
 
@@ -33,7 +140,7 @@ angular.module('app.controller.status', [])
                     response = response.data;
                     console.log(response);
                     if (response.result_msg == "STATUS_NORMAL") {
-                        
+
                     } else {
 
                     }
@@ -43,35 +150,10 @@ angular.module('app.controller.status', [])
             }
         }
 
-        storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
-            const today = 20201222;
-            rows = rows.filter(iv => { return iv.day == today });
-            storage.getValue(CONFIG.STORAGE_TABS, tabs => {
-                $scope.interval_summary = [];
-                rows.forEach((row,i,a) => {
-                    
-                    var acc = [], arr1 = [];
-                    // 시간 변환
-                    row.intervals
-                        .forEach(item => $filter('hmsToSeconds')(item)
-                            .forEach(r => {arr1.push(r)})
-                        );
-                    // 0-23시 기준으로 sum
-                    Array(24).fill(0).map((e, i) => i).forEach(t => {
-                        var sum = arr1
-                                    .filter(a => { return a.hour == t })
-                                    .reduce((a, b) => a + b.value,0);
-                        acc.push({ hour: t, value: sum });
-                    });
-                    var cat_nm = tabs.find(s => s.url === row.domain).category_sub;
-                    $scope.interval_summary.push({ domain: row.domain, day: row.day, category: cat_nm, times: acc });
-                    if (i == a.length - 1) {
-                        $scope.run.setup();
-                    }
-                });
-            });
-        });
-       
+        $scope.run.init();
+
+
+
         $scope.all = function () {
             $scope.model.total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
@@ -92,6 +174,8 @@ angular.module('app.controller.status', [])
             })
         }
         $scope.today = function () {
+            $scope.run.charts();
+            return;
             $scope.model.total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
                 var today = $filter('formatDate')();
@@ -104,106 +188,19 @@ angular.module('app.controller.status', [])
                 targetTabs = targetTabs.sort(function (a, b) {
                     return b.days
                         .find(s => s.date === today).summary - a.days
-                        .find(s => s.date === today).summary;
+                            .find(s => s.date === today).summary;
                 });
                 $scope.model.rows = targetTabs;
                 $scope.$apply();
             });
-
-            // 20201221
-
-            for (var p in $scope.model.summary) {
-                $scope.model.options.series.push({
-                    name: p+'|'+$filter('category_to_name')(p),
-                    type: 'bar',
-                    stack: 'total',
-                    label: {
-                        show: false
-                    },
-                    emphasis: { focus: 'series' },
-                    data: $scope.model.summary[p].times
-                });
-                // console.log(p,$scope.model.summary[p].times);
-                $scope.model.options.date = Array(24).fill(0).map((e, i) => i);
-            }
-            // !!
-            $scope.param = {'option':opt(),'click':e=> {
-                // 날짜정보가 없는경우 해당 시간대의 모든 카테고리에 해당하는 도메인 조회
-                // var req_kv = {,value:e.seriesName.hour};
-                const filter = e.seriesName.split('|')[0];
-                const hour = e.data.hour;
-                // console.log(hour,filter,$scope.interval_summary);
-                $scope.model.rows = $scope.interval_summary
-                                        .filter(item => item.category === filter)
-                                        .filter(t => t.times[hour].value > 0);
-                $scope.model.rows.forEach(h => h['seconds'] = h.times[hour].value);
-                $scope.model.rows.sort(function (a, b) {
-                    return b.seconds - a.seconds;
-                });
-                // console.log(hour$scope.model.rows);
-                $scope.model.show_full_list = false;
-                $scope.model.show_limit_list = !$scope.model.show_full_list;
-                $scope.$apply();
-            }}
         }
 
         var now = moment().endOf('day').toDate();
         var time_ago = moment().startOf('day').subtract(10, 'year').toDate();
-        $scope.example_data = d3.time.days(time_ago, now).map(function (dateElement, index) {
-            return {
-                date: dateElement,
-                details: Array.apply(null, new Array(Math.round(Math.random() * 15))).map(function (e, i, arr) {
-                    return {
-                        'name': 'Project ' + Math.ceil(Math.random() * 10),
-                        'date': function () {
-                            var projectDate = new Date(dateElement.getTime());
-                            projectDate.setHours(Math.floor(Math.random() * 24))
-                            projectDate.setMinutes(Math.floor(Math.random() * 60));
-                            return projectDate;
-                        }(),
-                        'value': 3600 * ((arr.length - i) / 5) + Math.floor(Math.random() * 3600) * Math.round(Math.random() * (index / 365))
-                    }
-                }),
-                init: function () {
-                    this.total = this.details.reduce(function (prev, e) {
-                        return prev + e.value;
-                    }, 0);
-                    return this;
-                }
-            }.init();
-        });
 
-        // Set custom color for the calendar heatmap
-        $scope.color = '#790C90';
-
-        // Set overview type (choices are year, month and day)
-        $scope.overview = 'year';
-        $scope.tooltip = true;
-
-        // Handler function
-        $scope.print = function (val) {
-            console.log(val);
-        };
-
-        $scope.over = function (val) {
-            // console.log("over@", val);
-            // console.log($scope.example_data);
-        };
-
-        var type = false;
-        // $scope.option = opt();//loadDataWithType(type);
-
-
-        // $scope.change = function () {
-        //     type = !type;
-        //     $scope.option = opt();//loadDataWithType();
-        //     console.log($scope.option)
-        // }
-
-        $scope.today();
-
-
-        function opt() {
+        function opt1() {
+            // [2020-12-23 14:29:27]
+            // 차트 조건만큼 데이터 미리 생성후 binding처리 필요
             return {
                 toolbox: {
                     show: true,
@@ -217,46 +214,25 @@ angular.module('app.controller.status', [])
                         let tooltip = '';
                         let sum = 0;
                         const [firstSeries] = series;
-                        const title = firstSeries.axisValue+'시'
+                        const title = moment(firstSeries.axisValue).format('YY년MM월DD일')
 
                         series.forEach(s => {
                             sum += s.value;
                             s.seriesName = s.seriesName.split('|')[1];
-                            s.value = s.value > 60 ? $filter('secondToFormat')(s.value, s.value >= 3600 ? 'HH시간mm분ss초':'mm분ss초') : s.value == 0 ? '-' : s.value +'초';
-                            if (s.value != '-') {
+                            s.value = s.value > 60 ? $filter('secondToFormat')(s.value, s.value >= 3600 ? 'HH시간mm분' : 'mm분ss초') : s.value == 0 ? '-' : s.value + '초';
+                            if (s.value != '-')
                                 tooltip += `<div>${s.marker} ${s.seriesName}: <code>${s.value}</code></div>`;
-                            }
                         });
-                        sum = sum > 60 ? $filter('secondToFormat')(sum, sum >= 3600 ? 'HH시간mm분ss초':'mm분ss초') : sum == 0 ? '' : sum +'초';
+                        sum = sum > 60 ? $filter('secondToFormat')(sum, sum >= 3600 ? 'hh시간mm분' : 'mm분ss초') : sum == 0 ? '' : sum + '초';
                         tooltip = `<div><h5><b>#${title} </b><code><u>${sum}</u></code></h5></div>` + tooltip;
                         return tooltip;
                     }
                 },
-                // grid: {
-                //     containLabel: false
-                // },
                 legend: {
-                    // data: Object.keys($scope.model.summary),
-                    data: Object.keys($scope.model.summary).forEach(e => e+'|'+$filter('category_to_name')(e))
-                    ,
+                    data: Object.keys($scope.model.summary).forEach(e => e + '|' + $filter('category_to_name')(e)),
                     formatter: name => {
                         return name.split('|')[1];
-                        // return $filter('category_to_name')(name)
                     }
-
-                    // legend: {
-                    //     show: props.legend ? true : false,
-                    //     orient: 'horizontal',
-                    //     x: 'left',
-                    //     y: 'bottom',
-                    //     formatter: props.legendValue ? function (name) {
-                    //       let itemValue = data.filter(item => item.name === name)
-                    //       return `${name}: ${itemValue[0].value}`
-                    //   } : "{name}",
-                    //     data: props.legend
-                    //   }
-
-                    // data: ['Direct', 'Mail Ad', 'Affiliate Ad', 'Video Ad', 'Search Engine']
                 },
                 grid: {
                     left: '10%',
@@ -264,33 +240,76 @@ angular.module('app.controller.status', [])
                     bottom: '10%',
                     containLabel: false
                 },
-                // itemStyle: {
-                //     normal: {
-                //         label: {
-                //             show: false
-                //         },
-                //         labelLine: {
-                //             show: false
-                //         }
-                //     }
-                // },
-                // yAxis: [
-                //     {
-                //       show: false,
-                //       type: "log",
-                //     }
-                //   ],
                 yAxis: {
                     type: 'value',
-                    max : 3600,
+                    max: 3600 * 24,
                     axisLabel: {
-                        formatter: value => $filter('secondToFormat')(value, value >= 3600 ? 'HH시mm분':'mm분ss초')// '{value} Mbps'
+                        formatter: value => value < (3600 * 24) - 1 ? $filter('secondToFormat')(value, 'HH시mm분'):'24시00분'
                     }
                 },
                 xAxis: {
                     type: 'category',
-                    data: $scope.model.options.date
-                    // data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                    data: $scope.model.times.weeks,
+                    axisLabel: {
+                        formatter: value => moment(value).format('ddd')
+                    }
+                },
+                series: $scope.model.options.series
+            }
+        }
+
+        function opt() {
+            // [2020-12-23 14:29:27]
+            // 차트 조건만큼 데이터 미리 생성후 binding처리 필요
+            return {
+                toolbox: {
+                    show: true,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: series => {
+                        let tooltip = '';
+                        let sum = 0;
+                        const [firstSeries] = series;
+                        const title = firstSeries.axisValue + '시'
+
+                        series.forEach(s => {
+                            sum += s.value;
+                            s.seriesName = s.seriesName.split('|')[1];
+                            s.value = s.value > 60 ? $filter('secondToFormat')(s.value, s.value >= 3600 ? 'HH시간mm분ss초' : 'mm분ss초') : s.value == 0 ? '-' : s.value + '초';
+                            if (s.value != '-')
+                                tooltip += `<div>${s.marker} ${s.seriesName}: <code>${s.value}</code></div>`;
+                        });
+                        sum = sum > 60 ? $filter('secondToFormat')(sum, sum >= 3600 ? 'HH시간mm분ss초' : 'mm분ss초') : sum == 0 ? '' : sum + '초';
+                        tooltip = `<div><h5><b>#${title} </b><code><u>${sum}</u></code></h5></div>` + tooltip;
+                        return tooltip;
+                    }
+                },
+                legend: {
+                    data: Object.keys($scope.model.summary).forEach(e => e + '|' + $filter('category_to_name')(e)),
+                    formatter: name => {
+                        return name.split('|')[1];
+                    }
+                },
+                grid: {
+                    left: '10%',
+                    right: '4%',
+                    bottom: '10%',
+                    containLabel: false
+                },
+                yAxis: {
+                    type: 'value',
+                    max: 3600,
+                    axisLabel: {
+                        formatter: value => $filter('secondToFormat')(value, value >= 3600 ? 'HH시mm분' : 'mm분ss초')// '{value} Mbps'
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: Array(24).fill(0).map((e, i) => i)
                 },
                 series: $scope.model.options.series
             }

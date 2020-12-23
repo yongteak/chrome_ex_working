@@ -1,18 +1,26 @@
+# Array 랜덤 생성
+https://stackoverflow.com/questions/3746725/how-to-create-an-array-containing-1-n
+
 # moment 주간 날짜 계산하기
 https://momentjs.com/
 https://stackoverflow.com/questions/34871998/how-to-get-the-days-b-w-current-week-in-moment-js
- var currentDate = moment();
-   var weekStart = currentDate.clone().startOf('week');
-   var weekEnd = currentDate.clone().endOf('week');
+var currentDate = moment();
+var weekStart = currentDate.clone().startOf('week');
+var weekEnd = currentDate.clone().endOf('week');
+var days = [];
+for (i = 0; i <= 6; i++) {
+    days.push(moment(weekStart).add(i, 'days').format("YYYYMMDD"));
+};
 
-   var days = [];
-   for (i = 0; i <= 6; i++) {
+var days = [];
+Array.apply(null, Array(7)).map(function (_, i) {
+    days.push(moment().clone().startOf('week').add(i,'days').format("YYYYMMDD"));
+});
+days;
 
-       days.push(moment(weekStart).add(i, 'days').format("MMMM Do,dddd"));
+console.log(days);
 
-   };
-   console.log(days);
-   console.log(moment('01/19/2016').format("MMMM Do,dddd"));
+console.log(moment('01/19/2016').format("MMMM Do,dddd"));
 
 var start = moment('20201220',"YYYYMMDD");
 moment(start).add(-1,'day').format('YYYYMMDD');
