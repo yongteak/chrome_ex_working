@@ -8,13 +8,7 @@ angular.module('app.filter', [])
 
     .filter('formatDate', function () {
         return function () {
-            var date = new Date();
-            var year = date.getFullYear();
-            var month = (1 + date.getMonth());
-            month = month >= 10 ? month : '0' + month;
-            var day = date.getDate();
-            day = day >= 10 ? day : '0' + day;
-            return parseInt(year + '' + month + '' + day);
+            return parseInt(moment().format('YYYYMMDD'));
         };
     })
 
