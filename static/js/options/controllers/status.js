@@ -1,5 +1,6 @@
 angular.module('app.controller.status', [])
     .controller('statusController', function ($scope, $filter, $location, $http, moment, storage, CONFIG) {
+        Array.prototype.sum = function () { return [].reduce.call(this, (a, i) => a + i.value, 0); }
         moment.locale('ko');
         $scope.model = {
             rows: [], todal_times: 0, summary: {}, interval_summary: [],
@@ -20,6 +21,7 @@ angular.module('app.controller.status', [])
                 // console.log('# 23시간 생성');
                 console.log('# interval 데이터 수집');
                 storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
+                    // console.log(rows);
                     // const today = 20201223;
                     // rows = rows.filter(iv => { return iv.day == today });
                     storage.getValue(CONFIG.STORAGE_TABS, tabs => {
@@ -38,13 +40,17 @@ angular.module('app.controller.status', [])
                                     .reduce((a, b) => a + b.value, 0);
                                 acc.push({ hour: t, value: sum });
                             });
+
                             var cat_nm = tabs.find(s => s.url === row.domain).category_top;
-                            $scope.interval_summary.push({ 
-                                domain: row.domain, 
-                                day: row.day, 
-                                category: cat_nm, 
-                                times: acc 
+                            $scope.interval_summary.push({
+                                domain: row.domain,
+                                day: row.day,
+                                category: cat_nm,
+                                times: acc
                             });
+                            // if (row.domain == 'docs.google.com') {
+                            //     console.log('docs', row.day, $scope.interval_summary);
+                            // }
 
                             if (i == a.length - 1) {
                                 $scope.run.setup();
@@ -56,53 +62,31 @@ angular.module('app.controller.status', [])
             setup: () => {
                 console.log("^setup");
                 const copy = JSON.parse(JSON.stringify($scope.interval_summary));
-                copy.forEach(data => {
-                    if ($scope.model.summary.hasOwnProperty(data.category)) {
-                        $scope.model.summary[data.category].times.forEach((_data1, index) => {
-                            $scope.model.summary[data.category].times[index].value += data.times[index].value;
-                        })
+                $scope.model.summary = copy.reduce((prev, cur) => {
+                    let existing = prev.find(x => x.category === cur.category && x.day === cur.day);
+                    if (existing) {
+                        existing.times += cur.times.reduce((a, b) => a + b.value, 0)
                     } else {
-                        $scope.model.summary[data.category] = { day: data.day, times: data.times };
+                        prev.push({
+                            category: cur.category, day: cur.day, times: 0
+                        });
                     }
-                });
-
+                    return prev;
+                }, []);
                 console.log('# day 차트 데이터 생성');
-                console.log($scope.model.summary);
-                for (var p in $scope.model.summary) {
+                // console.log('$scope.model.summary',$scope.model.summary);
+                $scope.model.summary.forEach(e => {
                     var fill = new Array($scope.model.times.weeks.length - 1).fill(0);
-                    var sum = $scope.model.summary[p].times.reduce((a, b) => a + b.value, 0);
-                    // {day:, time:[24], days:[7]}
-                    // 7개의 데이터에서 자기에게 해당되지 않는 데이터는 0으로 push
-                    var idx = $scope.model.times.weeks.indexOf('' + $scope.model.summary[p].day);
+                    var idx = $scope.model.times.weeks.indexOf('' + e.day);
                     idx = idx == -1 ? 0 : idx;
-                    fill.splice(idx, 0, sum);
+                    fill.splice(idx, 0, e.times);
                     $scope.model.options.series.push({
-                        name: p + '|' + $filter('category_to_name')(p),
-                        type: 'bar',
-                        stack: 'total',
-                        label: {
-                            show: false
-                        },
-                        emphasis: { focus: 'series' },
-                        data: fill
+                        name: e.category + '|' + $filter('category_to_name')(e.category),
+                        data: fill, type: 'bar', stack: 'total',
+                        label: { show: false },
+                        emphasis: { focus: 'series' }
                     });
-                }
-
-                // });
-                // console.log($scope.model.options.series.length);
-                // for (var p in $scope.model.summary) {
-                //     $scope.model.options.series.push({
-                //         name: p + '|' + $filter('category_to_name')(p),
-                //         type: 'bar',
-                //         stack: 'total',
-                //         label: {
-                //             show: false
-                //         },
-                //         emphasis: { focus: 'series' },
-                //         data: $scope.model.summary[p].times
-                //     });
-                // };
-                // console.log($scope.model.summary);
+                });
             },
             charts: () => {
                 console.log('# opt1 차트 데이터 적용');

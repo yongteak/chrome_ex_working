@@ -71,29 +71,8 @@ function updateStorage() {
     setInterval(backgroundUpdateStorage, SETTINGS_INTERVAL_SAVE_STORAGE_DEFAULT);
 }
 
-// if (tab.url == 'data.similarweb.com') {
-//     // data.similarweb.com
-//     console.log('event!');
-// chrome.tabs.sendMessage(id, { req: EVENT_SIMILARWEB_REPORT }, response => {
-//     console.log(response);
-//     if (response !== undefined) {
-//         tab.completed = true;
-//     }
-// });
-// }
-
 function backgroundCheck() {
-    // chrome.tabs.query({ url: "*://data.similarweb.com/api/*", status: "complete" }, tab => {
-    //     tab.forEach(t => {
-    //         chrome.tabs.sendMessage(t.id, { req: EVENT_SIMILARWEB_REPORT }, response => {
-    //             // console.log(t.status);
-    //             // t.status = 'end_of_task';
-    //             chrome.tabs.remove(t.id, () => console.log('close', response))
-    //         });
-    //     })
-    //     // console.log(4444,tab);
-    // });
-
+    var today = formatDate();
     chrome.windows.getLastFocused({ populate: true }, function (currentWindow) {
         if (currentWindow.focused) {
             var activeTab = currentWindow.tabs.find(t => t.active === true);
@@ -103,6 +82,7 @@ function backgroundCheck() {
                 if (tab === undefined) {
                     activity.addTab(activeTab);
                 }
+                console.log('tab1 ', tab);
 
                 var isBlockList = activity.isInBlackList(activeUrl);
                 var isLimitList = activity.isLimitExceeded(activeUrl, tab);
@@ -138,7 +118,6 @@ function backgroundCheck() {
                             item.count += 1;
                             storage.saveValue(STORAGE_RESTRICTION_LIST, setting_restriction_list);
                         };
-                        var today = formatDate();
                         item = setting_restriction_access_list.find(o => o.domain === domain && o.day == today);
                         if (item !== undefined) {
                             item.count += 1;
@@ -175,6 +154,8 @@ function backgroundCheck() {
                                 // 사이트별 사용시간
                                 // 사용시간
                                 // var today = formatDate();
+                                console.log(today,179,tab);
+                                // console.log()
                                 var summary = tab.days.find(s => s.date === today).summary;
                                 // var data = bytesToSize(activity.getDataUsaged(tab));
                                 chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
@@ -423,7 +404,7 @@ function addListener() {
 
     // 요청이 성공적으로 처리
     // chrome.webRequest.onCompleted.addListener(onRequestCompletedOrErrored, filter);
-    // 요청을 성공적으로 처리 할 수 ​​없을 때 
+    // 요청을 성공적으로 처리 할 수 ​​없을 때
     // chrome.webRequest.onErrorOccurred.addListener(onRequestCompletedOrErrored, filter);
     // onBeforeNavigate -> onCommitted -> onDOMContentLoaded -> onCompleted
     // 화면 수신중
@@ -437,7 +418,7 @@ function webNavigation(e) {
     // console.log(e);
 }
 // $$
-// Tab 변경시 해당 Tab의 KB 데이터 표현을 위함, 
+// Tab 변경시 해당 Tab의 KB 데이터 표현을 위함,
 function onTabSwitch({ tabId }) {
     // const tabData = getTabData(tabId);
     // updateView(tabData);
@@ -537,7 +518,7 @@ function loadTimeIntervals() {
             for (var i = 0; i < items.length; i++) {
                 timeIntervalList.push(new TimeInterval(items[i].day, items[i].domain, items[i].intervals));
             }
-            // TODO 
+            // TODO
             // [2020-12-22 22:10:49]
             // 언제까지 어떻게 관리할지?
             // deleteYesterdayTimeInterval();

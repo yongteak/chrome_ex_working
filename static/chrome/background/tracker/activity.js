@@ -61,7 +61,6 @@ class Activity {
     // 추적 금지
     isInBlackList(domain) {
         var find = undefined;
-        console.log(setting_black_list);
         if (setting_black_list !== undefined && setting_black_list.length > 0) {
             // 도메인 검색
             find = setting_black_list.find(o =>
@@ -70,14 +69,12 @@ class Activity {
         }
         return find !== undefined;
     }
-ㄴ
     // 접근 제한
     isLimitExceeded(domain, tab) {
         if (setting_restriction_list !== undefined && setting_restriction_list.length > 0) {
             var item = setting_restriction_list.find(o =>
                 o.enabled && isDomainEquals(this.extractHostname(o.domain), this.extractHostname(domain))
             );
-            // console.log(item);
             if (item !== undefined) {
                 var startHm = hhmmStrToNumber(item.time_start);
                 var endHm = hhmmStrToNumber(item.time_end);
@@ -99,8 +96,9 @@ class Activity {
     }
 
     getTab(domain) {
-        if (tabs !== undefined)
+        if (tabs !== undefined) {
             return tabs.find(o => o.url === domain);
+        }
     }
 
     extractHostname(url) {
@@ -159,7 +157,7 @@ class Activity {
     }
 
     closeIntervalForCurrentTab() {
-        if (currentTab !== '') {
+        if (currentTab !== '' && timeIntervalList) {
             var item = timeIntervalList.find(o => o.domain === currentTab && o.day == formatDate());
             if (item != undefined)
                 item.closeInterval();

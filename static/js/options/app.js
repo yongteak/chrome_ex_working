@@ -3,6 +3,9 @@ var app = angular.module('app', [
 	//// "ui.bootstrap",
 	'app.controllers', 'app.services', 'app.controller.setting','app.controller.status','app.filter'
 ]);
+
+
+
 app.constant('CONFIG', {
 	'IDENTITY':'dentity',
 	'STORAGE_HISTORY_OF_SYNC': 'sync_history',
