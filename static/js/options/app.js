@@ -1,12 +1,12 @@
 var app = angular.module('app', [
 	"ngRoute", "angular-echarts3", "g1b.calendar-heatmap", "angularMoment",
 	//// "ui.bootstrap",
-	'app.controllers', 'app.services', 'app.controller.status','app.filter'
+	'app.controllers', 'app.services', 'app.controller.setting','app.controller.status','app.filter'
 ]);
 app.constant('CONFIG', {
 	'IDENTITY':'dentity',
 	'STORAGE_HISTORY_OF_SYNC': 'sync_history',
-	'STORAGE_SETTING': 'setting',
+	'STORAGE_SETTINGS_VIEW_TIME_IN_BADGE': 'setting_view_time_in_badge',
 	'STORAGE_TABS': 'tabs',
 	// 추적 금지
 	'STORAGE_BLACK_LIST': 'black_list',

@@ -61,6 +61,7 @@ class Activity {
     // 추적 금지
     isInBlackList(domain) {
         var find = undefined;
+        console.log(setting_black_list);
         if (setting_black_list !== undefined && setting_black_list.length > 0) {
             // 도메인 검색
             find = setting_black_list.find(o =>

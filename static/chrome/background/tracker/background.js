@@ -53,6 +53,7 @@ var setting_restriction_access_list
 var setting_interval_save;
 var setting_interval_inactivity;
 var setting_view_in_badge;
+
 var setting_notification_list;
 var setting_notification_message;
 
@@ -167,19 +168,21 @@ function backgroundCheck() {
                                             response.isObserved ? response.increasedSize : response.transferSize);
                                     }
                                 });
-                                var today = formatDate();
+                                // 2020-12-24 06:44:49
+                                // todo
+                                // 사이트별 사용량
+                                // 사용량
+                                // 사이트별 사용시간
+                                // 사용시간
+                                // var today = formatDate();
                                 var summary = tab.days.find(s => s.date === today).summary;
-
-                                var data = bytesToSize(activity.getDataUsaged(tab));
-                                // console.log('summary > ', summary, " data >", data);
+                                // var data = bytesToSize(activity.getDataUsaged(tab));
+                                chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
                                 chrome.browserAction.setBadgeText({
                                     tabId: activeTab.id,
+                                    // text: data.size + "" + data.unit
                                     text: String(convertSummaryTimeToBadgeString(summary))
                                 });
-
-                                // var data = bytesToSize(activity.getDataUsaged(tab));
-                                // chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
-                                // chrome.browserAction.setBadgeText({ text: data.size + "" + data.unit });
                             })
 
 
@@ -211,15 +214,18 @@ function mainTRacker(activeUrl, tab, activeTab) {
         //         checkPermissionsForNotifications(showNotification, activeUrl, tab);
         //     }
         // }
+        console.log('mainTRacker > !isInBlackList',activeUrl);
         tab.incSummaryTime();
     } else {
-        var today = formatDate();
-        var summary = tab.days.find(s => s.date === today).summary;
-        chrome.browserAction.setBadgeText({
-            tabId: activeTab.id,
-            text: String(convertSummaryTimeToBadgeString(summary))
-        });
+        // var today = formatDate();
+        // var summary = tab.days.find(s => s.date === today).summary;
+        // chrome.browserAction.setBadgeText({
+        //     tabId: activeTab.id,
+        //     text: '-'//String(convertSummaryTimeToBadgeString(summary))
+        // });
+        console.log('mainTRacker > isInBlackList',activeUrl);
     }
+    console.log('setting_view_in_badge',setting_view_in_badge);
     // if (true)//(setting_view_in_badge === true) {
     // chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] })
     // var today = formatDate();
@@ -362,8 +368,6 @@ function setDefaultValueForNewSettings() {
 }
 
 function addListener() {
-    // chrome.tabs.onUpdated.addListener(function(tabId,changeInfo,tab){        
-    // });
     chrome.tabs.onActivated.addListener(info => {
         chrome.tabs.get(info.tabId, tab => {
             activity.addTab(tab);

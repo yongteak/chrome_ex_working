@@ -27,7 +27,7 @@ var TypeListEnum = {
     ByDays: 3,
 };
 
-var STORAGE_SETTING = 'setting';
+var STORAGE_SETTINGS_VIEW_TIME_IN_BADGE = 'setting_view_time_in_badge';
 var STORAGE_TABS = 'tabs';
 var STORAGE_BLACK_LIST = 'black_list';
 // 추적 금지 도메인
@@ -55,7 +55,7 @@ var SETTINGS_INTERVAL_CHECK_DEFAULT = 1000;
 var SETTINGS_INTERVAL_SAVE_STORAGE_DEFAULT = 2000;
 var SETTINGS_INTERVAL_CHECK_STORAGE_DEFAULT = 3000;
 var SETTINGS_INTERVAL_RANGE_DEFAULT = RangeForDays.days7;
-var SETTINGS_VIEW_TIME_IN_BADGE_DEFAULT = true;
+var SETTINGS_VIEW_TIME_IN_BADGE_DEFAULT = 'time_today';
 var SETTINGS_SHOW_HINT_DEFAULT = true;
 var STORAGE_NOTIFICATION_MESSAGE_DEFAULT = 'You have spent a lot of time on this site';
 
