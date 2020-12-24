@@ -29,8 +29,14 @@ angular.module('app.filter', [])
         }
     })
 
+    .filter('dayForamyType', function () {
+        return function (day,type) {
+            moment.locale(window.navigator.language.split('-')[0]);
+            return moment(day+'').format('llll').split(' ').filter((_,idx) => {return idx < type}).join(' ');
+        }
+    })
     
-
+    
 
     .filter('convertSummaryTimeToString', function () {
         return function (summaryTime) {
@@ -180,7 +186,7 @@ angular.module('app.filter', [])
             kv['news_and_media'] = '뉴스미디어';
             kv['finance'] = '금융';
             kv['games'] = '게임';
-            kv['computers_electronics_and_technology'] = 'IT기술';
+            kv['computers_electronics_and_technology'] = 'IT테크';
             kv['search_engines'] = '검색엔진';
             kv['arts_and_entertainment'] = '엔터테이먼트';
             kv['animation_and_comics'] = '코믹스';

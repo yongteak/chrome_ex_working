@@ -1,7 +1,10 @@
 angular.module('app.controller.status', [])
     .controller('statusController', function ($scope, $filter, $timeout, $http, moment, storage, CONFIG) {
         // Array.prototype.sum = function () { return [].reduce.call(this, (a, i) => a + i.value, 0); }
-        moment.locale('ko');
+        // console.log(moment().format('LL').split(' ').slice(1).join(' '));
+        // [2020-12-25 03:09:52]
+        // 우선 언어 관련 페이지에 다 집어넣자
+        moment.locale(window.navigator.language.split('-')[0]);
         $scope.model = {
             rows: [], todal_times: 0, summary: {}, interval_summary: [],
             charts: {
@@ -73,7 +76,7 @@ angular.module('app.controller.status', [])
                         existing.times += cur.times.reduce((a, b) => a + b.value, 0)
                     } else {
                         prev.push({
-                            category: cur.category, day: cur.day, times: 0
+                            category: cur.category, day: cur.day, times: cur.times.reduce((a, b) => a + b.value, 0)
                         });
                     }
                     return prev;
@@ -93,24 +96,41 @@ angular.module('app.controller.status', [])
                         animationDelay: function (idx) {
                             return idx * 250;
                         },
+                        // [2020-12-25 02:01:26]
+                        // 카테고리별 고정 컬러 정의 고려
+                        // itemStyle: {
+                        //     normal: {
+                        //     color: 'rgba(237,125,49, 0.8)',
+                        //     }
+                        // },
+                            
                         animationEasingUpdate: "linear",
                         emphasis: { focus: 'series' }
                     });
                 });
+                console.log('$scope.model.summary',$scope.model.summary);
+                const average = $scope.model.summary.reduce((a, b) => a + b.times, 0)/7;// $scope.model.summary.length;
+                // console.log(average,$scope.model.summary.length,parseInt(average/$scope.model.summary.length));
+
                 $scope.model.charts.day.series.push({
                     // https://echarts.apache.org/next/en/option.html#series-line.markLine
                     // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
                     type: 'line',
-                    itemStyle: { normal: { label: { show: true } } },
+
                     markLine: {
                         symbol:'none',
-                        data: [{ name: '평균', yAxis: 3200*4 }],
+                        label: {formatter:''},
+                        lineStyle: {
+                            type:'dashed',
+                        },
+                        data: [{ name: '평균', yAxis: average}],
                     }
                 });
                 // 주간 차트 실행
                 $timeout(function () { $scope.run.charts() }, 0.2*1000);
             },
             charts1: (e) => {
+                if (e.componentType == "markLine") return;
                 const copy = JSON.parse(JSON.stringify($scope.interval_summary));
                 const day = parseInt(e.name);
                 $scope.model.charts.time.series = [];
@@ -143,6 +163,9 @@ angular.module('app.controller.status', [])
                 $timeout(function () {
                     $scope.param1 = { 'option': opt2(), 'click': null }
                 }, 0.2 * 1000);
+
+                // 목록 조회
+                $scope.today(day);
 
             },
             charts: () => {
@@ -192,22 +215,21 @@ angular.module('app.controller.status', [])
                 $scope.$apply();
             })
         }
-        $scope.today = function () {
-            $scope.run.charts();
-            return;
+        $scope.today = day => {
+            day = day || moment().format('YYYYMMDD');
+            $scope.model.day_title = moment(day+'').format('llll').split(' ').filter((_,idx) => {return idx < 4}).join(' ');
             $scope.model.total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
-                var today = $filter('formatDate')();
-                var targetTabs = rows.filter(x => x.days.find(s => s.date === today));
+                var targetTabs = rows.filter(x => x.days.find(s => s.date === day));
                 // console.log(today, targetTabs);
                 targetTabs.forEach(e => {
-                    e.part = e.days.filter(x => x.date == today)[0];
+                    e.part = e.days.filter(x => x.date == day)[0];
                     $scope.model.total_times += e.part.summary;
                 });
                 targetTabs = targetTabs.sort(function (a, b) {
                     return b.days
-                        .find(s => s.date === today).summary - a.days
-                            .find(s => s.date === today).summary;
+                        .find(s => s.date === day).summary - a.days
+                            .find(s => s.date === day).summary;
                 });
                 $scope.model.rows = targetTabs;
                 $scope.$apply();
@@ -219,6 +241,7 @@ angular.module('app.controller.status', [])
 
         function opt2() {
             return {
+                animation:true,
                 toolbox: {
                     show: true,
                     feature: {
@@ -279,7 +302,7 @@ angular.module('app.controller.status', [])
         function opt1() {
             return {
                 title: {
-                    text:'오늘, 12월24일 수요일',
+                    text:'오늘, '+moment().format('llll').split(' ').filter((_,idx) => {return idx > 0 && idx < 4}).join(' '),
                     textStyle:{
                         fontWeight: 'normal',
                         color: "#AEADB2",

@@ -3,7 +3,7 @@
 // https://stackoverflow.com/questions/47696945/over-function-throwing-me-an-angular-error
 
 angular.module('app.controllers', [])
-    .controller('side', ($scope, $location, identity, storage, CONFIG) => {
+    .controller('side', ($scope, $location, identity, moment,storage, CONFIG) => {
         $scope.isCurrentPath = path => {
             return $location.path().indexOf(path) != -1;
         };

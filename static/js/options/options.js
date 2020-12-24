@@ -1,3 +1,4 @@
+// 
 // function open(e, viewName) {
 //     // Declare all variables
 //     var i, tabcontent, tablinks;
