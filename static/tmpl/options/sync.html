@@ -27,10 +27,13 @@
                                 <td>{{ row.repeat_min }}</td>
                                 <td>{{ row.created | yyyymmdd_to_format_kr }}</td>
                                 <td>
-                                    <button ng-if="row.direction != 'similarweb_to_cloud' && row.sync_enabled" type="button" ng-click="run.sync(row)"
+                                    <button ng-if="row.direction != 'similarweb_to_cloud' && row.sync_enabled"
+                                        type="button" ng-click="run.sync(row)"
                                         class="btn btn-danger btn-xs">동기화</button>
-                                    
-                                        <button ng-if="row.direction == 'similarweb_to_cloud' && row.sync_enabled" type="button" ng-click="run.sync(row)" class="btn btn-danger btn-xs">{{ model.similarweb.length }}개 업로드</button>
+
+                                    <button ng-if="row.direction == 'similarweb_to_cloud' && row.sync_enabled"
+                                        type="button" ng-click="run.sync(row)" class="btn btn-danger btn-xs">{{
+                                        model.similarweb.length }}개 업로드</button>
                                 </td>
                             </tr>
                         </tbody>

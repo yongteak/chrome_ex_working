@@ -649,7 +649,7 @@ angular.module('app.controllers', [])
                     $scope.model.select = $scope.model.copy_modal.position;
                 }
                 $scope.model.is_new = row == undefined;
-                console.log($scope.model.copy_modal);
+                // console.log($scope.model.copy_modal);
                 $scope.model.title = $scope.model.is_new ? '알람 추가하기' : '알람 수정하기';
             },
             enabledChange: (row, field) => {

@@ -1,11 +1,25 @@
 # Array 랜덤 생성
 https://stackoverflow.com/questions/3746725/how-to-create-an-array-containing-1-n
 
+# 오늘을 기준으로 과거 week 날짜 생성
+- 오늘 기준 주간 시작일
+moment().startOf('week').format("YYYYMMDD");
+- 특정 날짜 기준 주간 시작일
+moment('20201223').startOf('week').format("YYYYMMDD");
+- 주간 시작일로 부터 주간 마지막날까지 날짜 목록
+var start = moment().startOf('week').format("YYYYMMDD");
+var end = moment(start).endOf('week').format("YYYYMMDD");
+var diff = moment(end).diff(moment(start),'days');
+for (var i = 0; i < diff; i++) {
+    console.log(moment(start).add(i, 'day').format("YYYYMMDD"));
+}
+
+
 # moment 주간 날짜 계산하기
 https://momentjs.com/
 https://stackoverflow.com/questions/34871998/how-to-get-the-days-b-w-current-week-in-moment-js
 var currentDate = moment();
-var weekStart = currentDate.clone().startOf('week');
+var weekStart = moment().startOf('week').format("YYYYMMDD");
 var weekEnd = currentDate.clone().endOf('week');
 var days = [];
 for (i = 0; i <= 6; i++) {
@@ -16,6 +30,8 @@ var days = [];
 Array.apply(null, Array(7)).map(function (_, i) {
     days.push(moment().clone().startOf('week').add(i,'days').format("YYYYMMDD"));
 });
+
+
 days;
 
 console.log(days);
