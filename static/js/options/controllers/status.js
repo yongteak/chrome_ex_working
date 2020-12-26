@@ -6,13 +6,7 @@ angular.module('app.controller.status', [])
         // 우선 언어 관련 페이지에 다 집어넣자
         moment.locale(window.navigator.language.split('-')[0]);
         console.log(moment().subtract(3, 'days').calendar());
-        var week_range = [];
-        var week_of_start = moment().startOf('week').format("YYYYMMDD");
-        var week_of_end = moment(week_of_start).endOf('week').format("YYYYMMDD");
-        var diff = moment(week_of_end).diff(moment(week_of_start), 'days');
-        for (var i = 0; i < diff; i++) {
-            week_range.push(moment(week_of_start).add(i, 'day').format("YYYYMMDD"));
-        }
+        // var week_range = [];
         $scope.model = {
             rows: [], todal_times: 0, summary: {}, interval_summary: [],
             charts: {
@@ -27,25 +21,37 @@ angular.module('app.controller.status', [])
         $scope.param = null;
         $scope.param1 = null;
 
+        var week_of_start = moment().startOf('week').format("YYYYMMDD");
+        var week_of_end = moment(week_of_start).endOf('week').format("YYYYMMDD");
+        var diff = moment(week_of_end).diff(moment(week_of_start), 'days');
+        for (var i = 0; i < diff; i++) {
+            $scope.model.times.weeks.push(moment(week_of_start).add(i, 'day').format("YYYYMMDD"));
+        }
+
         $scope.run = {
             init: () => {
+                // [2020-12-27 07:54:13]
+                // cache
                 console.log('^init');
                 console.log('# 주간 날짜 생성');
-                Array.apply(null, Array(7)).map(function (_, i) {
-                    $scope.model.times.weeks.push(moment().clone().startOf('week').add(i, 'days').format("YYYYMMDD"));
-                });
+                // Array.apply(null, Array(7)).map(function (_, i) {
+                //     $scope.model.times.weeks.push(moment().clone().startOf('week').add(i, 'days').format("YYYYMMDD"));
+                // });
+                console.log($scope.model.times.weeks);
                 // console.log('# 23시간 생성');
                 console.log('# interval 데이터 수집');
                 storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
+                    // rows[n].domain
                     // [2020-12-27 06:44:11]
                     // TODO
                     // 주간 데이터만 필터링
                     // summary데이터 서버에 저장
-
-                    console.log(week_range);
-                    rows = rows.filter(iv => { return week_range.includes(''+iv.day) });
+                    rows = rows.filter(iv => { return $scope.model.times.weeks.includes(''+iv.day) });
                     console.log(rows);
                     storage.getValue(CONFIG.STORAGE_TABS, tabs => {
+                        // tabs = tabs.filter(t => {return t.url == })
+                        // tabs[n].url
+                        // console.log(tabs);
                         $scope.interval_summary = [];
                         rows.forEach((row, i, a) => {
                             var acc = [], arr1 = [];
@@ -54,11 +60,18 @@ angular.module('app.controller.status', [])
                                 .forEach(item => $filter('hmsToSeconds')(item)
                                     .forEach(r => { arr1.push(r) })
                                 );
+                            if (row.domain == "til.hashrocket.com") {
+                                console.log('docs', row.day, row);
+                            }
                             // 0-23시 기준으로 sum
                             Array(24).fill(0).map((e, i) => i).forEach(t => {
                                 var sum = arr1
                                     .filter(a => { return a.hour == t })
                                     .reduce((a, b) => a + b.value, 0);
+                                    // if (row.domain == "til.hashrocket.com") {
+                                    //     console.log('hashrocket',sum,arr1);
+                                    // }
+
                                 acc.push({ hour: t, value: sum });
                             });
 
@@ -69,7 +82,7 @@ angular.module('app.controller.status', [])
                                 category: cat_nm,
                                 times: acc
                             });
-                            // if (row.domain == 'docs.google.com') {
+                            // if (row.domain == "til.hashrocket.com") {
                             //     console.log('docs', row.day, $scope.interval_summary);
                             // }
 
@@ -84,6 +97,7 @@ angular.module('app.controller.status', [])
                 console.log("^setup");
                 const copy = JSON.parse(JSON.stringify($scope.interval_summary));
                 $scope.model.charts.day.series = [];
+                console.log('$scope.model.interval_summary',copy);
                 $scope.model.summary = copy.reduce((prev, cur) => {
                     let existing = prev.find(x => x.category === cur.category && x.day === cur.day);
                     if (existing) {
@@ -96,7 +110,6 @@ angular.module('app.controller.status', [])
                     return prev;
                 }, []);
                 console.log('# day 차트 데이터 생성');
-                // console.log('$scope.model.summary',$scope.model.summary);
                 $scope.model.summary.forEach(e => {
                     var fill = new Array($scope.model.times.weeks.length - 1).fill(0);
                     var idx = $scope.model.times.weeks.indexOf('' + e.day);
@@ -148,6 +161,7 @@ angular.module('app.controller.status', [])
                 $timeout(function () { $scope.run.charts() }, 0.2 * 1000);
             },
             charts1: (e) => {
+                // console.log(e);
                 if (e.componentType == "markLine") return;
                 const copy = JSON.parse(JSON.stringify($scope.interval_summary));
                 const day = parseInt(e.name);
@@ -202,7 +216,9 @@ angular.module('app.controller.status', [])
             },
             charts: () => {
                 console.log('# opt1 차트 데이터 적용');
-                $scope.param = { 'option': opt1(), 'click': $scope.run.charts1 }
+                $scope.param = { 'option': opt1(), 'click': $scope.run.charts1 };
+                // console.log($scope.model.charts.day.series[0]);
+                $scope.run.charts1({name:moment().format('YYYYMMDD')});
             },
             info: row => {
                 $http({
@@ -261,7 +277,7 @@ angular.module('app.controller.status', [])
             // })
             // 도메인별 합
             $scope.model.day_title = moment(day + '').format('llll').split(' ').filter((_, idx) => { return idx < 4 }).join(' ');
-            $scope.model.total_times = 0;
+            // $scope.model.total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
                 var tabs = rows.filter(x => x.days.find(s => s.date === day));
                 // console.log(today, targetTabs);
