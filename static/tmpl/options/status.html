@@ -47,9 +47,8 @@
                             <tr ng-repeat="row in model.rows">
                                 <td>{{ $index+1}}</td>
                                 <td>
-                                    <a href ng-click="run.info(row)" data-toggle="modal"
-                                    data-target="#domainModal">{{ row.url }}</a> <i
-                                        class="mdi mdi-link-variant"></i>
+                                    <a href ng-click="run.info(row)" data-toggle="modal" data-target="#domainModal">{{
+                                        row.url }}</a> <em class="mdi mdi-arrow-right-bold-circle"></em>
                                     <div>
                                         <code>{{ row.category_sub | category_to_name }}</code>
                                     </div>
@@ -93,94 +92,90 @@
     </div>
 </div>
 
+
+
+
 <div class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false" role="dialog" id="domainModal">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
         <div class="modal-content">
-            <form>
-                <div class="modal-header bg-primary">
-                    <h3 class="modal-title text-white">{{ model.title }}</h3>
-                    <button type="button" class="close text-white" ng-click="run.modalClose()">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="inputEmail4">종류</label>
-                        <div class="grid">
-                            <!-- <p class="grid-header">{{ model.day_title }} - {{ model.total_times | convertSummaryTimeToString}}</p> -->
-                            <div class="item-wrapper">
-                                <mw-chart style="width:450px;height:200px;left:10px;" ng-model="param1">
-                                </mw-chart>
+            <div class="modal-header bg-primary">
+                <h3 class="modal-title text-white">{{ model.title }}</h3>
+                <button type="button" class="close text-white" ng-click="run.modalClose()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="page-content-wrapper-inner">
+                    <div class="content-viewport">
+                        <div class="kanban-board-wrapper">
+                            <div class="board-category">
+                                <ul class="board-task">
+                                    <li class="task-item">
+                                        <p class="task-title">1시간 25분</p>
+                                        <mw-chart style="width:450px;height:200px;" ng-model="param1">
+                                        </mw-chart>
+                                    </li>
+                                </ul>
+                                <ul class="board-task">
+                                    <li class="task-item">
+                                        <p class="task-title">정보</p>
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <td>카테고리</td>
+                                                    <td>콘솔게임/생산성</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>랭킹</td>
+                                                    <td>글로벌 15위, 해당국가 35위</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>접속자수</td>
+                                                    <td>
+                                                        <div>
+                                                            <p>글로벌 15위, 해당국가 35위</p>
+                                                        </div>
+                                                        <div>
+                                                            <p>글로벌 15위, 해당국가 35위</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </li>
+                                </ul>
+                                <ul class="board-task">
+                                    <li class="task-item">
+                                        <p class="task-title">설정</p>
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <td>추적금지</td>
+                                                    <td>yn</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>사용제한</td>
+                                                    <td>time to</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
 
-                    <hr>
-                    <div class="form-group">
-                        <label for="inputEmail4">설정</label>
-                        <div class="form-inline">
-                            <div ng-if="model.is_new" class="checkbox mb-3">
-                                <label>
-                                    <input type="checkbox" class="form-check-input" ng-model="model.modal.remind"> 정기적으로
-                                    남은 시간 알람 <i class="input-frame"></i>
-                                </label>
-                            </div>
-
-                            <div ng-if="!model.is_new" class="checkbox mb-3">
-                                <label>
-                                    <input type="checkbox" class="form-check-input" ng-model="model.copy_modal.remind">
-                                    정기적으로
-                                    남은 시간 알람 <i class="input-frame"></i>
-                                </label>
-                            </div>
-
-
-                            <div ng-if="model.is_new" class="checkbox mb-3">
-                                <label>
-                                    <input type="checkbox" class="form-check-input" ng-model="model.modal.repeat"> 알람
-                                    완료시 반복 <i class="input-frame"></i>
-                                </label>
-                            </div>
-                            <div ng-if="!model.is_new" class="checkbox mb-3">
-                                <label>
-                                    <input type="checkbox" class="form-check-input" ng-model="model.copy_modal.repeat">
-                                    알람
-                                    완료시 반복 <i class="input-frame"></i>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- <hr > -->
-                    <div class="form-group">
-                        <label>알람 위치</label>
-                        <select ng-if="model.is_new" class="custom-select" ng-change="run.selected(model.select)"
-                            ng-model='model.select' ng-options="item.id as item.name for item in model.options">
-                        </select>
-
-                        <select ng-if="!model.is_new" class="custom-select" ng-change="run.selected(model.select)"
-                            ng-model='model.select' ng-options="item.id as item.name for item in model.options">
-                        </select>
-
-                    </div>
-
-                    <div class="form-group">
-                        <label>알람 메세지</label>
-                        <textarea ng-if="model.is_new" class="form-control" id="inputType9" rows="2"
-                            ng-model="model.modal.message"></textarea>
-                        <textarea ng-if="!model.is_new" class="form-control" id="inputType9" rows="2"
-                            ng-model="model.copy_modal.message"></textarea>
-                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" ng-if="model.is_new" ng-click="run.add_alarm()"
-                        class="btn btn-primary btn-sm">저장</button>
-                    <button type="submit" ng-if="!model.is_new" ng-click="run.update_alarm()"
-                        class="btn btn-primary btn-sm">수정</button>
-                    <button type="submit" ng-if="!model.is_new" ng-click="run.remove_alarm()"
-                        class="btn btn-danger  btn-sm">삭제</button>
-                    <button type="submit" ng-click="run.modalClose()" class="btn btn-primary btn-sm">닫기</button>
-                </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" ng-if="model.is_new" ng-click="run.add_alarm()"
+                    class="btn btn-primary btn-sm">저장</button>
+                <button type="submit" ng-if="!model.is_new" ng-click="run.update_alarm()"
+                    class="btn btn-primary btn-sm">수정</button>
+                <button type="submit" ng-if="!model.is_new" ng-click="run.remove_alarm()"
+                    class="btn btn-danger  btn-sm">삭제</button>
+                <button type="submit" ng-click="run.modalClose()" class="btn btn-primary btn-sm">닫기</button>
+            </div>
         </div>
     </div>
 </div>

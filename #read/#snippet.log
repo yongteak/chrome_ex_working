@@ -1,3 +1,10 @@
+# modal팝업 부모 스크롤 없앰
+http://stackoverflow.com/questions/9538868/prevent-body-from-scrolling-when-a-modal-is-opened
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+}
+
 # Array 랜덤 생성
 https://stackoverflow.com/questions/3746725/how-to-create-an-array-containing-1-n
 

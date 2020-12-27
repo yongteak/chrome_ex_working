@@ -9635,10 +9635,10 @@ textarea {
   align-items: flex-start;
   overflow-x: auto; }
   .kanban-board-wrapper .board-category {
-    width: 350px;
-    min-width: 350px;
+    width: 100%;
+    min-width: 100%;
     margin-right: 20px;
-    padding: 20px;
+    padding: 2px;
     background: #fff;
     border-radius: 2px; }
     .kanban-board-wrapper .board-category .board-category-head {
