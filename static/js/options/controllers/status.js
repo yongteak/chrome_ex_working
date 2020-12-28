@@ -271,6 +271,7 @@ angular.module('app.controller.status', [])
                         // 설명
                         m.title = result.Title;
                         m.desc = result.Description;
+                        m.rows = result.Description.length / 40
                         m.favicon = row.favicon;
                         m.host = row.url;
                         // 카테고리
