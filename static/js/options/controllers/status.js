@@ -1,5 +1,5 @@
 angular.module('app.controller.status', [])
-    .controller('statusController', function ($scope, $filter, $timeout, $http, moment, storage, CONFIG) {
+    .controller('statusController', function ($scope, $rootScope, $filter, $timeout, $http, moment, storage, CONFIG) {
         // Array.prototype.sum = function () { return [].reduce.call(this, (a, i) => a + i.value, 0); }
         // console.log(moment().format('LL').split(' ').slice(1).join(' '));
         // [2020-12-25 03:09:52]
@@ -16,7 +16,8 @@ angular.module('app.controller.status', [])
             totals: { times: 0, dataUsage: 0, counter: 0 },
             times: { today: null, hours: [], weeks: [] },
             show_full_list: true,
-            show_limit_list: false
+            show_limit_list: false,
+            modal:{}
         };
         $scope.param = null;
         $scope.param1 = null;
@@ -147,7 +148,6 @@ angular.module('app.controller.status', [])
                     // https://echarts.apache.org/next/en/option.html#series-line.markLine
                     // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
                     type: 'line',
-
                     markLine: {
                         symbol: 'none',
                         label: { formatter: '' },
@@ -212,7 +212,6 @@ angular.module('app.controller.status', [])
 
                 // 목록 조회
                 $scope.today(day);
-
             },
             charts: () => {
                 console.log('# opt1 차트 데이터 적용');
@@ -220,17 +219,57 @@ angular.module('app.controller.status', [])
                 // console.log($scope.model.charts.day.series[0]);
                 $scope.run.charts1({name:moment().format('YYYYMMDD')});
             },
+            modalClose: () => {
+                // $scope.run.init_modal();
+                $('#domainModal').modal("hide");
+            },
             info: row => {
+                console.log(row);
+                console.log('cont..', $rootScope['countries']);
                 $http({
-                    url: "http://localhost:8080/api/v1/analytics/data?domain=" + row.url,
+                    url: CONFIG.URI + '/analytics/data?domain=' + row.url,
                     method: "GET"
                 }).finally(function () {
 
                 }).then(function (response) {
                     response = response.data;
+                    var result = response.result_data;
+                    var m = $scope.model.modal;
+                    // $scope.model.modal;
                     console.log(response);
-                    if (response.result_msg == "STATUS_NORMAL") {
+                    // 추적금지
+                    storage.getValue(CONFIG.STORAGE_BLACK_LIST, e => {
+                        m.black_list = (e == null || e.undefined) ? []
+                            : e.filter(a => { return a.domain == row.url });
+                        console.log(m.black_list);
+                    });
 
+                    if (response.result_msg == "STATUS_NORMAL") {
+                        // 설명
+                        m.title = result.Title;
+                        m.desc = result.Description;
+                        m.favicon = row.favicon;
+                        m.host = row.url;
+                        // 카테고리
+                        m.category = row.category;
+                        m.category_sub = row.category_sub;
+                        m.category_top = row.category_top;
+                        // 전체 접속 횟수
+                        m.counter = row.counter;
+                        // 전체 데이터 사용량
+                        m.dataUsage = row.dataUsage;
+                        // 시작/마지막날짜
+                        m.start_day = row.days[0].date;
+                        m.end_day = row.days[row.days.length-1].date;
+                        // 랭킹
+                        m.rank_global = result.GlobalRank.Rank;
+                        m.rank_contry = result.CountryRank.Rank;
+                        m.rank_category = result.CategoryRank.Rank;
+                        // 지역 코드
+                        m.contry_code = result.CountryRank.Country;
+                        // 월간 예상 방문횟수(4개월, {2020-09-01: 19478384})
+                        m.estimated_monthly_visits = result.EstimatedMonthlyVisits;
+                        console.log(m);
                     } else {
 
                     }

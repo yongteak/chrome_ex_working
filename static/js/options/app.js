@@ -7,6 +7,7 @@ var app = angular.module('app', [
 
 
 app.constant('CONFIG', {
+	'URI':'http://34.83.116.28:8080/api/v1',
 	'IDENTITY':'dentity',
 	'STORAGE_HISTORY_OF_SYNC': 'sync_history',
 	'STORAGE_SETTINGS_VIEW_TIME_IN_BADGE': 'setting_view_time_in_badge',

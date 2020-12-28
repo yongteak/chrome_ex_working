@@ -3,10 +3,18 @@
 // https://stackoverflow.com/questions/47696945/over-function-throwing-me-an-angular-error
 
 angular.module('app.controllers', [])
-    .controller('side', ($scope, $location, identity, moment,storage, CONFIG) => {
+    .controller('side', ($scope, $location, $rootScope, identity, storage, CONFIG) => {
         $scope.isCurrentPath = path => {
             return $location.path().indexOf(path) != -1;
         };
+        $rootScope['countries'] = {};
+
+        fetch(chrome.extension.getURL('static/assets/iso-3166-countries-with-regional-codes.json'))
+            .then((resp) => resp.json())
+            .then(function (jsonData) {
+                $rootScope['countries'] = jsonData;
+                console.log('jsonData', jsonData);
+            })
 
         identity.getUserID(userInfo => {
             if (userInfo == undefined) {
@@ -22,7 +30,7 @@ angular.module('app.controllers', [])
         //     console.log("view > init!");
         // }
     })
-    
+
     .controller('limitController', function ($scope, $location, $filter, identity, storage, CONFIG) {
         var today = $filter('formatDate')();
         $scope.model = {
@@ -218,7 +226,7 @@ angular.module('app.controllers', [])
         $scope.run = {
             open_tab: () => {
                 $http({
-                    url: "http://localhost:8080/api/v1/system/queue/analytics/10",
+                    url: CONFIG.URI + '/system/queue/analytics/10',
                     method: "GET"
                 }).finally(function () {
 
@@ -295,7 +303,7 @@ angular.module('app.controllers', [])
                     storage.getValue('similarweb', item => {
                         $scope.model.similarweb = item;
                         $http({
-                            url: "http://localhost:8080/api/v1/analytics/simila/sync",
+                            url: CONFIG.URI + '/analytics/simila/sync',
                             method: "PUT",
                             data: { payload: item }
                         }).finally(function () {
@@ -407,7 +415,7 @@ angular.module('app.controllers', [])
                                 result[field] = item;
                                 if (Object.keys(result).length == Object.keys(COLLECTIONS).length) {
                                     $http({
-                                        url: "http://localhost:8080/api/v1/sync",
+                                        url: CONFIG.URI + '/sync',
                                         method: "PUT",
                                         data: { user_id: $scope.model.identity.id, payload: JSON.stringify(result) }
                                     }).finally(function () {
@@ -424,7 +432,7 @@ angular.module('app.controllers', [])
                 } else if (row.direction == 'cloud_to_local') {
                     // jwt를 사용하여 따로 사용자 id를 받지 않도록 구현
                     $http({
-                        url: "http://localhost:8080/api/v1/sync/" + $scope.model.identity.id,
+                        url: CONFIG.URI + '/sync/' + $scope.model.identity.id,
                         method: "GET"
                     }).finally(function () {
                         console.log('finally')

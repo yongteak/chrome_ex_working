@@ -1,3 +1,6 @@
+# ISO3166 자료
+https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/slim-3/slim-3.json
+
 # modal팝업 부모 스크롤 없앰
 http://stackoverflow.com/questions/9538868/prevent-body-from-scrolling-when-a-modal-is-opened
 body.modal-open {
@@ -52,7 +55,7 @@ var start = moment().format("YYYYMMDD");
 Array.apply(null, Array(30)).map(function (_, i){
     return moment(start).add(-i,'day').format('YYYYMMDD')
 });
-    
+
 };
 Array.apply(null, Array(7)).map(function (_, i) {
     return moment(i, 'e').startOf('week').isoWeekday(i + 1).format('YYYYMMDD');
@@ -74,7 +77,7 @@ URL1 = "https://cors-anywhere.herokuapp.com/https://data.alexa.com/data?cli=10&u
 
 {Xml,_} = xmerl_scan:string(binary_to_list(AlexaRes)).
 
-[{xmlAttribute,_,_,_,_,_,_,_,CountryCode,_}] = xmerl_xpath:string("//SD//COUNTRY/@CODE", Xml).               
+[{xmlAttribute,_,_,_,_,_,_,_,CountryCode,_}] = xmerl_xpath:string("//SD//COUNTRY/@CODE", Xml).
 [{xmlAttribute,_,_,_,_,_,_,_,CountryName,_}] = xmerl_xpath:string("//SD//COUNTRY/@NAME", Xml).
 [{xmlAttribute,_,_,_,_,_,_,_,CountryRank,_}] = xmerl_xpath:string("//SD//COUNTRY/@RANK", Xml).
 [{xmlAttribute,_,_,_,_,_,_,_,GlobalRank,_}] = xmerl_xpath:string("//SD//REACH/@RANK", Xml).
@@ -83,7 +86,7 @@ AlexaTuple = [{<<"CountryCode">>,boot_util:binary(CountryCode)},
  {<<"CountryName">>,boot_util:binary(CountryName)},
  {<<"CountryRank">>,boot_util:int(CountryRank)},
  {<<"GlobalRank">>,boot_util:int(GlobalRank)}].
-      
+
 
 SimilarwebTuple = jsx:decode(SimilarwebRes).
 
@@ -151,7 +154,7 @@ var seconds = Array(60).fill(0).map((e,i)=>i+1);
                 pc.setLocalDescription(sdp);
             }, function onerror() { });
         };
-        
+
 # angular select
 https://embed.plnkr.co/Wlw62X/preview
 
@@ -176,7 +179,7 @@ var stop_count = 20;
             if (stop_count == 0) {
                 $scope.stopFight();
             }
-            
+
           }, 500);
         };
 
@@ -241,7 +244,7 @@ function loadDataWithType(data) {
                                         show:false,
                                     }
                                 }
-            
+
                             }
                         }
                     ],
@@ -269,7 +272,7 @@ function loadDataWithType(data) {
                             text:'Proportion',
                         },
                     },
-                
+
                 };
             }
 

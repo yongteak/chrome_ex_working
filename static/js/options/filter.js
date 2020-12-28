@@ -20,23 +20,23 @@ angular.module('app.filter', [])
 
     // 'YYYY-MM-DD HH:mm:ss'
     .filter('secondToFormat', function () {
-        return function (sec,format) {
+        return function (sec, format) {
             format = format || 'DD일hh시간mm분ss초';
             // return moment(time).format(format);
             // moment.utc(sec*1000).format('DD일hh시간mm분ss초')
             // console.log(sec,format);
-            return moment.utc(sec*1000).format(format);
+            return moment.utc(sec * 1000).format(format);
         }
     })
 
     .filter('dayForamyType', function () {
-        return function (day,type) {
+        return function (day, type) {
             moment.locale(window.navigator.language.split('-')[0]);
-            return moment(day+'').format('llll').split(' ').filter((_,idx) => {return idx < type}).join(' ');
+            return moment(day + '').format('llll').split(' ').filter((_, idx) => { return idx < type }).join(' ');
         }
     })
-    
-    
+
+
 
     .filter('convertSummaryTimeToString', function () {
         return function (summaryTime) {
@@ -136,8 +136,37 @@ angular.module('app.filter', [])
             return acc;
         }
     })
+    .filter("cut", function () {
+        return function (value, wordwise, max, tail) {
+            if (!value) return '';
 
+            max = parseInt(max, 10);
+            if (!max) return value;
+            if (value.length <= max) return value;
 
+            value = value.substr(0, max);
+            if (wordwise) {
+                var lastspace = value.lastIndexOf(' ');
+                if (lastspace != -1) {
+                    //Also remove . and , so its gives a cleaner result.
+                    if (value.charAt(lastspace - 1) == '.' || value.charAt(lastspace - 1) == ',') {
+                        lastspace = lastspace - 1;
+                    }
+                    value = value.substr(0, lastspace);
+                }
+            }
+
+            return value + (tail || ' …');
+        };
+    })
+    .filter('nl2br', function ($sce) {
+        return function (msg, is_xhtml) {
+            var is_xhtml = is_xhtml || true;
+            var breakTag = (is_xhtml) ? '<br />' : '<br>';
+            var msg = (msg + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
+            return $sce.trustAsHtml(msg);
+        }
+    })
     .filter('num_comma', function () {
         return function (num) {
             if (num) {
@@ -175,6 +204,15 @@ angular.module('app.filter', [])
                 match = yyyymmdd.toString().match(/(\d{4})/);
                 return match[1] + '년';
             }
+        };
+    })
+    .filter('country_to_name', function ($rootScope) {
+        return function (country_code,field) {
+            console.log('field', field);
+            field = field == 'code' ? 'alpha-3' : 'name';
+            // field = field || 'name'; //name, alpha-3
+            return $rootScope['countries']
+                .filter(a => { return a['country-code'] == country_code })[0][field]
         };
     })
     .filter('category_to_name', function () {

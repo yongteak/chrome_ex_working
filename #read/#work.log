@@ -22,7 +22,7 @@ https://gyuyeon.tistory.com/6
  - Time tracker + Usaged 코드 통합
 
 [11/20]
- - Time tracker 코드 추가 
+ - Time tracker 코드 추가
  - https://chrome.google.com/webstore/detail/web-activity-time-tracker/hhfnghjdeddcfegfekjeihfmbjenlomm/related
 
 [11/19]
@@ -30,6 +30,8 @@ https://gyuyeon.tistory.com/6
  - 일정시간마다 누적된 데이터 merge코드 필요
 
 [TODO]
+[2020-12-28 13:22:11]
+ - status 팝업, textarea 높이 동적으로 처리
 [2020-12-27 08:13:49]
  - tabs, interval 데이터 일관성 문제 발생, 데이터가 안맞음
 [2020-12-27 07:28:09]
@@ -43,7 +45,7 @@ https://gyuyeon.tistory.com/6
   . cloudant (IBM)
 
 [2020-12-23 00:43:34]
- - 차트 
+ - 차트
    - stack
     . y : 카테고리, x : 도메인별 사용시간
     . y : 케테고리, x : 도메인별 사용량
@@ -90,7 +92,7 @@ https://chrome.google.com/webstore/detail/alexa-and-similarweb-rank/ikompppmnedg
 [2020-12-09 00:39:05]
  - 통계 목록에서 제한된 사에트는 표식을 설정한다.
 [2020-12-08 15:49:32]
- - 설정 화면에서 패스워드 기능 
+ - 설정 화면에서 패스워드 기능
  - 제한된 도메인에 대한 화면 표현 방법 설정 기능
    - 웹 페이지내 alert또는 화면 한쪽에서 표현
    - 경고 페이지로 강제 이동

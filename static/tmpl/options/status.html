@@ -25,8 +25,6 @@
     </div>
 
     <div class="col-lg-12">
-        <!-- <button class="col-md-2 btn btn-danger" ng-click="today()" type="submit">오늘 통계</button>
-        <button class="col-md-2 btn btn-danger" ng-click="all()" type="submit">전체 통계</button> -->
         <div class="grid">
             <p class="grid-header">{{ model.show_full_list }} {{ model.day_title }} 사용현황 | {{ model.totals.times |
                 convertSummaryTimeToString}} </p>
@@ -107,6 +105,36 @@
             <div class="modal-body">
                 <div class="page-content-wrapper-inner">
                     <div class="content-viewport">
+                        <div class="row">
+                            <div class="col-lg-4 col-md-6 equel-grid">
+                                <div class="grid">
+                                    <div class="grid-body d-flex flex-column h-100">
+                                        <div class="wrapper">
+                                            <div class="d-flex justify-content-between">
+                                                <div class="split-header">
+                                                    <img class="img-ss mt-1 mb-1 mr-2" src="../assets/images/social-icons/instagram.svg"
+                                                        alt="instagram">
+                                                    <p class="card-title">Followers Growth</p>
+                                                </div>
+                                                <div class="wrapper">
+                                                    <button class="btn action-btn btn-xs component-flat pr-0" type="button"><i
+                                                            class="mdi mdi-access-point text-muted mdi-2x"></i></button>
+                                                    <button class="btn action-btn btn-xs component-flat pr-0" type="button"><i
+                                                            class="mdi mdi-cloud-download-outline text-muted mdi-2x"></i></button>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-end pt-2 mb-4">
+                                                <h4>16.2K</h4>
+                                                <p class="ml-2 text-muted">New Followers</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-auto">
+                                            <canvas class="curved-mode" id="followers-bar-chart" height="220"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="kanban-board-wrapper">
                             <div class="board-category">
                                 <ul class="board-task">
@@ -122,22 +150,53 @@
                                         <table class="table">
                                             <tbody>
                                                 <tr>
-                                                    <td>카테고리</td>
-                                                    <td>콘솔게임/생산성</td>
+                                                    <td>호스트</td>
+                                                    <td>{{ model.modal.host }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>제목</td>
+                                                    <td>{{ model.modal.title }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>국가</td>
+                                                    <td>{{ model.modal.contry_code | country_to_name }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>설명</td>
+                                                    <td>
+                                                        <textarea
+                                                            style="padding:0 0 0 0;border:none;overflow:hidden;border:none;background:transparent"
+                                                            readonly rows="4" cols="50">{{ model.modal.desc }}</textarea>
+
+                                                </tr>
+                                                <tr>
+                                                    <td>분류</td>
+                                                    <td>
+                                                        1차 {{ model.modal.category_top | category_to_name }}<br>
+                                                        2차 {{ model.modal.category_sub | category_to_name }}<br>
+                                                        사용자 생산성
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td>랭킹</td>
-                                                    <td>글로벌 15위, 해당국가 35위</td>
+                                                    <td>
+                                                        글로벌 {{ model.modal.rank_global | num_comma }}위<br>
+                                                        지역 ({{ model.modal.contry_code | country_to_name:'code' }}) {{ model.modal.rank_contry | num_comma }}위<br>
+                                                        카테고리 {{ model.modal.rank_category | num_comma }}위
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td>접속자수</td>
                                                     <td>
-                                                        <div>
+                                                        <div ng-repeat="(key,value) in model.modal.estimated_monthly_visits">
+                                                            <p>{{ key }} : {{ value }}</p>
+                                                        </div>
+                                                        <!-- <div>
                                                             <p>글로벌 15위, 해당국가 35위</p>
                                                         </div>
                                                         <div>
                                                             <p>글로벌 15위, 해당국가 35위</p>
-                                                        </div>
+                                                        </div> -->
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -168,12 +227,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" ng-if="model.is_new" ng-click="run.add_alarm()"
-                    class="btn btn-primary btn-sm">저장</button>
-                <button type="submit" ng-if="!model.is_new" ng-click="run.update_alarm()"
-                    class="btn btn-primary btn-sm">수정</button>
-                <button type="submit" ng-if="!model.is_new" ng-click="run.remove_alarm()"
-                    class="btn btn-danger  btn-sm">삭제</button>
+                <button type="submit" ng-click="run.modify_category()"
+                    class="btn btn-danger  btn-sm">사용자 정의 분류 변경하기</button>
                 <button type="submit" ng-click="run.modalClose()" class="btn btn-primary btn-sm">닫기</button>
             </div>
         </div>
