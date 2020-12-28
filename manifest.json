@@ -55,7 +55,7 @@
     "default_title": "Web Screen Time Tracker"
   },
   "web_accessible_resources": [
-    "static/assets"
+    "static/assets/resource/*.json"
   ]
 
 }

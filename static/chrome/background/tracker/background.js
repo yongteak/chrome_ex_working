@@ -154,7 +154,7 @@ function backgroundCheck() {
                                 // 사이트별 사용시간
                                 // 사용시간
                                 // var today = formatDate();
-                                console.log(today,179,tab);
+                                // console.log(today,179,tab);
                                 // console.log()
                                 var summary = tab.days.find(s => s.date === today).summary;
                                 // var data = bytesToSize(activity.getDataUsaged(tab));

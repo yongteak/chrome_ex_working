@@ -22,7 +22,13 @@ var end = moment(start).endOf('week').format("YYYYMMDD");
 var diff = moment(end).diff(moment(start),'days');
 for (var i = 0; i < diff; i++) {
     console.log(moment(start).add(i, 'day').format("YYYYMMDD"));
-}
+};
+
+* 최근 1개월
+var start = moment().startOf('week').format("YYYYMMDD");
+for (var i = 0; i < 30; i++) {
+    console.log(moment(start).add(i, 'day').format("YYYYMMDD"));
+};
 
 
 # moment 주간 날짜 계산하기

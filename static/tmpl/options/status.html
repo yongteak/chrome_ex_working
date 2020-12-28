@@ -103,57 +103,54 @@
             <div class="modal-body">
                 <div class="page-content-wrapper-inner">
                     <div class="content-viewport">
-                        <div class="row">
-                            <div class="col-lg-4 col-md-6 equel-grid">
-                                <div class="grid">
-                                    <div class="grid-body d-flex flex-column h-100">
-                                        <div class="wrapper">
-                                            <div class="d-flex justify-content-between">
-                                                <div class="split-header">
-                                                    <img class="img-ss mt-1 mb-1 mr-2" src="../assets/images/social-icons/instagram.svg"
-                                                        alt="instagram">
-                                                    <p class="card-title">Followers Growth</p>
-                                                </div>
-                                                <div class="wrapper">
-                                                    <button class="btn action-btn btn-xs component-flat pr-0" type="button"><i
-                                                            class="mdi mdi-access-point text-muted mdi-2x"></i></button>
-                                                    <button class="btn action-btn btn-xs component-flat pr-0" type="button"><i
-                                                            class="mdi mdi-cloud-download-outline text-muted mdi-2x"></i></button>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex align-items-end pt-2 mb-4">
-                                                <h4>16.2K</h4>
-                                                <p class="ml-2 text-muted">New Followers</p>
-                                            </div>
-                                        </div>
-                                        <div class="mt-auto">
-                                            <canvas class="curved-mode" id="followers-bar-chart" height="220"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <div class="kanban-board-wrapper">
                             <div class="board-category">
                                 <ul class="board-task">
                                     <li class="task-item">
-                                        <p class="task-title">1시간 25분</p>
-                                        <mw-chart style="width:450px;height:200px;" ng-model="param1">
+                                        <p class="task-title">최근 4주간 활동 정보</p>
+
+                                        <mw-chart style="width:450px;height:200px;top:-40px"
+                                            ng-model="model.modal.chart.options">
                                         </mw-chart>
                                     </li>
                                 </ul>
                                 <ul class="board-task">
                                     <li class="task-item">
-                                        <p class="task-title">정보</p>
+                                        <p class="task-title">집계 정보</p>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>집계시작</th>
+                                                        <th>접속횟수</th>
+                                                        <th>사용시간</th>
+                                                        <th>데이터</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <td>
+                                                        {{ model.modal.start_day | formatDate:'`YY년MM월DD일' }}
+                                                    </td>
+                                                    <td>{{ model.modal.counter | num_comma }}회</td>
+                                                    <td>{{ model.modal.summaryTime | convertSummaryTimeToString }}</td>
+                                                    <td>{{ model.modal.dataUsage | dataSizeToUnit }}</td>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <ul class="board-task">
+                                    <li class="task-item">
+                                        <p class="task-title">사이트 정보</p>
                                         <table class="table">
                                             <tbody>
                                                 <tr>
-                                                    <td>호스트</td>
+                                                    <td>도메인</td>
                                                     <td>{{ model.modal.host }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>제목</td>
-                                                    <td>{{ model.modal.title }}</td>
+                                                    <td>{{ model.modal.title | cut:true:50:'...'}}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>국가</td>
@@ -164,39 +161,65 @@
                                                     <td>
                                                         <textarea
                                                             style="padding:0 0 0 0;border:none;overflow:hidden;border:none;background:transparent"
-                                                            readonly rows="4" cols="50">{{ model.modal.desc }}</textarea>
+                                                            readonly rows="4"
+                                                            cols="45">{{ model.modal.desc }}</textarea>
 
                                                 </tr>
+                                            </tbody>
+                                        </table>
+                                    </li>
+                                </ul>
+                                <ul class="board-task">
+                                    <li class="task-item">
+                                        <p class="task-title">분류</p>
+                                        <table class="table table-hover">
+                                            <thead>
                                                 <tr>
-                                                    <td>분류</td>
-                                                    <td>
-                                                        1차 {{ model.modal.category_top | category_to_name }}<br>
-                                                        2차 {{ model.modal.category_sub | category_to_name }}<br>
-                                                        사용자 생산성
-                                                    </td>
+                                                    <th>1차</th>
+                                                    <th>2차</th>
+                                                    <th>3차</th>
                                                 </tr>
+                                            </thead>
+                                            <tbody>
+                                                <td>생산성</td>
+                                                <td>{{ model.modal.category_top | category_to_name }}</td>
+                                                <td>{{ model.modal.category_sub | category_to_name }}</td>
+                                            </tbody>
+                                        </table>
+                                    </li>
+                                </ul>
+                                <ul class="board-task">
+                                    <li class="task-item">
+                                        <p class="task-title">순위</p>
+                                        <table class="table table-hover">
+                                            <thead>
                                                 <tr>
-                                                    <td>랭킹</td>
-                                                    <td>
-                                                        글로벌 {{ model.modal.rank_global | num_comma }}위<br>
-                                                        지역 ({{ model.modal.contry_code | country_to_name:'code' }}) {{ model.modal.rank_contry | num_comma }}위<br>
-                                                        카테고리 {{ model.modal.rank_category | num_comma }}위
-                                                    </td>
+                                                    <th>글로벌</th>
+                                                    <th>지역({{ model.modal.contry_code | country_to_name:'code' }})</th>
+                                                    <th>분류({{ model.modal.category_top | category_to_name }})</th>
                                                 </tr>
+                                            </thead>
+                                            <tbody>
+                                                <td>{{ model.modal.rank_global | num_comma }}위</td>
+                                                <td>{{ model.modal.rank_contry | num_comma }}위</td>
+                                                <td>{{ model.modal.rank_category | num_comma }}위</td>
+                                            </tbody>
+                                        </table>
+                                    </li>
+                                </ul>
+                                <ul class="board-task">
+                                    <li class="task-item">
+                                        <p class="task-title">글로벌 접속자수</p>
+                                        <table class="table table-hover">
+                                            <thead>
                                                 <tr>
-                                                    <td>접속자수</td>
-                                                    <td>
-                                                        <div ng-repeat="(key,value) in model.modal.estimated_monthly_visits">
-                                                            <p>{{ key }} : {{ value }}</p>
-                                                        </div>
-                                                        <!-- <div>
-                                                            <p>글로벌 15위, 해당국가 35위</p>
-                                                        </div>
-                                                        <div>
-                                                            <p>글로벌 15위, 해당국가 35위</p>
-                                                        </div> -->
-                                                    </td>
+                                                    <th width="150">기간</th>
+                                                    <th>접속자수</th>
                                                 </tr>
+                                            </thead>
+                                            <tbody ng-repeat="(key,value) in model.modal.estimated_monthly_visits">
+                                                <td>{{ key | formatDate:'`YY년MM월'}}</td>
+                                                <td>{{ value | moneyFormat }}</td>
                                             </tbody>
                                         </table>
                                     </li>
@@ -225,8 +248,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" ng-click="run.modify_category()"
-                    class="btn btn-danger  btn-sm">사용자 정의 분류 변경하기</button>
+                <button type="submit" ng-click="run.modify_category()" class="btn btn-danger  btn-sm">사용자 정의 분류
+                    변경하기</button>
                 <button type="submit" ng-click="run.modalClose()" class="btn btn-primary btn-sm">닫기</button>
             </div>
         </div>

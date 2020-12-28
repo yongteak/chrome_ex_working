@@ -7,8 +7,11 @@ angular.module('app.filter', [])
     })
 
     .filter('formatDate', function () {
-        return function () {
-            return parseInt(moment().format('YYYYMMDD'));
+        return function (date, format) {
+            date = '' + date || new Date();
+            format = format || 'YYYYMMDD';
+            return format == 'YYYYMMDD' ? parseInt(moment(date).format(format))
+                : moment(date).format(format);
         };
     })
 
@@ -55,6 +58,16 @@ angular.module('app.filter', [])
                 return days + '일 ' + hours + '시간 ' + mins + '분' + seconds + '초';
             else return hours + '시간 ' + mins + '분 ' + seconds + '초';
         }
+    })
+    .filter('moneyFormat', function () {
+        return function (number) {
+            var SI_SYMBOL = ["", "k", "M", "G", "T", "P", "E"];
+            var tier = Math.log10(number) / 3 | 0;
+            if (tier == 0) return number;
+            var scale = Math.pow(10, tier * 3);
+            var scaled = number / scale;
+            return scaled.toFixed(1) + SI_SYMBOL[tier];
+        };
     })
 
     .filter('dataSizeToUnit', function () {
@@ -207,16 +220,21 @@ angular.module('app.filter', [])
         };
     })
     .filter('country_to_name', function ($rootScope) {
-        return function (country_code,field) {
-            console.log('field', field);
+        return function (country_code, field) {
             field = field == 'code' ? 'alpha-3' : 'name';
-            // field = field || 'name'; //name, alpha-3
-            return $rootScope['countries']
-                .filter(a => { return a['country-code'] == country_code })[0][field]
+            if (!$rootScope.hasOwnProperty('countries') || Object.keys($rootScope['countries']).length == 0) {
+                return '-';
+            } else {
+                var find = $rootScope['countries']
+                    .filter(a => { return a['country-code'] == country_code });
+                // field = field || 'name'; //name, alpha-3
+                return find.length > 0 ? find[0][field] : '-';
+            }
         };
     })
     .filter('category_to_name', function () {
         return function (n) {
+            if (n === undefined) return '-';
             n = n.toLowerCase();
             var kv = {};
             // console.log(n);

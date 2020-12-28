@@ -48,6 +48,8 @@ class Tab {
             this.addNewDay(today);
         }
         else {
+            var idx = new Date().getHours();
+            day['hours'][idx]['second'] += 1;
             day['summary'] += 1;
         }
     }
@@ -90,33 +92,41 @@ class Tab {
                 day['dataUsage'] = 0;
                 this.dataUsage = 0;
             } else {
+                var idx = new Date().getHours();
+                day['hours'][idx]['dataUsage'] += increasedSize;
                 day['dataUsage'] += increasedSize;
             }
-        };
+        }
         // 순환참조?
         // this.getDataUsaged();
     }
 
     incCounter() {
         this.counter += 1;
-        console.log('this.counter > ', this.counter);
+        // console.log('this.counter > ', this.counter);
         var today = formatDate();
         var day = this.days.find(x => x.date == today);
         if (day === undefined) {
             this.addNewDay(today);
         }
         else {
+            var idx = new Date().getHours();
             day['counter'] += 1;
+            day['hours'][idx]['counter'] += 1;
         }
     }
 
     addNewDay(today) {
+        var idx = new Date().getHours();
+        var hours = new Array(24).fill().map((d,i)=>{return {'dataUsage':0,'counter':0,'second':0}});
+        hours[idx]['counter'] = 1;
         this.days.push(
             {
                 'date': today,
                 'summary': 1,
                 'dataUsage': 0,
-                'counter': 1
+                'counter': 1,
+                'hours':hours
             }
         );
     }

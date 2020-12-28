@@ -17,7 +17,7 @@ angular.module('app.controller.status', [])
             times: { today: null, hours: [], weeks: [] },
             show_full_list: true,
             show_limit_list: false,
-            modal:{}
+            modal: {}
         };
         $scope.param = null;
         $scope.param1 = null;
@@ -38,7 +38,7 @@ angular.module('app.controller.status', [])
                 // Array.apply(null, Array(7)).map(function (_, i) {
                 //     $scope.model.times.weeks.push(moment().clone().startOf('week').add(i, 'days').format("YYYYMMDD"));
                 // });
-                console.log($scope.model.times.weeks);
+                // console.log($scope.model.times.weeks);
                 // console.log('# 23시간 생성');
                 console.log('# interval 데이터 수집');
                 storage.getValue(CONFIG.STORAGE_TIMEINTERVAL_LIST, rows => {
@@ -47,8 +47,8 @@ angular.module('app.controller.status', [])
                     // TODO
                     // 주간 데이터만 필터링
                     // summary데이터 서버에 저장
-                    rows = rows.filter(iv => { return $scope.model.times.weeks.includes(''+iv.day) });
-                    console.log(rows);
+                    rows = rows.filter(iv => { return $scope.model.times.weeks.includes('' + iv.day) });
+                    // console.log(rows);
                     storage.getValue(CONFIG.STORAGE_TABS, tabs => {
                         // tabs = tabs.filter(t => {return t.url == })
                         // tabs[n].url
@@ -62,16 +62,16 @@ angular.module('app.controller.status', [])
                                     .forEach(r => { arr1.push(r) })
                                 );
                             if (row.domain == "til.hashrocket.com") {
-                                console.log('docs', row.day, row);
+                                // console.log('docs', row.day, row);
                             }
                             // 0-23시 기준으로 sum
                             Array(24).fill(0).map((e, i) => i).forEach(t => {
                                 var sum = arr1
                                     .filter(a => { return a.hour == t })
                                     .reduce((a, b) => a + b.value, 0);
-                                    // if (row.domain == "til.hashrocket.com") {
-                                    //     console.log('hashrocket',sum,arr1);
-                                    // }
+                                // if (row.domain == "til.hashrocket.com") {
+                                //     console.log('hashrocket',sum,arr1);
+                                // }
 
                                 acc.push({ hour: t, value: sum });
                             });
@@ -98,7 +98,7 @@ angular.module('app.controller.status', [])
                 console.log("^setup");
                 const copy = JSON.parse(JSON.stringify($scope.interval_summary));
                 $scope.model.charts.day.series = [];
-                console.log('$scope.model.interval_summary',copy);
+                // console.log('$scope.model.interval_summary', copy);
                 $scope.model.summary = copy.reduce((prev, cur) => {
                     let existing = prev.find(x => x.category === cur.category && x.day === cur.day);
                     if (existing) {
@@ -141,8 +141,8 @@ angular.module('app.controller.status', [])
                 // 주간의 오늘날짜 index값으로 나누기(화요일인경우 2)
                 // const average = $scope.model.summary.reduce((a, b) => a + b.times, 0) / moment().weekday()+1;//0일,1월,2화..
                 var av = $scope.model.summary.reduce((a, b) => a + b.times, 0);
-                var wd = moment().weekday()+1;
-                const average = av/wd; // 그냥은 안됌?
+                var wd = moment().weekday() + 1;
+                const average = av / wd; // 그냥은 안됌?
 
                 $scope.model.charts.day.series.push({
                     // https://echarts.apache.org/next/en/option.html#series-line.markLine
@@ -193,7 +193,7 @@ angular.module('app.controller.status', [])
                     });
                 });
                 $timeout(function () {
-                    $scope.param1 = { 'option': opt2(), 'click': null }
+                    $scope.param1 = { 'option': opt2($scope.model.charts.time.series), 'click': null }
                 }, 0.2 * 1000);
                 // $scope.model.charts.day.title,
                 // 오늘, 12월25일
@@ -217,15 +217,15 @@ angular.module('app.controller.status', [])
                 console.log('# opt1 차트 데이터 적용');
                 $scope.param = { 'option': opt1(), 'click': $scope.run.charts1 };
                 // console.log($scope.model.charts.day.series[0]);
-                $scope.run.charts1({name:moment().format('YYYYMMDD')});
+                $scope.run.charts1({ name: moment().format('YYYYMMDD') });
             },
             modalClose: () => {
                 // $scope.run.init_modal();
                 $('#domainModal').modal("hide");
             },
             info: row => {
-                console.log(row);
-                console.log('cont..', $rootScope['countries']);
+                // console.log(row);
+                // console.log('cont..', $rootScope['countries']);
                 $http({
                     url: CONFIG.URI + '/analytics/data?domain=' + row.url,
                     method: "GET"
@@ -236,12 +236,35 @@ angular.module('app.controller.status', [])
                     var result = response.result_data;
                     var m = $scope.model.modal;
                     // $scope.model.modal;
-                    console.log(response);
+                    // console.log(response);
                     // 추적금지
                     storage.getValue(CONFIG.STORAGE_BLACK_LIST, e => {
                         m.black_list = (e == null || e.undefined) ? []
                             : e.filter(a => { return a.domain == row.url });
-                        console.log(m.black_list);
+                        // console.log(m.black_list);
+                    });
+                    // 최근 30일 차트 데이터 생성
+                    // 시작일,마지막일
+                    storage.getValue(CONFIG.STORAGE_TABS, rows => {
+                        var tabs = rows.filter(t => { return t.url == row.url });
+                        // console.log(tabs);
+                        m.counter = tabs[0].counter;
+                        m.dataUsage = tabs[0].dataUsage;
+                        m.summaryTime = tabs[0].summaryTime;
+                        // console.log(tabs[0].days);
+                        m.start_day = tabs[0].days[0].date;
+                        m.end_day = tabs[0].days[tabs[0].days.length - 1].date;
+                        m.diff_day = m.start_day == m.end_day ? 1 : moment(m.end_day).diff(moment(m.start_day), 'days');
+
+                        m.chart = { data: {}, options: null };
+                        Array(7 * 5).fill(0).map((_e, n) => n).forEach(n => {
+                            var day = parseInt(moment().add(-n, 'day').format("YYYYMMDD"));
+                            var find = tabs.filter(x => x.days.find(s => s.date === day));
+                            m.chart.data[day] = find.length == 0 ? 0 : find[0].days[0].summary;
+                        })
+                        $timeout(function () {
+                            m.chart.options = { 'option': chart(Object.keys(m.chart.data),Object.values(m.chart.data)), 'click': null }
+                        }, 0.2 * 1000);
                     });
 
                     if (response.result_msg == "STATUS_NORMAL") {
@@ -254,13 +277,6 @@ angular.module('app.controller.status', [])
                         m.category = row.category;
                         m.category_sub = row.category_sub;
                         m.category_top = row.category_top;
-                        // 전체 접속 횟수
-                        m.counter = row.counter;
-                        // 전체 데이터 사용량
-                        m.dataUsage = row.dataUsage;
-                        // 시작/마지막날짜
-                        m.start_day = row.days[0].date;
-                        m.end_day = row.days[row.days.length-1].date;
                         // 랭킹
                         m.rank_global = result.GlobalRank.Rank;
                         m.rank_contry = result.CountryRank.Rank;
@@ -269,9 +285,9 @@ angular.module('app.controller.status', [])
                         m.contry_code = result.CountryRank.Country;
                         // 월간 예상 방문횟수(4개월, {2020-09-01: 19478384})
                         m.estimated_monthly_visits = result.EstimatedMonthlyVisits;
-                        console.log(m);
+                        // console.log(m);
                     } else {
-
+                        // return error
                     }
                 }, function (response) {
                     console.log('ERROR')
@@ -338,7 +354,7 @@ angular.module('app.controller.status', [])
                         .find(s => s.date === day).summary - a.days
                             .find(s => s.date === day).summary;
                 });
-                console.log(tabs);
+                // console.log(tabs);
                 $scope.model.rows = tabs;
                 $scope.$apply();
             });
@@ -347,7 +363,50 @@ angular.module('app.controller.status', [])
         var now = moment().endOf('day').toDate();
         var time_ago = moment().startOf('day').subtract(10, 'year').toDate();
 
-        function opt2() {
+        function chart(key, value) {
+            return {
+                xAxis: {
+                    type: 'category',
+                    data: key
+                },
+                yAxis: {
+                    type: 'value',
+                    // max: 60*60*24,
+                    // min:60*2,
+                    axisLabel: {
+                        formatter: t => $filter('secondToFormat')(t, t >= 3600 ? 'HH시' : 'mm분')// '{value} Mbps'
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: series => {
+                        let tooltip = '';
+                        const [firstSeries] = series;
+                        const title = $filter('formatDate')(firstSeries.name,'MM월DD일');
+                        series.forEach(s => {
+                            var val = $filter('secondToFormat')(s.value, s.value >= 3600 ? 'HH시간mm분ss초' : 'mm분ss초')
+                            tooltip += `<div>${s.marker} ${title}: <code>${val}</code></div>`;
+                        });
+                        return series[0].value > 0 ? tooltip : '';
+                    }
+                },
+                axisLabel: {
+                    formatter: t => $filter('formatDate')(t,'MM월DD일')
+                },
+                grid: {
+                    left: '10%',
+                    right: '4%',
+                    bottom: '10%',
+                    containLabel: false
+                },
+                series: [{
+                    data: value,
+                    type: 'bar'
+                }]
+            }
+        }
+
+        function opt2(value) {
             return {
                 animation: true,
                 toolbox: {
@@ -373,9 +432,8 @@ angular.module('app.controller.status', [])
                             tooltip += `<div>${s.marker} ${s.seriesName}: <code>${s.value}</code></div>`;
                         });
                         sum = sum > 60 ? $filter('secondToFormat')(sum, sum >= 3600 ? 'HH시간mm분ss초' : 'mm분ss초') : sum == 0 ? '-' : sum + '초';
-                        // title = title +' | '+sum;
                         tooltip = `<div><h5><b>#${title} </b><code><u>${sum}</u></code></h5></div>` + tooltip;
-                        return tooltip;
+                        return sum == '-' ? '' :  tooltip;
                     }
                 },
                 legend: {
@@ -400,11 +458,8 @@ angular.module('app.controller.status', [])
                 xAxis: {
                     type: 'category',
                     data: Array(24).fill(0).map((e, i) => i),
-                    // axisLabel: {
-                    //     formatter: value => moment(value).format('ddd')
-                    // }
                 },
-                series: $scope.model.charts.time.series
+                series: value
             }
         }
         function opt1() {

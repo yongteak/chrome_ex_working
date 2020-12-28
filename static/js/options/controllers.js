@@ -9,7 +9,7 @@ angular.module('app.controllers', [])
         };
         $rootScope['countries'] = {};
 
-        fetch(chrome.extension.getURL('static/assets/iso-3166-countries-with-regional-codes.json'))
+        fetch(chrome.extension.getURL('static/assets/resource/iso-3166-countries-with-regional-codes.json'))
             .then((resp) => resp.json())
             .then(function (jsonData) {
                 $rootScope['countries'] = jsonData;
