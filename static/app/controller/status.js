@@ -39,11 +39,16 @@ angular.module('app.controller.status', [])
                     $scope.interval_summary = [];
                     tabs = tabs.filter(x => x.days.find(s => $scope.model.times.weeks.includes('' + s.date)));
                     tabs.forEach( (tab,i,a) => {
-                        $scope.interval_summary.push({
-                            domain: tab.url,
-                            day: tab.days[0].date,
-                            category: tab.category_top,
-                            times: tab.days[0].hours
+                        // if (tab.url == 'www.clien.net') {
+                        //     console.log('clien',tab);
+                        // }
+                        tab.days.forEach( (t1,_i,_a) => {
+                            $scope.interval_summary.push({
+                                domain: tab.url,
+                                day: t1.date,
+                                category: tab.category_top,
+                                times: t1.hours
+                            });
                         });
                         if (i == a.length - 1) {
                             $scope.run.setup();
@@ -129,18 +134,22 @@ angular.module('app.controller.status', [])
                 if (e.componentType == "markLine") return;
                 const copy = JSON.parse(JSON.stringify($scope.interval_summary));
                 const day = parseInt(e.name);
-                $scope.model.charts.time.series = [];
+                var series = [];
+
                 // https://echarts.apache.org/next/examples/en/editor.html?c=bar-y-category-stack
                 var pivot = copy.filter(item => item.day === day).reduce((prev, cur) => {
                     let existing = prev.find(x => x.category === cur.category);
                     if (existing) {
                         existing.times.forEach((elem, index) => {
-                            if (!elem.hasOwnProperty('value')) {
-                                elem.value = 0;
-                            }
                             elem.value += cur.times[index].second;
                         });
                     } else {
+                        cur.times.forEach( e => {
+                            if (!e.hasOwnProperty('value')) {
+                                e.value = 0;
+                            }
+                            e.value += e.second;
+                        });
                         prev.push({
                             category: cur.category, day: cur.day, times: cur.times
                         });
@@ -149,7 +158,7 @@ angular.module('app.controller.status', [])
                 }, []);
                 pivot.forEach(e => {
                     // console.log('data > ',e.times.map(a => a.second));
-                    $scope.model.charts.time.series.push({
+                    series.push({
                         name: e.category + '|' + $filter('category_to_name')(e.category),
                         data: e.times.map(a => a.value), 
                         type: 'bar', stack: 'total',
@@ -161,9 +170,8 @@ angular.module('app.controller.status', [])
                         emphasis: { focus: 'series' }
                     });
                 });
-                console.log('series',$scope.model.charts.time.series);
                 $timeout(function () {
-                    $scope.param1 = { 'option': opt2($scope.model.charts.time.series), 'click': null }
+                    $scope.param1 = { 'option': opt2(series), 'click': null }
                 }, 0.2 * 1000);
                 // $scope.model.charts.day.title,
                 // 오늘, 12월25일
@@ -175,12 +183,8 @@ angular.module('app.controller.status', [])
                     $scope.model.charts.day.title = dayname + ', ' + moment(e.name).format('llll').split(' ').filter((_, idx) => { return idx > 0 && idx < 4 }).join(' ')
                 } else {
                     $scope.model.charts.day.title = moment(e.name).format('llll').split(' ').filter((_, idx) => { return idx > 0 && idx < 4 }).join(' ')
-                };
-                // console.log($scope.model.charts.day.title);
-                // console.log(moment(e.name).calendar());
-                // '오늘, '+moment().format('llll').split(' ').filter((_,idx) => {return idx > 0 && idx < 4}).join(' ')
-
-                // 목록 조회
+                }
+                
                 $scope.today(day);
             },
             modalClose: () => {
@@ -188,8 +192,6 @@ angular.module('app.controller.status', [])
                 $('#domainModal').modal("hide");
             },
             info: row => {
-                // console.log(row);
-                // console.log('cont..', $rootScope['countries']);
                 $http({
                     url: CONFIG.URI + '/analytics/data?domain=' + row.url,
                     method: "GET"
@@ -199,8 +201,6 @@ angular.module('app.controller.status', [])
                     response = response.data;
                     var result = response.result_data;
                     var m = $scope.model.modal;
-                    // $scope.model.modal;
-                    // console.log(response);
                     // 추적금지
                     storage.getValue(CONFIG.STORAGE_BLACK_LIST, e => {
                         m.black_list = (e == null || e.undefined) ? []
@@ -209,22 +209,23 @@ angular.module('app.controller.status', [])
                     });
                     // 최근 30일 차트 데이터 생성
                     // 시작일,마지막일
-                    storage.getValue(CONFIG.STORAGE_TABS, rows => {
-                        var tabs = rows.filter(t => { return t.url == row.url });
-                        // console.log(tabs);
-                        m.counter = tabs[0].counter;
-                        m.dataUsage = tabs[0].dataUsage;
-                        m.summaryTime = tabs[0].summaryTime;
-                        // console.log(tabs[0].days);
-                        m.start_day = tabs[0].days[0].date;
-                        m.end_day = tabs[0].days[tabs[0].days.length - 1].date;
+                    storage.getValue(CONFIG.STORAGE_TABS, tabs => {
+                        // 항상 1개만 존재함
+                        var tab = tabs.filter(t => { return t.url == row.url })[0];
+                        m.counter = tab.counter;
+                        m.dataUsage = tab.dataUsage;
+                        m.summaryTime = tab.summaryTime;
+                        m.start_day = tab.days[0].date;
+                        m.end_day = tab.days[tab.days.length - 1].date;
                         m.diff_day = m.start_day == m.end_day ? 1 : moment(m.end_day).diff(moment(m.start_day), 'days');
 
                         m.chart = { data: {}, options: null };
                         Array(7 * 5).fill(0).map((_e, n) => n).forEach(n => {
                             var day = parseInt(moment().add(-n, 'day').format("YYYYMMDD"));
-                            var find = tabs.filter(x => x.days.find(s => s.date === day));
-                            m.chart.data[day] = find.length == 0 ? 0 : find[0].days[0].summary;
+                            // tab.days에 모든 날짜 데이터가 있어서 중복 처리되는 경향이 있음, 최적화 필요한가?
+                            var find = tab.days.filter(d => {return d.date == day});
+                            console.log('find',find);
+                            m.chart.data[day] = find.length == 0 ? 0 : find[0].summary;
                         })
                         $timeout(function () {
                             m.chart.options = { 'option': chart(Object.keys(m.chart.data),Object.values(m.chart.data)), 'click': null }
@@ -261,9 +262,7 @@ angular.module('app.controller.status', [])
         }
 
         $scope.run.init();
-
-
-
+        
         $scope.all = function () {
             // $scope.model.totals.times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
@@ -284,30 +283,14 @@ angular.module('app.controller.status', [])
             })
         }
         $scope.today = day => {
-
             day = day || moment().format('YYYYMMDD');
-            // var sum = arr1
-            //                     .filter(a => { return a.hour == t })
-            //                     .reduce((a, b) => a + b.value, 0);
-            // var rows = copy.filter(s=>{ return s.day == e.name});
-            // // 전체 합
-            // var sum = $scope.interval_summary.reduce((a,b) => a + b.times.reduce( (a1,b1) => a1 + b1.value,0), 0);
-            // copy.forEach(e => {
-            //     e.timese.times.reduce( (a1,b1) => a1 + b1.value,0);
-            // })
-            // 도메인별 합
             $scope.model.day_title = moment(day + '').format('llll').split(' ').filter((_, idx) => { return idx < 4 }).join(' ');
             // $scope.model.total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
                 var tabs = rows.filter(x => x.days.find(s => s.date === day));
-                // console.log(today, targetTabs);
-
-                // e.part = {
-                //     counter: e.counter,
-                //     dataUsage: e.dataUsage,
-                //     summary: e.summaryTime
-                // }
-
+                $scope.model.totals.times = 0;
+                $scope.model.totals.dataUsage = 0;
+                $scope.model.totals.counter = 0;
                 tabs.forEach(e => {
                     e.part = e.days.filter(x => x.date == day)[0];
                     $scope.model.totals.times += e.part.summary;
@@ -324,9 +307,6 @@ angular.module('app.controller.status', [])
                 $scope.$apply();
             });
         }
-
-        var now = moment().endOf('day').toDate();
-        var time_ago = moment().startOf('day').subtract(10, 'year').toDate();
 
         function chart(key, value) {
             return {
