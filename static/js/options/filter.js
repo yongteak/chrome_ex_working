@@ -59,9 +59,10 @@ angular.module('app.filter', [])
             else return hours + '시간 ' + mins + '분 ' + seconds + '초';
         }
     })
+
     .filter('moneyFormat', function () {
         return function (number) {
-            var SI_SYMBOL = ["", "k", "M", "G", "T", "P", "E"];
+            var SI_SYMBOL = ["", "k", "M", "B", "T", "P", "E"];
             var tier = Math.log10(number) / 3 | 0;
             if (tier == 0) return number;
             var scale = Math.pow(10, tier * 3);

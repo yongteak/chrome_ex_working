@@ -7,7 +7,17 @@ https://pouchdb.com/guides/setup-couchdb.html
 sudo npm install -g pouchdb-server
 pouchdb-server --port 5984 -o 0.0.0.0
 http://172.24.78.188:5984/_utils/#/_all_dbs
- * 데이터 필터링
-    https://pouchdb.com/api.html#filtered-replication
- * Q/A
-    https://stackoverflow.com/questions/50994899/filtered-sync-between-couchdb-and-pouchdb
+* 데이터 필터링
+   https://pouchdb.com/api.html#filtered-replication
+* Q/A
+   https://stackoverflow.com/questions/50994899/filtered-sync-between-couchdb-and-pouchdb
+
+# gulp
+n 11.13
+npm init
+sudo npm install -g yo gulp bower generator-gulp-angular
+npm install --save-dev gulp jshint gulp-jshint gulp-minify-css gulp-uglify gulp-clean gulp-cleanhtml gulp-strip-debug gulp-zip
+
+ * 코드 참고
+  https://github.com/quyentruong/MangaMark-Extension
+  https://github.com/MixTeen/mixteen.org

@@ -1,6 +1,5 @@
 var app = angular.module('app', [
-	"ngRoute", "angular-echarts3", "g1b.calendar-heatmap", "angularMoment",
-	//// "ui.bootstrap",
+	"ngRoute", "angular-echarts3", "angularMoment",
 	'app.controllers', 'app.services', 'app.controller.setting','app.controller.status','app.filter'
 ]);
 
@@ -9,17 +8,17 @@ app.directive('elastic', [
     function($timeout) {
         return {
             restrict: 'A',
-            link: function($scope, element) { 
-				$scope.initialHeight = $scope.initialHeight || element[0].style.height; 
-				var resize = function() { 
-					element[0].style.height = $scope.initialHeight; 
-					element[0].style.height = "" + element[0].scrollHeight + "px"; 
-				}; 
-				element.on("blur keyup change", resize); $timeout(resize, 0); } 
+            link: function($scope, element) {
+				$scope.initialHeight = $scope.initialHeight || element[0].style.height;
+				var resize = function() {
+					element[0].style.height = $scope.initialHeight;
+					element[0].style.height = "" + element[0].scrollHeight + "px";
+				};
+				element.on("blur keyup change", resize); $timeout(resize, 0); }
         };
 	}
-	
-	
+
+
 ]);
 
 app.constant('CONFIG', {

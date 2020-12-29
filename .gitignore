@@ -2,7 +2,8 @@
 .bower-cache
 .bower-registry
 .bower-tmp
-static/vendor/* 
+static/vendor/*
 
 ### etc ###
 .DS_Store
+node_modules
