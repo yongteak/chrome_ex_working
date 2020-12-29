@@ -28,22 +28,66 @@
 </head>
 
 <body class="header-fixed">
+  <nav class="t-header" ng-controller="top">
+    <div class="t-header-brand-wrapper">
+      <!-- <a href="index.html">
+        <img class="logo" src="assets/images/logo.svg" alt="">
+        <img class="logo-mini" src="assets/images/logo_mini.svg" alt="">
+      </a> -->
+      <button class="t-header-toggler t-header-desk-toggler d-none d-lg-block">
+        <svg class="logo" viewBox="0 0 200 200">
+          <path class="top" d="
+                  M 40, 80
+                  C 40, 80 120, 80 140, 80
+                  C180, 80 180, 20  90, 80
+                  C 60,100  30,120  30,120
+                "></path>
+          <path class="middle" d="
+                  M 40,100
+                  L140,100
+                "></path>
+          <path class="bottom" d="
+                  M 40,120
+                  C 40,120 120,120 140,120
+                  C180,120 180,180  90,120
+                  C 60,100  30, 80  30, 80
+                "></path>
+        </svg>
+      </button>
+    </div>
+    <div class="t-header-content-wrapper">
+      <div class="t-header-content">
+        <button class="t-header-toggler t-header-mobile-toggler d-block d-lg-none">
+          <i class="mdi mdi-menu"></i>
+        </button>
+      </div>
+      <div class="col-lg-12">
+        <h2>{{ title  }}</h2>
+<!-- <hr> -->
+      </div>
+      <!-- <form action="#" class="t-header-search-box">
+        <div class="input-group">
+          <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="Search" autocomplete="off">
+          <button class="btn btn-primary" type="submit"><i class="mdi mdi-arrow-right-thick"></i></button>
+        </div>
+      </form> -->
+    </div>
+  </nav>
   <div class="page-body">
     <div class="sidebar">
       <ul class="navigation-menu" ng-controller="side">
-        <!-- <li class="tablink active"> -->
         <li ng-class="{tablink, active : isCurrentPath('/v1/setting')}">
-        <a href="#/v1/setting">
-          <span class="link-title">설정</span>
-          <em class="mdi mdi-gauge link-icon"></em>
-        </a>
+          <a href="#/v1/setting">
+            <span class="link-title">설정</span>
+            <em class="mdi mdi-gauge link-icon"></em>
+          </a>
         </li>
 
         <li ng-class="{tablink, active : isCurrentPath('/v1/limit')}">
           <a href="#/v1/limit">
-          <span class="link-title">제한</span>
-          <em class="mdi mdi-clipboard-outline link-icon"></em>
-        </a>
+            <span class="link-title">제한</span>
+            <em class="mdi mdi-clipboard-outline link-icon"></em>
+          </a>
         </li>
 
         <li ng-class="{tablink, active : isCurrentPath('/v1/alarm')}">
@@ -118,5 +162,7 @@
     </div>
     <script src="assets/vendors/js/core.js"></script>
     <script src="assets/vendors/js/vendor.addons.js"></script>
+    <script src="app/js/template.js"></script>
 </body>
+
 </html>

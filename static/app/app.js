@@ -3,6 +3,12 @@ var app = angular.module('app', [
 	'app.controllers', 'app.services', 'app.controller.setting','app.controller.status','app.filter'
 ]);
 
+// app.run(function($rootScope) {
+//     $rootScope.$on("$locationChangeStart", function(event, next, current) { 
+//         console.log(current);
+//     });
+// });
+
 app.directive('elastic', [
     '$timeout',
     function($timeout) {

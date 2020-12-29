@@ -13,7 +13,7 @@ angular.module('app.controllers', [])
             .then((resp) => resp.json())
             .then(function (jsonData) {
                 $rootScope['countries'] = jsonData;
-                console.log('jsonData', jsonData);
+                // console.log('jsonData', jsonData);
             })
 
         identity.getUserID(userInfo => {
@@ -24,11 +24,28 @@ angular.module('app.controllers', [])
             }
         });
     })
-    .controller('view', $scope => {
-        console.log("view!");
-        // $scope.init = () => {
-        //     console.log("view > init!");
-        // }
+    .controller('top', ($rootScope, $scope, $location) => {
+        $scope.title = '';
+        $rootScope.$on("$locationChangeStart", function (_e, newVal, _old) {
+            var path = newVal.split('/').pop();
+            if (path == 'setting') {
+                $scope.title = '설정';
+            } else if (path == 'limit') {
+                $scope.title = '제한';
+            } else if (path == 'alarm') {
+                $scope.title = '알람';
+            } else if (path == 'data') {
+                $scope.title = '백업/복구';
+            } else if (path == 'sync') {
+                $scope.title = '동기화';
+            } else if (path == 'status') {
+                $scope.title = '통계';
+            } else if (path == 'profile') {
+                $scope.title = '사용자 프로필';
+            } else if (path == 'about') {
+                $scope.title = 'About';
+            }
+        })
     })
 
     .controller('limitController', function ($scope, $location, $filter, identity, storage, CONFIG) {

@@ -374,12 +374,6 @@ angular.module('app.controller.status', [])
         function opt2(data) {
             return {
                 animation: true,
-                toolbox: {
-                    show: true,
-                    feature: {
-                        saveAsImage: {}
-                    }
-                },
                 tooltip: {
                     trigger: 'axis',
                     formatter: series => {
@@ -387,9 +381,6 @@ angular.module('app.controller.status', [])
                         let sum = 0;
                         const [firstSeries] = series;
                         const title = firstSeries.axisValue + '시'
-
-                        // tooltip += `<div><h5><b>#${title} | ${sum}</b></h5></div>`;
-
                         series.forEach(s => {
                             sum += s.value;
                             s.seriesName = s.seriesName.split('|')[1];
