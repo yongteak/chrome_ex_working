@@ -30,6 +30,8 @@ https://gyuyeon.tistory.com/6
  - 일정시간마다 누적된 데이터 merge코드 필요
 
 [TODO]
+[2020-12-29 17:58:31]
+ - timeinterval 제거
 [2020-12-28 13:22:11]
  - status 팝업, textarea 높이 동적으로 처리
 [2020-12-27 08:13:49]

@@ -26,7 +26,7 @@ class Activity {
                     var tabUrl = this.getTab(domain);
                     if (tabUrl !== undefined)
                         tabUrl.incCounter();
-                    this.addTimeInterval(domain);
+                    // this.addTimeInterval(domain);
                 }
             }
         } else this.closeIntervalForCurrentTab();
@@ -128,39 +128,39 @@ class Activity {
     }
 
     setCurrentActiveTab(domain) {
-        this.closeIntervalForCurrentTab();
+        // this.closeIntervalForCurrentTab();
         currentTab = domain;
-        this.addTimeInterval(domain);
+        // this.addTimeInterval(domain);
     }
 
     clearCurrentActiveTab() {
-        this.closeIntervalForCurrentTab();
+        // this.closeIntervalForCurrentTab();
         currentTab = '';
     }
 
-    addTimeInterval(domain) {
-        var today = formatDate();
-        var item = timeIntervalList.find(o => o.domain === domain && o.day == today);
-        if (item != undefined) {
-            if (item.day == today)
-                item.addInterval();
-            else {
-                var newInterval = new TimeInterval(today, domain);
-                newInterval.addInterval();
-                timeIntervalList.push(newInterval);
-            }
-        } else {
-            var newInterval = new TimeInterval(today, domain);
-            newInterval.addInterval();
-            timeIntervalList.push(newInterval);
-        }
-    }
+    // addTimeInterval(domain) {
+    //     var today = formatDate();
+    //     var item = timeIntervalList.find(o => o.domain === domain && o.day == today);
+    //     if (item != undefined) {
+    //         if (item.day == today)
+    //             item.addInterval();
+    //         else {
+    //             var newInterval = new TimeInterval(today, domain);
+    //             newInterval.addInterval();
+    //             timeIntervalList.push(newInterval);
+    //         }
+    //     } else {
+    //         var newInterval = new TimeInterval(today, domain);
+    //         newInterval.addInterval();
+    //         timeIntervalList.push(newInterval);
+    //     }
+    // }
 
     closeIntervalForCurrentTab() {
-        if (currentTab !== '' && timeIntervalList) {
-            var item = timeIntervalList.find(o => o.domain === currentTab && o.day == formatDate());
-            if (item != undefined)
-                item.closeInterval();
+        if (currentTab !== '') {// && timeIntervalList) {
+            // var item = timeIntervalList.find(o => o.domain === currentTab && o.day == formatDate());
+            // if (item != undefined)
+            //     item.closeInterval();
         }
         currentTab = '';
     }

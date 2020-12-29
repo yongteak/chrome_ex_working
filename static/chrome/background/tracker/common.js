@@ -36,7 +36,7 @@ var STORAGE_RESTRICTION_LIST = 'restriction_list';
 var STORAGE_RESTRICTION_ACCESS_LIST = 'restriction_access_list';
 var STORAGE_NOTIFICATION_LIST = 'notification_list';
 var STORAGE_NOTIFICATION_MESSAGE = 'notification_message';
-var STORAGE_TIMEINTERVAL_LIST = 'time_interval';
+// var STORAGE_TIMEINTERVAL_LIST = 'time_interval';
 // 도메인 사용 유지 시간
 var STORAGE_TIMERANGE_LIST = 'time_range';
 // 시간당 소비 페이지 정보 5초이상 머물렀던 URL 페이지 목록 관리, daily관리

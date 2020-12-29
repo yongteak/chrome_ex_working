@@ -44,7 +44,6 @@
       "static/chrome/background/tracker/storage.js",
       "static/chrome/background/tracker/activity.js",
       "static/chrome/background/tracker/tab.js",
-      "static/chrome/background/tracker/timeInterval.js",
       "static/chrome/background/tracker/background.js"
     ],
     "persistent": true

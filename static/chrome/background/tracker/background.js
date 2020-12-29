@@ -41,9 +41,9 @@ function get_reports(callback) {
 
 
 var tabs;
-var timeIntervalList;
+// var timeIntervalList;
 var currentTab;
-var isNeedDeleteTimeIntervalFromTabs = false;
+// var isNeedDeleteTimeIntervalFromTabs = false;
 var activity = new Activity();
 var storage = new LocalStorage();
 
@@ -175,7 +175,7 @@ function backgroundCheck() {
                     }
                 }
             } else {
-                activity.closeIntervalForCurrentTab();
+                // activity.closeIntervalForCurrentTab();
             }
         }
     })
@@ -283,7 +283,10 @@ function checkDOM(state, activeUrl, tab, activeTab) {
         trackForYT(mainTRacker, activeUrl, tab, activeTab);
     } else if (state === 'idle' && isDomainEquals(activeUrl, "netflix.com")) {
         trackForNetflix(mainTRacker, activeUrl, tab, activeTab);
-    } else activity.closeIntervalForCurrentTab();
+    } else {
+        //
+    }
+    //  activity.closeIntervalForCurrentTab();
 }
 
 function trackForYT(callback, activeUrl, tab, activeTab) {
@@ -306,7 +309,7 @@ function executeScriptYoutube(callback, activeUrl, tab, activeTab) {
     chrome.tabs.executeScript({ code: "var videoElement = document.getElementsByTagName('video')[0]; (videoElement !== undefined && videoElement.currentTime > 0 && !videoElement.paused && !videoElement.ended && videoElement.readyState > 2);" }, (results) => {
         if (results !== undefined && results[0] !== undefined && results[0] === true)
             callback(activeUrl, tab, activeTab);
-        else activity.closeIntervalForCurrentTab();
+        //else activity.closeIntervalForCurrentTab();
     });
 }
 
@@ -315,7 +318,7 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
         if (results !== undefined && results[0] !== undefined && results[0] === true) {
             callback(activeUrl, tab, activeTab);
         } else {
-            activity.closeIntervalForCurrentTab();
+           // activity.closeIntervalForCurrentTab();
         }
     });
 }
@@ -324,8 +327,8 @@ function backgroundUpdateStorage() {
     if (tabs != undefined && tabs.length > 0)
         // console.log('storage.saveTabs > ',tabs.length);
         storage.saveTabs(tabs);
-    if (timeIntervalList != undefined && timeIntervalList.length > 0)
-        storage.saveValue(STORAGE_TIMEINTERVAL_LIST, timeIntervalList);
+    // if (timeIntervalList != undefined && timeIntervalList.length > 0)
+    //     storage.saveValue(STORAGE_TIMEINTERVAL_LIST, timeIntervalList);
 }
 
 function setDefaultSettings() {
@@ -369,7 +372,7 @@ function addListener() {
             storage.saveValue(SETTINGS_SHOW_HINT, SETTINGS_SHOW_HINT_DEFAULT);
             checkSettingsImEmpty();
             setDefaultValueForNewSettings();
-            isNeedDeleteTimeIntervalFromTabs = true;
+            // isNeedDeleteTimeIntervalFromTabs = true;
         }
     });
     chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -486,24 +489,24 @@ function loadTabs() {
                     items[i].summaryTime,
                     items[i].counter));
             }
-            if (isNeedDeleteTimeIntervalFromTabs)
-                deleteTimeIntervalFromTabs();
+            // if (isNeedDeleteTimeIntervalFromTabs)
+            //     deleteTimeIntervalFromTabs();
         }
     });
 }
 
-function deleteTimeIntervalFromTabs() {
-    tabs.forEach(item => {
-        item.days.forEach(day => {
-            if (day.time != undefined)
-                day.time = [];
-        })
-    })
-}
+// function deleteTimeIntervalFromTabs() {
+//     tabs.forEach(item => {
+//         item.days.forEach(day => {
+//             if (day.time != undefined)
+//                 day.time = [];
+//         })
+//     })
+// }
 
-function deleteYesterdayTimeInterval() {
-    // timeIntervalList = timeIntervalList.filter(x => x.day == formatDate());
-}
+// function deleteYesterdayTimeInterval() {
+//     // timeIntervalList = timeIntervalList.filter(x => x.day == formatDate());
+// }
 
 function loadBlackList() {
     storage.getValue(STORAGE_BLACK_LIST, items => {
@@ -511,20 +514,20 @@ function loadBlackList() {
     })
 }
 
-function loadTimeIntervals() {
-    storage.getValue(STORAGE_TIMEINTERVAL_LIST, function (items) {
-        timeIntervalList = [];
-        if (items != undefined) {
-            for (var i = 0; i < items.length; i++) {
-                timeIntervalList.push(new TimeInterval(items[i].day, items[i].domain, items[i].intervals));
-            }
-            // TODO
-            // [2020-12-22 22:10:49]
-            // 언제까지 어떻게 관리할지?
-            // deleteYesterdayTimeInterval();
-        }
-    });
-}
+// function loadTimeIntervals() {
+//     storage.getValue(STORAGE_TIMEINTERVAL_LIST, function (items) {
+//         timeIntervalList = [];
+//         if (items != undefined) {
+//             for (var i = 0; i < items.length; i++) {
+//                 timeIntervalList.push(new TimeInterval(items[i].day, items[i].domain, items[i].intervals));
+//             }
+//             // TODO
+//             // [2020-12-22 22:10:49]
+//             // 언제까지 어떻게 관리할지?
+//             // deleteYesterdayTimeInterval();
+//         }
+//     });
+// }
 
 function loadRestrictionList() {
     storage.getValue(STORAGE_RESTRICTION_LIST, function (items) {
@@ -563,7 +566,7 @@ function loadSettings() {
 
 function loadAddDataFromStorage() {
     loadTabs();
-    loadTimeIntervals();
+    // loadTimeIntervals();
     loadBlackList();
     loadRestrictionList();
     loadRestrictionAccessList();

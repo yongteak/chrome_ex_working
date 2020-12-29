@@ -26,3 +26,7 @@ npm install --save-dev gulp jshint gulp-jshint gulp-minify-css gulp-uglify gulp-
 # 카테고리
  * 컬러 목록
  https://www.pressfoto.com/blog/choose-a-palette-for-infographic-tips-from-professionals/
+ https://github.com/vicc/Chameleon
+ * 랜덤 컬러 생성
+ http://colormind.io/template/paper-dashboard/
+ https://mycolor.space/?hex=%23845EC2&sub=1

@@ -33,9 +33,9 @@ app.constant('CONFIG', {
 	'STORAGE_RESTRICTION_ACCESS_LIST': 'restriction_access_list',
 	// 알람 목록
 	'STORAGE_ALARM_LIST': 'alarm_list',
-	'STORAGE_NOTIFICATION_LIST': 'notification_list',
+	'STORAGE_NOTIFICATION_LIST': 'notification_list'
 	// 'STORAGE_NOTIFICATION_MESSAGE': 'notification_message',
-	'STORAGE_TIMEINTERVAL_LIST': 'time_interval'
+	// 'STORAGE_TIMEINTERVAL_LIST': 'time_interval'
 })
 
 app.constant('COLLECTIONS', {
@@ -46,8 +46,8 @@ app.constant('COLLECTIONS', {
 	black_list: { name: '추적금지 도메인', desc: '추적금지 도메인', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
 	restriction_list: { name: '접근제한 도메인', desc: '접근제한 도메인', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
 	restriction_access_list: { name: '접근제한 도메인 접속 정보', desc: '접근제한 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-	alarm_list: { name: '알람목록', desc: '알람목록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-	time_interval: { name: '시간대별 도메인 접속 정보', desc: '시간대별 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+	alarm_list: { name: '알람목록', desc: '알람목록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 }
+	// time_interval: { name: '시간대별 도메인 접속 정보', desc: '시간대별 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
 })
 
 // app.run([
