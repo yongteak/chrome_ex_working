@@ -2,10 +2,10 @@
   "manifest_version": 2,
   "name": "Web Screen Time Tracker",
   "short_name": "Web Screen Time",
-  "version": "1.0.02",
+  "version": "1.0.1",
   "minimum_chrome_version": "26",
   "description": "웹 기록 잘해드림",
-  "options_page": "static/options.html",
+  "options_page": "static/index.html",
   "icons": {},
   "permissions": [
     "identity",

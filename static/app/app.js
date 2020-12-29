@@ -17,8 +17,6 @@ app.directive('elastic', [
 				element.on("blur keyup change", resize); $timeout(resize, 0); }
         };
 	}
-
-
 ]);
 
 app.constant('CONFIG', {
@@ -73,35 +71,35 @@ app.config(["$routeProvider", "$locationProvider", /*"$compileProvider", */
 
 		$routeProvider.
 			when("/v1/setting", {
-				templateUrl: "tmpl/options/setting.html",
+				templateUrl: "app/partial/setting.html",
 				controller: 'settingController'
 			}).
 			when("/v1/limit", {
-				templateUrl: "tmpl/options/limit.html",
+				templateUrl: "app/partial/limit.html",
 				controller: 'limitController'
 			}).
 			when("/v1/alarm", {
-				templateUrl: "tmpl/options/alarm.html",
+				templateUrl: "app/partial/alarm.html",
 				controller: 'alarmController'
 			}).
 			when("/v1/data", {
-				templateUrl: "tmpl/options/data.html",
+				templateUrl: "app/partial/data.html",
 				controller: 'dataController'
 			}).
 			when("/v1/sync", {
-				templateUrl: "tmpl/options/sync.html",
+				templateUrl: "app/partial/sync.html",
 				controller: 'syncController'
 			}).
 			when("/v1/status", {
-				templateUrl: "tmpl/options/status.html",
+				templateUrl: "app/partial/status.html",
 				controller: 'statusController'
 			}).
 			when("/v1/profile", {
-				templateUrl: "tmpl/options/profile.html",
+				templateUrl: "app/partial/profile.html",
 				controller: 'profileController'
 			}).
 			when("/v1/about", {
-				templateUrl: "tmpl/options/about.html",
+				templateUrl: "app/partial/about.html",
 				controller: 'aboutController'
 			}).
 			otherwise({

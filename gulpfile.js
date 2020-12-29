@@ -4,9 +4,14 @@ const gulp = require('gulp')
 const purgecss = require('gulp-purgecss')
 
 gulp.task('purgecss', () => {
-    return gulp.src('static/assets/*.css','static/assets/vendors/iconfonts/mdi/css/*.css')
+    return gulp.src(
+            'static/assets/**/*.css',
+            // 'static/assets/vendors/iconfonts/mdi/css/*.css',
+            // 'static/vendor/clockpicker/dist/bootstrap-clockpicker.min.css',
+            // 'vendor/mdi/css/materialdesignicons.min.css'
+            )
         .pipe(purgecss({
-            content: ['static/chrome/*.html', 'static/tmpl/*.html']
+            content: ['static/chrome/*.html','static/index.html', 'static/app/*.html']
         }))
         .pipe(gulp.dest('build/css'))
 })
