@@ -302,7 +302,6 @@ angular.module('app.controller.status', [])
                         .find(s => s.date === day).summary - a.days
                             .find(s => s.date === day).summary;
                 });
-                // console.log(tabs);
                 $scope.model.rows = tabs;
                 $scope.$apply();
             });

@@ -1,6 +1,7 @@
 var app = angular.module('app', [
 	"ngRoute", "angular-echarts3", "angularMoment",
-	'app.controllers', 'app.services', 'app.controller.setting','app.controller.status','app.filter'
+	'app.controllers','app.controller.sync', 'app.controller.setting','app.controller.status',
+	'app.services','app.filter'
 ]);
 
 // app.run(function($rootScope) {

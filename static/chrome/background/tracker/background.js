@@ -50,7 +50,7 @@ var storage = new LocalStorage();
 var setting_black_list;
 var setting_restriction_list;
 var setting_restriction_access_list
-var setting_interval_save;
+var setting_interval_sync_upload;
 var setting_interval_inactivity;
 var setting_view_in_badge;
 

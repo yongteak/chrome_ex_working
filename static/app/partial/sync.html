@@ -3,39 +3,38 @@
         <p class="grid-header">동기화 설정</p>
         <div class="grid-body">
             <div class="item-wrapper">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>동기화 방향</th>
-                                <th>실행횟수</th>
-                                <th>마지막 실행시간</th>
-                                <th>반복 시간</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="row in model.rows">
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ row.desc }}</td>
-                                <td>{{ row.count }}</td>
-                                <td>{{ row.last }}</td>
-                                <td>{{ row.repeat_min }}</td>
-                                <td>{{ row.created | yyyymmdd_to_format_kr }}</td>
-                                <td>
-                                    <button ng-if="row.direction != 'similarweb_to_cloud' && row.sync_enabled"
-                                        type="button" ng-click="run.sync(row)"
-                                        class="btn btn-danger btn-xs">동기화</button>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>출발</th>
+                            <th>도착</th>
+                            <th>실행횟수</th>
+                            <th>마지막 실행시간</th>
+                            <th>반복 시간</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="row in model.rows">
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ row.from }}</td>
+                            <td>{{ row.to }}</td>
+                            <td>{{ row.count }}</td>
+                            <td>{{ row.last }}</td>
+                            <td>{{ row.repeat_min }}</td>
+                            <td>{{ row.created | yyyymmdd_to_format_kr }}</td>
+                            <td>
+                                <button ng-if="row.direction != 'similarweb_to_cloud' && row.sync_enabled" type="button"
+                                    ng-click="run.sync(row)" class="btn btn-danger btn-xs">실행</button>
 
-                                    <button ng-if="row.direction == 'similarweb_to_cloud' && row.sync_enabled"
-                                        type="button" ng-click="run.sync(row)" class="btn btn-danger btn-xs">{{
-                                        model.similarweb.length }}개 업로드</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                                <button ng-if="row.direction == 'similarweb_to_cloud' && row.sync_enabled" type="button"
+                                    ng-click="run.sync(row)" class="btn btn-danger btn-xs">{{
+                                    model.similarweb.length }}개 업로드</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
                 <div class="demo-wrapper">
                     <div class="btn btn-primary has-icon pointer" ng-click="run.open_tab()">
