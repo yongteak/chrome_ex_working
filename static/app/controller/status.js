@@ -24,7 +24,7 @@ angular.module('app.controller.status', [])
 
         var week_of_start = moment().startOf('week').format("YYYYMMDD");
         var week_of_end = moment(week_of_start).endOf('week').format("YYYYMMDD");
-        var diff = moment(week_of_end).diff(moment(week_of_start), 'days');
+        var diff = moment(week_of_end).diff(moment(week_of_start), 'days') + 1;
         for (var i = 0; i < diff; i++) {
             $scope.model.times.weeks.push(moment(week_of_start).add(i, 'day').format("YYYYMMDD"));
         }
@@ -78,7 +78,6 @@ angular.module('app.controller.status', [])
                     var idx = $scope.model.times.weeks.indexOf('' + e.day);
                     idx = idx == -1 ? 0 : idx;
                     fill.splice(idx, 0, e.times);
-                    console.log(idx,e.day,fill);
                     // scope.model.charts.day | time
                     $scope.model.charts.day.series.push({
                         name: e.category + '|' + $filter('category_to_name')(e.category),
@@ -224,7 +223,7 @@ angular.module('app.controller.status', [])
                             var day = parseInt(moment().add(-n, 'day').format("YYYYMMDD"));
                             // tab.days에 모든 날짜 데이터가 있어서 중복 처리되는 경향이 있음, 최적화 필요한가?
                             var find = tab.days.filter(d => {return d.date == day});
-                            console.log('find',find);
+                            // console.log('find',find);
                             m.chart.data[day] = find.length == 0 ? 0 : find[0].summary;
                         })
                         $timeout(function () {
@@ -289,7 +288,7 @@ angular.module('app.controller.status', [])
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
                 // todo
                 // filter return이 없는데 데이터가 나오나??
-                var tabs = rows.filter(x => x.days.find(s => s.date === day));
+                var tabs = rows.filter(x => { return x.days.find(s => s.date === day)});
                 $scope.model.totals.times = 0;
                 $scope.model.totals.dataUsage = 0;
                 $scope.model.totals.counter = 0;
