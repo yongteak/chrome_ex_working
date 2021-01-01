@@ -46,6 +46,7 @@ app.constant('CONFIG', {
 })
 
 app.constant('COLLECTIONS', {
+	last: { name: 'last', desc: 'last', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
 	similarweb: { name: 'similarweb', desc: 'similarweb', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
 	sync_history: { name: '동기화 기록', desc: '동기화 기록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
 	setting: { name: '설정', desc: '기본설정', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },

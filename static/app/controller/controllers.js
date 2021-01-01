@@ -10,11 +10,12 @@ angular.module('app.controllers', [])
         $rootScope['countries'] = {};
 
         fetch(chrome.extension.getURL('static/assets/resource/iso-3166-countries-with-regional-codes.json'))
-            .then((resp) => resp.json())
-            .then(function (jsonData) {
-                $rootScope['countries'] = jsonData;
-                // console.log('jsonData', jsonData);
-            })
+            .then(resp => resp.json())
+            .then(jsonData => $rootScope['countries'] = jsonData);
+        fetch(chrome.extension.getURL('static/assets/resource/timezone.json'))
+            .then(resp => resp.json())
+            .then(jsonData => $rootScope['timezone'] = jsonData);
+        $rootScope['local_timezone'] = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
         identity.getUserID(userInfo => {
             if (userInfo == undefined) {

@@ -287,6 +287,8 @@ angular.module('app.controller.status', [])
             $scope.model.day_title = moment(day + '').format('llll').split(' ').filter((_, idx) => { return idx < 4 }).join(' ');
             // $scope.model.total_times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
+                // todo
+                // filter return이 없는데 데이터가 나오나??
                 var tabs = rows.filter(x => x.days.find(s => s.date === day));
                 $scope.model.totals.times = 0;
                 $scope.model.totals.dataUsage = 0;

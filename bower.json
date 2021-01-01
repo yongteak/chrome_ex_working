@@ -9,7 +9,6 @@
     "angular-route": "^1.8.2",
     "angular-echarts3": "https://github.com/yongteak/angular-echarts5.git#master",
     "echarts": "^5.0.0",
-    "clockpicker": "^0.0.7",
-    "moment-timezone": "^0.5.32"
+    "clockpicker": "^0.0.7"
   }
 }

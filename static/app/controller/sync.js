@@ -1,5 +1,10 @@
 angular.module('app.controller.sync', [])
-    .controller('syncController', function ($scope, $http, $location, $filter, $interval, identity, storage, CONFIG, COLLECTIONS) {
+    .controller('syncController', function ($scope, $rootScope, $http, $location, $filter, $interval, identity, storage, CONFIG, COLLECTIONS) {
+
+        // var tz = $rootScope['timezone'];
+        // var ltz = $rootScope['local_timezone'];
+        // var u1 = tz.filter(z => { return z.abbr === 'UTC'});
+        // var u2 = tz.filter(z => { return z.utc.find(x => x === ltz) });
 
         $scope.model = {
             rows: [
@@ -206,17 +211,43 @@ angular.module('app.controller.sync', [])
                             storage.getValue(field, item => {
                                 result[field] = item;
                                 if (Object.keys(result).length == Object.keys(COLLECTIONS).length) {
-                                    $http({
-                                        url: CONFIG.URI + '/sync',
-                                        method: "PUT",
-                                        data: { user_id: $scope.model.identity.id, payload: JSON.stringify(result) }
-                                    }).finally(function () {
-                                        console.log('finally')
-                                    }).then(function (response) {
-                                        console.log(response.data)
-                                    }, function (response) {
-                                        console.log('ERROR')
-                                    });
+                                    // console.log(result);
+                                    var fullSync = !result.hasOwnProperty('last') || result['last'] == undefined || result['last'] == null 
+                                    result['full_sync'] = fullSync;
+                                    if (!isFullUpload) {
+                                        var ltz = $rootScope['local_timezone'];
+                                        var tz = $rootScope['timezone'];
+                                        var myTz = tz.filter(z => { return z.utc.find(x => x === ltz) });
+                                        var offSet = myTz[0].offset;
+                                        console.log(result['last']);
+                                        // [2021-01-02 00:58:17]
+                                        // 데이터가 없는경우 전체 업로드
+                                        var dt = result['last'].daytime+'';
+                                        var nday = new Date(dt.replace(
+                                            /^(\d{4})(\d\d)(\d\d)(\d\d)(\d\d)$/,
+                                            '$4:$5:00 $2/$3/$1'));
+                                        var filterDay = parseInt(moment(nday).add(offSet, 'hours').format('YYYYMMDD'));
+                                        var tabs = result['tabs'];
+
+                                        result['tabs'] = tabs.filter(t => { return t.days.find(d => d.date >= filterDay) });
+                                        console.log(filterDay,tabs.length,'newTabs',result['tabs']);
+                                    } else {
+                                        // [2021-01-02 01:03:09]
+                                        // 1일 1회 full upload 처리
+                                        console.log('full upload');
+                                        // full upload
+                                    }
+                                    // $http({
+                                    //     url: CONFIG.URI + '/sync',
+                                    //     method: "PUT",
+                                    //     data: { user_id: $scope.model.identity.id, payload: JSON.stringify(result) }
+                                    // }).finally(function () {
+                                    //     console.log('finally')
+                                    // }).then(function (response) {
+                                    //     console.log(response.data)
+                                    // }, function (response) {
+                                    //     console.log('ERROR')
+                                    // });
                                 }
                             })
                         })(variable);//passing in variable to var here
