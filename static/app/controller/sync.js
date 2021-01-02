@@ -211,43 +211,39 @@ angular.module('app.controller.sync', [])
                             storage.getValue(field, item => {
                                 result[field] = item;
                                 if (Object.keys(result).length == Object.keys(COLLECTIONS).length) {
-                                    // console.log(result);
-                                    var fullSync = !result.hasOwnProperty('last') || result['last'] == undefined || result['last'] == null 
-                                    result['full_sync'] = fullSync;
-                                    if (!isFullUpload) {
+                                    var incrementalSync = true;
+                                    try {
                                         var ltz = $rootScope['local_timezone'];
                                         var tz = $rootScope['timezone'];
                                         var myTz = tz.filter(z => { return z.utc.find(x => x === ltz) });
                                         var offSet = myTz[0].offset;
-                                        console.log(result['last']);
-                                        // [2021-01-02 00:58:17]
-                                        // 데이터가 없는경우 전체 업로드
-                                        var dt = result['last'].daytime+'';
+                                        var dt = result['last'].daytime + '';
                                         var nday = new Date(dt.replace(
                                             /^(\d{4})(\d\d)(\d\d)(\d\d)(\d\d)$/,
                                             '$4:$5:00 $2/$3/$1'));
                                         var filterDay = parseInt(moment(nday).add(offSet, 'hours').format('YYYYMMDD'));
+                                        console.log(result['last']);
+                                        // [2021-01-02 00:58:17]
+                                        // todo 데이터가 없는경우 전체 업로드
                                         var tabs = result['tabs'];
-
                                         result['tabs'] = tabs.filter(t => { return t.days.find(d => d.date >= filterDay) });
-                                        console.log(filterDay,tabs.length,'newTabs',result['tabs']);
-                                    } else {
-                                        // [2021-01-02 01:03:09]
-                                        // 1일 1회 full upload 처리
-                                        console.log('full upload');
-                                        // full upload
+                                    } catch (error) {
+                                        incrementalSync = false;
                                     }
-                                    // $http({
-                                    //     url: CONFIG.URI + '/sync',
-                                    //     method: "PUT",
-                                    //     data: { user_id: $scope.model.identity.id, payload: JSON.stringify(result) }
-                                    // }).finally(function () {
-                                    //     console.log('finally')
-                                    // }).then(function (response) {
-                                    //     console.log(response.data)
-                                    // }, function (response) {
-                                    //     console.log('ERROR')
-                                    // });
+
+                                    result['incremental_sync'] = incrementalSync;
+                                    console.log('incrementalSync > ',incrementalSync);
+                                    $http({
+                                        url: CONFIG.URI + '/sync',
+                                        method: "PUT",
+                                        data: { user_id: $scope.model.identity.id, payload: JSON.stringify(result) }
+                                    }).finally(function () {
+                                        console.log('finally')
+                                    }).then(function (response) {
+                                        console.log(response.data)
+                                    }, function (response) {
+                                        console.log('ERROR')
+                                    });
                                 }
                             })
                         })(variable);//passing in variable to var here
