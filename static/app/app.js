@@ -1,35 +1,87 @@
 var app = angular.module('app', [
 	"ngRoute", "angular-echarts3", "angularMoment",
-	'app.controllers','app.controller.sync', 'app.controller.setting','app.controller.status',
-	'app.services','app.filter'
+	'app.controllers', 'app.controller.sync', 'app.controller.setting', 'app.controller.status',
+	'app.services', 'app.filter'
 ]);
 
-// app.run(function($rootScope) {
-//     $rootScope.$on("$locationChangeStart", function(event, next, current) { 
-//         console.log(current);
-//     });
-// });
+app.run(function ($rootScope,identity,storage,CONFIG) {
+
+	$rootScope['countries'] = {};
+
+	fetch(chrome.extension.getURL('static/assets/resource/iso-3166-countries-with-regional-codes.json'))
+		.then(resp => resp.json())
+		.then(jsonData => $rootScope['countries'] = jsonData);
+	fetch(chrome.extension.getURL('static/assets/resource/timezone.json'))
+		.then(resp => resp.json())
+		.then(jsonData => $rootScope['timezone'] = jsonData);
+	$rootScope['local_timezone'] = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+	identity.getUserID(userInfo => {
+		console.log('user info =>', userInfo);
+		if (userInfo == undefined) {
+			// 로그인 상태 없음
+		} else {
+			storage.saveValue(CONFIG.IDENTITY, userInfo);
+		}
+	});
+	// Opera 8.0+ (tested on Opera 42.0)
+	var isOpera = (!!window.opr && !!opr.addons) || !!window.opera
+		|| navigator.userAgent.indexOf(' OPR/') >= 0;
+
+	// Firefox 1.0+ (tested on Firefox 45 - 53)
+	var isFirefox = typeof InstallTrigger !== 'undefined';
+
+	// Internet Explorer 6-11
+	//   Untested on IE (of course). Here because it shows some logic for isEdge.
+	var isIE = /*@cc_on!@*/false || !!document.documentMode;
+
+	// Edge 20+ (tested on Edge 38.14393.0.0)
+	var isEdge = !isIE && !!window.StyleMedia;
+
+	// Chrome 1+ (tested on Chrome 55.0.2883.87)
+	// This does not work in an extension:
+	//var isChrome = !!window.chrome && !!window.chrome.webstore;
+	// The other browsers are trying to be more like Chrome, so picking
+	// capabilities which are in Chrome, but not in others is a moving
+	// target.  Just default to Chrome if none of the others is detected.
+	var isChrome = !isOpera && !isFirefox && !isIE && !isEdge;
+
+	// Blink engine detection (tested on Chrome 55.0.2883.87 and Opera 42.0)
+	var isBlink = (isChrome || isOpera) && !!window.CSS;
+
+	/* The above code is based on code from: https://stackoverflow.com/a/9851769/3773011 */
+	//Verification:
+	var log = console.log;
+	if (isEdge) log = alert; //Edge console.log() does not work, but alert() does.
+	log('isChrome: ' + isChrome);
+	log('isEdge: ' + isEdge);
+	log('isFirefox: ' + isFirefox);
+	log('isIE: ' + isIE);
+	log('isOpera: ' + isOpera);
+	log('isBlink: ' + isBlink);
+});
 
 app.directive('elastic', [
-    '$timeout',
-    function($timeout) {
-        return {
-            restrict: 'A',
-            link: function($scope, element) {
+	'$timeout',
+	function ($timeout) {
+		return {
+			restrict: 'A',
+			link: function ($scope, element) {
 				$scope.initialHeight = $scope.initialHeight || element[0].style.height;
-				var resize = function() {
+				var resize = function () {
 					element[0].style.height = $scope.initialHeight;
 					element[0].style.height = "" + element[0].scrollHeight + "px";
 				};
-				element.on("blur keyup change", resize); $timeout(resize, 0); }
-        };
+				element.on("blur keyup change", resize); $timeout(resize, 0);
+			}
+		};
 	}
 ]);
 
 app.constant('CONFIG', {
-	'URI':'http://34.83.116.28:8080/api/v1',
+	'URI': 'http://34.83.116.28:8080/api/v1',
 	// 'URI':'http://127.0.0.1:8080/api/v1',
-	'IDENTITY':'dentity',
+	'IDENTITY': 'dentity',
 	'STORAGE_HISTORY_OF_SYNC': 'sync_history',
 	'STORAGE_SETTINGS_VIEW_TIME_IN_BADGE': 'setting_view_time_in_badge',
 	'STORAGE_TABS': 'tabs',

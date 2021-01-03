@@ -159,7 +159,7 @@ angular.module('app.controller.status', [])
                     // console.log('data > ',e.times.map(a => a.second));
                     series.push({
                         name: e.category + '|' + $filter('category_to_name')(e.category),
-                        data: e.times.map(a => a.value), 
+                        data: e.times.map(a => a.value),
                         type: 'bar', stack: 'total',
                         label: { show: false },
                         animationDelay: function (idx) {
@@ -183,7 +183,7 @@ angular.module('app.controller.status', [])
                 } else {
                     $scope.model.charts.day.title = moment(e.name).format('llll').split(' ').filter((_, idx) => { return idx > 0 && idx < 4 }).join(' ')
                 }
-                
+
                 $scope.today(day);
             },
             modalClose: () => {
@@ -261,7 +261,7 @@ angular.module('app.controller.status', [])
         }
 
         $scope.run.init();
-        
+
         $scope.all = function () {
             // $scope.model.totals.times = 0;
             storage.getValue(CONFIG.STORAGE_TABS, rows => {
@@ -386,9 +386,11 @@ angular.module('app.controller.status', [])
                 },
                 yAxis: {
                     type: 'value',
-                    max: 3600,
+                    // max: 3600,
+                    minInterval:60,
                     axisLabel: {
-                        formatter: value => $filter('secondToFormat')(value, value >= 3600 ? 'HH시mm분' : 'mm분ss초')// '{value} Mbps'
+                        formatter: value => value % 60 == 0 ? (value/60) + 'm' : ''
+                        // formatter: value => $filter('secondToFormat')(value, value >= 3600 ? 'HH시mm분' : 'mm분ss초')// '{value} Mbps'
                     }
                 },
                 xAxis: {
@@ -461,8 +463,12 @@ angular.module('app.controller.status', [])
                 yAxis: {
                     type: 'value',
                     // max: 3600 * 24,
+                    minInterval:3600,
                     axisLabel: {
-                        formatter: value => value < (3600 * 24) - 1 ? $filter('secondToFormat')(value, 'HH시mm분') : '24시00분'
+                        // [2021-01-04 03:19:24]
+                        // global formatter 적용
+                        formatter: value => value % 3600 == 0 ? (value/3600) + 'h' : ''
+                        // formatter: value => value < (3600 * 24) - 1 ? $filter('secondToFormat')(value, 'HH시mm분') : '24시00분'
                     }
                 },
                 xAxis: {

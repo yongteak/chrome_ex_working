@@ -50,7 +50,7 @@
   },
   "browser_action": {
     "default_icon": "images/icon.png",
-    "default_popup": "app.html",
+    "default_popup": "static/popup.html",
     "default_title": "Web Screen Time Tracker"
   },
   "web_accessible_resources": [
