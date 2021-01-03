@@ -82,7 +82,7 @@ function backgroundCheck() {
                 if (tab === undefined) {
                     activity.addTab(activeTab);
                 }
-                console.log('tab1 ', tab);
+                // console.log('tab1 ', tab);
 
                 var isBlockList = activity.isInBlackList(activeUrl);
                 var isLimitList = activity.isLimitExceeded(activeUrl, tab);
@@ -195,7 +195,7 @@ function mainTRacker(activeUrl, tab, activeTab) {
         //         checkPermissionsForNotifications(showNotification, activeUrl, tab);
         //     }
         // }
-        console.log('mainTRacker > !isInBlackList',activeUrl);
+        // console.log('mainTRacker > !isInBlackList',activeUrl);
         tab.incSummaryTime();
     } else {
         // var today = formatDate();
@@ -206,7 +206,7 @@ function mainTRacker(activeUrl, tab, activeTab) {
         // });
         console.log('mainTRacker > isInBlackList',activeUrl);
     }
-    console.log('setting_view_in_badge',setting_view_in_badge);
+    // console.log('setting_view_in_badge',setting_view_in_badge);
     // if (true)//(setting_view_in_badge === true) {
     // chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] })
     // var today = formatDate();

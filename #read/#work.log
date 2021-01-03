@@ -10,6 +10,12 @@
   * 업로드시 tabs의 date에서 last_sync 이후 날짜만 추출하여 업로드
   * 서버시간 => utc0
   https://momentjs.com/timezone/
+[2021-01-03 06:40:02]
+ - 데이터 동기화 merge 모드
+  * 1대 이상의 기기에서 동시 사용시 데이터 merge 구현
+  * 반복적인 서버 장애로 동기화 실패에따른 오류에 대한 해결책
+  * merge는 어디에서 해야하나? 서버또는 클라이언트 아니면 양쪽에서 진행
+  * merge는 tabs만 해당함
 [LOG]
 
 [LINK]

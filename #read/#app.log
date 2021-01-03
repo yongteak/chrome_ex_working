@@ -4,6 +4,15 @@ https://techexpert.tips/ko/%EC%95%84%ED%8C%8C%EC%B9%98-%EC%B9%B4%EC%9A%B0%EC%B9%
 # msgpack
  * header contents_type : msgpack | json 
 
+# crypto
+ * 크로스 브라우저를 위한 동기화 방안
+  - pub/prv 키를 사용함
+  - 크롬 기준으로 시작, profile => 인증키 생생 => 서버에서 jwt또는 expire키 생성
+    => 다 브라우저 profile메뉴에서 인증키 등록
+    ? 같은 브라우져에서 하면
+    ? 여러번 붙여 넣으면
+    ? 해제 방법은
+    
 # pounchdb
 https://pouchdb.com/guides/setup-couchdb.html
 sudo npm install -g pouchdb-server

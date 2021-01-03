@@ -20,6 +20,57 @@ angular.module('app.controller.sync', [])
             similarweb1: [],
         };
 
+        /* [2021-01-03 08:44:42]
+            1. 둘다 도메인 목록 추출
+            2. 양쪽에 없는 도메인은 전체 복제
+            3. 충돌되는 도메인은 결합, 과거 마지막 시간대(hours)이후 데이터를 merge한다.
+              => days 데이터가 동일한경우 서버측 데이터로 덮어씌운다.
+        */
+        // fetch(chrome.extension.getURL('static/assets/resource/WEB-SCREEN-TIME-BACKUP_2021-01-02.json'))
+        //     .then(resp => resp.json())
+        //     .then(row => {
+        //         // {key:domain, value:index}
+        //         var tabs1 = row['tabs'];
+        //         storage.getValue(CONFIG.STORAGE_TABS, tabs2 => {
+        //             // var t = {};
+        //             // tabs1.concat(tabs2).forEach(e => t[e.url] = e.url);
+        //             // console.log(tabs1.concat(tabs2).length,Object.keys(t).length);
+        //             var pivot = tabs1.concat(tabs2).reduce((prev, cur) => {
+        //                 var existing = prev.find(x => x.url === cur.url);
+        //                 if (existing) {
+        //                     if (JSON.stringify(existing.days) !== JSON.stringify(cur.days)) {
+        //                         var diff = existing.days.concat(cur.days).reduce((prev1, cur1) => {
+        //                             var exist1 = prev1.find(x => x.date === cur1.date);
+        //                             if (exist1) {
+        //                                 if (exist1.summary !== cur1.summary) {
+        //                                     exist1.hours.forEach((e, idx) => {
+        //                                         // counter가 작은쪽을 덮어씌운다.
+        //                                         if (e.counter < cur1.hours[idx].counter) {
+        //                                             e = cur1.hours[idx];
+        //                                             exist1.summary += e.second;
+        //                                             exist1.counter += e.counter;
+        //                                             exist1.dataUsage += e.dataUsage;
+        //                                             console.log(cur.url, exist1);
+        //                                         }
+        //                                     });
+        //                                 }
+        //                             } else {
+        //                                 prev1.push(cur1);
+        //                             }
+        //                             return prev1;
+        //                         }, []);
+        //                         existing.days = diff;
+        //                     }
+
+        //                 } else {
+        //                     prev.push(cur)
+        //                 }
+        //                 return prev;
+        //             }, []);
+        //             console.log(pivot.find(p => p.url === 'www.google.com'));
+        //         });
+        //     });
+
         // http://localhost:8080/api/v1/system/queue/analytics/2
         function lengthInUtf8Bytes(str) {
             const m = encodeURIComponent(str).match(/%[89ABab]/g);
@@ -232,7 +283,7 @@ angular.module('app.controller.sync', [])
                                     }
 
                                     result['incremental_sync'] = incrementalSync;
-                                    console.log('incrementalSync > ',incrementalSync);
+                                    console.log('incrementalSync > ', incrementalSync);
                                     $http({
                                         url: CONFIG.URI + '/sync',
                                         method: "PUT",
@@ -260,9 +311,13 @@ angular.module('app.controller.sync', [])
                         if (response.result_msg == "STATUS_NORMAL") {
                             //response.result_data
                             console.log(response.result_data);
-                            storage.set(response.result_data);
-                            console.log('local save ok!');
-                            chrome.extension.getBackgroundPage().loadAddDataFromStorage();
+
+                            console.log('local save ok??!');
+                            // console.log(JSON.stringify(response.result_data['tabs']));
+                            // var hash = $filter('md5')(JSON.stringify(response.result_data['tabs']));
+
+
+                            // chrome.extension.getBackgroundPage().loadAddDataFromStorage();
                         } else {
                             // error msg?
                         }
