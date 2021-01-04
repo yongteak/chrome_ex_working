@@ -6,6 +6,9 @@ angular.module('app.controller.status', [])
         // 우선 언어 관련 페이지에 다 집어넣자
         moment.locale(window.navigator.language.split('-')[0]);
         console.log(moment().subtract(3, 'days').calendar());
+
+
+
         // var week_range = [];
         $scope.model = {
             rows: [], todal_times: 0, summary: {}, interval_summary: [],

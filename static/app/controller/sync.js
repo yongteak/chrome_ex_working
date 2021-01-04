@@ -14,9 +14,9 @@ angular.module('app.controller.sync', [])
         // pounch.clear(CONFIG.STORAGE_TABS).then(res => {
         //     console.log('clear tabs > ', res);
         // });
-            pounch.getData(CONFIG.STORAGE_TABS, 'news.google.com').then(items => {
-                console.log('clien getData > ', items);
-            })
+            // pounch.getData(CONFIG.STORAGE_TABS, 'news.google.com').then(items => {
+            //     console.log('clien getData > ', items);
+            // })
         // });
 
         //
@@ -332,8 +332,8 @@ angular.module('app.controller.sync', [])
                             // console.log(JSON.stringify(response.result_data['tabs']));
                             // var hash = $filter('md5')(JSON.stringify(response.result_data['tabs']));
 
-
-                            chrome.extension.getBackgroundPage().loadAddDataFromStorage();
+                            // saveTabs
+                            // // chrome.extension.getBackgroundPage().loadAddDataFromStorage();
                         } else {
                             // error msg?
                         }

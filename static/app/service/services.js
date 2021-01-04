@@ -11,6 +11,13 @@ angular.module('app.services', [])
                     [name]: value
                 })
             },
+
+            saveTabs(value, callback) {
+                chrome.storage.local.set({ tabs: value });
+                if (callback !== undefined)
+                    callback();
+            },
+
             set: function (items) {
                 console.log('# service.storage.set > ', items);
                 return chrome.storage.local.set(items);
@@ -58,6 +65,6 @@ angular.module('app.services', [])
                 })
             }
         }
-    
+
     }])
 
