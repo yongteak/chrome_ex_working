@@ -35,26 +35,8 @@ function get_reports(callback) {
     });
 }
 
-function init() {
-    // var scriptEl = document.createElement('script');
-    // scriptEl.src = chrome.extension.getURL(POUNCHDB_JS);
-    // scriptEl.addEventListener('load', function (e) {
-    //     db = new PouchDB();
-    //     console.log('...db...>', db);
-    // }, false);
-    // document.head.appendChild(scriptEl);
-}
-
+// pounchdb
 var db;
-new PouchStorage(function(instance) {
-    db = {
-        'tab':new instance('tabs'),
-        'status': new instance('status'),
-        'blocklist': new instance('blocklist')
-    };
-    console.log(db);
-});
-
 var tabs;
 // var timeIntervalList;
 var currentTab;
@@ -87,114 +69,113 @@ function updateStorage() {
 }
 
 function backgroundCheck() {
-    // console.log('backgroundCheck db.isReady > ', db);
-    var today = formatDate();
     chrome.windows.getLastFocused({ populate: true }, function (currentWindow) {
         if (currentWindow.focused) {
             var activeTab = currentWindow.tabs.find(t => t.active === true);
+            // console.log('11activeTab', activeTab);
             if (activeTab !== undefined && activity.isValidPage(activeTab)) {
                 var activeUrl = activity.extractHostname(activeTab.url);
                 var tab = activity.getTab(activeUrl);
                 if (tab === undefined) {
-                    activity.addTab(activeTab);
-                }
-                // console.log('tab1 ', tab);
-
-                var isBlockList = activity.isInBlackList(activeUrl);
-                var isLimitList = activity.isLimitExceeded(activeUrl, tab);
-                //  추적 금지
-                // [2020-12-08 22:19:34]
-                // badge 표현 설정 필요
-                if (isBlockList || isLimitList) {
-                    if (isBlockList) {
-                        chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000' })
-                        chrome.browserAction.setBadgeText({
-                            tabId: activeTab.id,
-                            text: 'n/a'
-                        });
-                    }
-                    // 일정시간동안 비활성 상태인 tab검출
-                    // if (tab !== undefined) {
-                    //     if (currentTab !== tab.url) {
-                    //         activity.setCurrentActiveTab(tab.url);
-                    //     }
-                    //     chrome.idle.queryState(parseInt(setting_interval_inactivity), function(state) {
-                    //         if (state === 'active') {
-                    //             mainTRacker(activeUrl, tab, activeTab);
-                    //         } else checkDOM(state, activeUrl, tab, activeTab);
-                    //     });
-                    // }
-
-                    if (isLimitList && tab !== undefined) {
-                        setBlockPageToCurrent(activeUrl);
-                        // update
-                        var domain = activity.extractHostname(tab.url);
-                        var item = setting_restriction_list.find(e => e.domain === domain);
-                        if (item !== undefined) {
-                            item.count += 1;
-                            storage.saveValue(STORAGE_RESTRICTION_LIST, setting_restriction_list);
-                        };
-                        item = setting_restriction_access_list.find(o => o.domain === domain && o.day == today);
-                        if (item !== undefined) {
-                            item.count += 1;
-                        } else {
-                            setting_restriction_access_list.push({
-                                domain: domain,
-                                epoch: Math.round(Date.now() / 1000),
-                                day: today,
-                                count: 1
-                            });
-                        }
-                        storage.saveValue(STORAGE_RESTRICTION_ACCESS_LIST, setting_restriction_access_list);
-                    }
+                    db.tabs.get(activeUrl).then(doc => {
+                        // 기존 데이터가 있는경우 push
+                        console.log('db데이터 로드')
+                        tabs.push(prevTab(doc.value));
+                        tab = activity.getTab(activeUrl);
+                        backgroundCheck2(tab, activeUrl, activeTab);
+                    }).catch(err => {
+                        // if (error.status == '404') {}
+                        console.log('신규 tab 객체 생성');
+                        activity.addTab(activeTab);
+                        tab = activity.getTab(activeUrl);
+                        backgroundCheck2(tab, activeUrl, activeTab);
+                    });
                 } else {
-                    if (tab !== undefined) {
-                        if (currentTab !== tab.url) {
-                            activity.setCurrentActiveTab(tab.url);
-                        }
-                        // console.log(activeTab.title,activeTab.url);
-                        // activeTab : title, url 수집필요
-                        getCurrentlyViewedTabId()
-                            .then(({ id, _url }) => {
-                                chrome.tabs.sendMessage(id, { req: EVENT_GENERATE_REPORT }, response => {
-                                    if (response !== undefined) {
-                                        // console.log('performance > ', Math.floor(response.performance / 1000), tab);
-                                        activity.incDataUsaged(tab,
-                                            response.isObserved ? response.increasedSize : response.transferSize);
-                                    }
-                                });
-                                // 2020-12-24 06:44:49
-                                // todo
-                                // 사이트별 사용량
-                                // 사용량
-                                // 사이트별 사용시간
-                                // 사용시간
-                                // var today = formatDate();
-                                // console.log(today,179,tab);
-                                // console.log()
-                                var summary = tab.days.find(s => s.date === today).summary;
-                                // var data = bytesToSize(activity.getDataUsaged(tab));
-                                chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
-                                chrome.browserAction.setBadgeText({
-                                    tabId: activeTab.id,
-                                    // text: data.size + "" + data.unit
-                                    text: String(convertSummaryTimeToBadgeString(summary))
-                                });
-                            })
-
-
-                        chrome.idle.queryState(parseInt(setting_interval_inactivity), state => {
-                            if (state === 'active') {
-                                mainTRacker(activeUrl, tab, activeTab);
-                            } else checkDOM(state, activeUrl, tab, activeTab);
-                        });
-                    }
+                    backgroundCheck2(tab, activeUrl, activeTab);
                 }
-            } else {
-                // activity.closeIntervalForCurrentTab();
             }
         }
     })
+}
+
+function backgroundCheck2(tab, activeUrl, activeTab) {
+    var today = formatDate();
+    var isBlockList = activity.isInBlackList(activeUrl);
+    var isLimitList = activity.isLimitExceeded(activeUrl);
+    //  추적 금지
+    // [2020-12-08 22:19:34]
+    // badge 표현 설정 필요
+    if (isBlockList || isLimitList) {
+        if (isBlockList) {
+            chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000' })
+            chrome.browserAction.setBadgeText({
+                tabId: activeTab.id,
+                text: 'n/a'
+            });
+        }
+        // 일정시간동안 비활성 상태인 tab검출
+        // if (tab !== undefined) {
+        //     if (currentTab !== tab.url) {
+        //         activity.setCurrentActiveTab(tab.url);
+        //     }
+        //     chrome.idle.queryState(parseInt(setting_interval_inactivity), function(state) {
+        //         if (state === 'active') {
+        //             mainTRacker(activeUrl, tab, activeTab);
+        //         } else checkDOM(state, activeUrl, tab, activeTab);
+        //     });
+        // }
+
+        if (isLimitList) {
+            setBlockPageToCurrent(activeUrl);
+            // update
+            var domain = activity.extractHostname(tab.url);
+            var item = setting_restriction_list.find(e => e.domain === domain);
+            if (item !== undefined) {
+                item.count += 1;
+                storage.saveValue(STORAGE_RESTRICTION_LIST, setting_restriction_list);
+            }
+            item = setting_restriction_access_list.find(o => o.domain === domain && o.day == today);
+            if (item !== undefined) {
+                item.count += 1;
+            } else {
+                setting_restriction_access_list.push({
+                    domain: domain,
+                    epoch: Math.round(Date.now() / 1000),
+                    day: today,
+                    count: 1
+                });
+            }
+            storage.saveValue(STORAGE_RESTRICTION_ACCESS_LIST, setting_restriction_access_list);
+        }
+    } else {
+        if (currentTab !== tab.url) {
+            activity.setCurrentActiveTab(tab.url);
+        }
+        getCurrentlyViewedTabId()
+            .then(({ id, _url }) => {
+                chrome.tabs.sendMessage(id, { req: EVENT_GENERATE_REPORT }, response => {
+                    if (response !== undefined) {
+                        // console.log('performance > ', Math.floor(response.performance / 1000), tab);
+                        activity.incDataUsaged(tab,
+                            response.isObserved ? response.increasedSize : response.transferSize);
+                    }
+                });
+                var summary = tab.days.find(s => s.date === today).summary;
+                // var data = bytesToSize(activity.getDataUsaged(tab));
+                chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
+                chrome.browserAction.setBadgeText({
+                    tabId: activeTab.id,
+                    // text: data.size + "" + data.unit
+                    text: String(convertSummaryTimeToBadgeString(summary))
+                });
+            })
+
+        chrome.idle.queryState(parseInt(setting_interval_inactivity), state => {
+            if (state === 'active') {
+                mainTRacker(activeUrl, tab, activeTab);
+            } else checkDOM(state, activeUrl, tab, activeTab);
+        });
+    } // end if
 }
 
 function mainTRacker(activeUrl, tab, activeTab) {
@@ -323,9 +304,9 @@ function trackForNetflix(callback, activeUrl, tab, activeTab) {
 
 function executeScriptYoutube(callback, activeUrl, tab, activeTab) {
     chrome.tabs.executeScript({ code: "var videoElement = document.getElementsByTagName('video')[0]; (videoElement !== undefined && videoElement.currentTime > 0 && !videoElement.paused && !videoElement.ended && videoElement.readyState > 2);" }, (results) => {
-        if (results !== undefined && results[0] !== undefined && results[0] === true)
+        if (results !== undefined && results[0] !== undefined && results[0] === true) {
             callback(activeUrl, tab, activeTab);
-        //else activity.closeIntervalForCurrentTab();
+        }
     });
 }
 
@@ -333,18 +314,30 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
     chrome.tabs.executeScript({ code: "var videoElement = document.getElementsByTagName('video')[0]; (videoElement !== undefined && videoElement.currentTime > 0 && !videoElement.paused && !videoElement.ended && videoElement.readyState > 2);" }, (results) => {
         if (results !== undefined && results[0] !== undefined && results[0] === true) {
             callback(activeUrl, tab, activeTab);
-        } else {
-            // activity.closeIntervalForCurrentTab();
         }
     });
 }
 
 function backgroundUpdateStorage() {
-    if (tabs != undefined && tabs.length > 0)
-        // console.log('storage.saveTabs > ',tabs.length);
-        storage.saveTabs(tabs);
-    // if (timeIntervalList != undefined && timeIntervalList.length > 0)
-    //     storage.saveValue(STORAGE_TIMEINTERVAL_LIST, timeIntervalList);
+    const api = db.tabs;
+    const copy = JSON.parse(JSON.stringify(tabs));
+    copy.forEach(t => {
+        api.get(t.url).then(doc => {
+            api.put({ _id: doc._id, _rev: doc._rev, value: t }).then(res => {
+                console.log('updated', t.url, res);
+            }).catch(_err => {
+                // nothing
+            });
+        }).catch(_err => { // not found / 404
+            api.put({ '_id': t.url, 'value': t }).then(res => {
+                console.log('new', t.url, res);
+            }).catch(_err => {
+                // nothing
+            });
+        });
+    })
+    // 사본 생성후 가장 마지막 항목만 남기고 제거
+    tabs = tabs.slice(tabs.length-1,tabs.length);
 }
 
 function setDefaultSettings() {
@@ -369,8 +362,22 @@ function setDefaultValueForNewSettings() {
 
 function addListener() {
     chrome.tabs.onActivated.addListener(info => {
+        // activity.addTab(tab);
         chrome.tabs.get(info.tabId, tab => {
-            activity.addTab(tab);
+            var activeUrl = activity.extractHostname(tab.url);
+            if (activity.isValidPage(tab)) {
+                if (tabs !== undefined) {
+                    if (tabs.find(o => o.url === activeUrl)) {
+                        // next
+                    } else {
+                        db.tabs.get(activeUrl).then(doc => {
+                            tabs.push(prevTab(doc.value));
+                        }).catch(err => {
+                            activity.addTab(tab);
+                        });
+                    }
+                }
+            }
         });
     });
 
@@ -380,6 +387,7 @@ function addListener() {
         });
     });
     chrome.runtime.onInstalled.addListener(details => {
+        console.log('onInstalled > ', details);
         if (details.reason == 'install') {
             storage.saveValue(SETTINGS_SHOW_HINT, SETTINGS_SHOW_HINT_DEFAULT);
             setDefaultSettings();
@@ -489,71 +497,24 @@ function getCurrentlyViewedTabId() {
         });
     });
 }
-// $$
-function loadTabs(n) {
-    n = n || 0;
-    try {
-        // db.instance('test1')
-    } catch (error) {
-        console.log(n);
-        // loadTabs(n++);
-    }
-    // console.log('instance>', db.instance('test1'));
-    // [2021-01-04 15:34:47]
-    // 오버헤드가 심함. 어떻게 해결해야하나?
-    storage.loadTabs(STORAGE_TABS, items => {
-        tabs = [];
-        if (items != undefined) {
-            for (var i = 0; i < items.length; i++) {
-                tabs.push(new Tab(items[i].url,
-                    items[i].category,
-                    items[i].category_top,
-                    items[i].category_sub,
-                    items[i].favicon,
-                    items[i].days,
-                    items[i].dataUsage,
-                    items[i].summaryTime,
-                    items[i].counter));
-            }
-            // if (isNeedDeleteTimeIntervalFromTabs)
-            //     deleteTimeIntervalFromTabs();
-        }
-    });
+
+function prevTab(tab) {
+    return new Tab(tab.url,
+        tab.category,
+        tab.category_top,
+        tab.category_sub,
+        tab.favicon,
+        tab.days,
+        tab.dataUsage,
+        tab.summaryTime,
+        tab.counter);
 }
-
-// function deleteTimeIntervalFromTabs() {
-//     tabs.forEach(item => {
-//         item.days.forEach(day => {
-//             if (day.time != undefined)
-//                 day.time = [];
-//         })
-//     })
-// }
-
-// function deleteYesterdayTimeInterval() {
-//     // timeIntervalList = timeIntervalList.filter(x => x.day == formatDate());
-// }
 
 function loadBlackList() {
     storage.getValue(STORAGE_BLACK_LIST, items => {
         setting_black_list = items;
     })
 }
-
-// function loadTimeIntervals() {
-//     storage.getValue(STORAGE_TIMEINTERVAL_LIST, function (items) {
-//         timeIntervalList = [];
-//         if (items != undefined) {
-//             for (var i = 0; i < items.length; i++) {
-//                 timeIntervalList.push(new TimeInterval(items[i].day, items[i].domain, items[i].intervals));
-//             }
-//             // TODO
-//             // [2020-12-22 22:10:49]
-//             // 언제까지 어떻게 관리할지?
-//             // deleteYesterdayTimeInterval();
-//         }
-//     });
-// }
 
 function loadRestrictionList() {
     storage.getValue(STORAGE_RESTRICTION_LIST, function (items) {
@@ -566,8 +527,6 @@ function loadRestrictionAccessList() {
         setting_restriction_access_list = isEmpty2(items) ? [] : items;
     });
 }
-
-
 
 function loadNotificationList() {
     storage.getValue(STORAGE_NOTIFICATION_LIST, items => {
@@ -591,7 +550,7 @@ function loadSettings() {
 }
 
 function loadAddDataFromStorage() {
-    loadTabs();
+    // loadTabs();
     // loadTimeIntervals();
     loadBlackList();
     loadRestrictionList();
@@ -642,10 +601,20 @@ function checkPermissionsForNotifications(callback, ...props) {
         isHasPermissioForNotification = result;
     });
 }
-init();
-loadPermissions();
-addListener();
-loadAddDataFromStorage();
-updateSummaryTime();
-updateStorage();
-// storage.clearTabs();
+
+// 시작!
+var pounch = new PouchStorage(function (instance) {
+    db = {
+        'tabs': new instance('tabs'),
+        'status': new instance('status'),
+        'blocklist': new instance('blocklist')
+    };
+    tabs = [];
+    // loadTabs
+    // console.log(db);
+    loadPermissions();
+    addListener();
+    loadAddDataFromStorage();
+    updateSummaryTime();
+    updateStorage();
+});

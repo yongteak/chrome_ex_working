@@ -20,6 +20,16 @@ class PouchStorage {
         document.head.appendChild(scriptEl);
     }
 
+    getdoc(db, id) {
+        var deferred = $q.defer();
+        db.get(id).then(doc => {
+            deferred.resolve(res);
+        }).catch(err => {
+            deferred.resolve(err);
+        });
+        return deferred.promise;
+    }
+
     instance(name) {
         return new PouchDB(name);
     }
@@ -55,7 +65,7 @@ class PouchStorage {
     }
 
     saveValue(name, value) {
-        chrome.storage.local.set({[name]: value});
+        chrome.storage.local.set({ [name]: value });
     }
 
     getValue(name, callback) {

@@ -47,12 +47,13 @@ class Activity {
         } else {
             return 0;
         }
-
     }
 
     isValidPage(tab) {
         if (!tab || !tab.url || (tab.url.indexOf('http:') == -1 && tab.url.indexOf('https:') == -1)
             || tab.url.indexOf('chrome://') !== -1
+            || tab.url.indexOf('//127.0.0.1') !== -1
+            || tab.url.indexOf('//localhost') !== -1
             || tab.url.indexOf('chrome-extension://') !== -1)
             return false;
         return true;
@@ -70,7 +71,7 @@ class Activity {
         return find !== undefined;
     }
     // 접근 제한
-    isLimitExceeded(domain, tab) {
+    isLimitExceeded(domain) {
         if (setting_restriction_list !== undefined && setting_restriction_list.length > 0) {
             var item = setting_restriction_list.find(o =>
                 o.enabled && isDomainEquals(this.extractHostname(o.domain), this.extractHostname(domain))
