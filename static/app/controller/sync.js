@@ -1,10 +1,26 @@
 angular.module('app.controller.sync', [])
-    .controller('syncController', function ($scope, $rootScope, $http, $location, $filter, $interval, identity, storage, CONFIG, COLLECTIONS) {
+    .controller('syncController', function ($scope, $rootScope, $http, $filter, pounch, identity, storage, CONFIG, COLLECTIONS) {
 
         // var tz = $rootScope['timezone'];
         // var ltz = $rootScope['local_timezone'];
         // var u1 = tz.filter(z => { return z.abbr === 'UTC'});
         // var u2 = tz.filter(z => { return z.utc.find(x => x === ltz) });
+        // storage.getValue(CONFIG.STORAGE_TABS, tabs => {
+        //     console.log(tabs);
+        //     pounch.setTabs(CONFIG.STORAGE_TABS,null,tabs,true).then(res => {
+        //         console.log(res);
+        //     });
+        // });
+        // pounch.clear(CONFIG.STORAGE_TABS).then(res => {
+        //     console.log('clear tabs > ', res);
+        // });
+            pounch.getData(CONFIG.STORAGE_TABS, 'news.google.com').then(items => {
+                console.log('clien getData > ', items);
+            })
+        // });
+
+        //
+
 
         $scope.model = {
             rows: [
@@ -312,12 +328,12 @@ angular.module('app.controller.sync', [])
                             //response.result_data
                             console.log(response.result_data);
 
-                            console.log('local save ok??!');
+                            console.log('local save ok!!');
                             // console.log(JSON.stringify(response.result_data['tabs']));
                             // var hash = $filter('md5')(JSON.stringify(response.result_data['tabs']));
 
 
-                            // chrome.extension.getBackgroundPage().loadAddDataFromStorage();
+                            chrome.extension.getBackgroundPage().loadAddDataFromStorage();
                         } else {
                             // error msg?
                         }

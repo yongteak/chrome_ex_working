@@ -1,7 +1,7 @@
 var app = angular.module('app', [
-	"ngRoute", "angular-echarts3", "angularMoment",
+	"ngRoute", "angular-echarts3", "angularMoment","pouchdb",
 	'app.controllers', 'app.controller.sync', 'app.controller.setting', 'app.controller.status',
-	'app.services', 'app.filter'
+	'app.services','app.pounch', 'app.filter'
 ]);
 
 app.run(function ($rootScope,identity,storage,CONFIG) {

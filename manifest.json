@@ -2,11 +2,12 @@
   "manifest_version": 2,
   "name": "Web Screen Time Tracker",
   "short_name": "Web Screen Time",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "minimum_chrome_version": "26",
   "description": "웹 기록 잘해드림",
   "options_page": "static/index.html",
   "icons": {},
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "permissions": [
     "identity",
     "identity.email",
@@ -29,7 +30,8 @@
       "js": [
         "static/chrome/content.js"
       ]
-    }],
+    }
+  ],
   "optional_permissions": [
     "https://www.youtube.com/*",
     "https://www.netflix.com/*",
@@ -38,9 +40,8 @@
   "offline_enabled": true,
   "background": {
     "scripts": [
-      "static/vendor/angular/angular.js",
-      "static/js/services.js",
       "static/chrome/background/tracker/common.js",
+      "static/chrome/background/tracker/pouchdb.js",
       "static/chrome/background/tracker/storage.js",
       "static/chrome/background/tracker/activity.js",
       "static/chrome/background/tracker/tab.js",
@@ -56,5 +57,4 @@
   "web_accessible_resources": [
     "static/assets/resource/*.json"
   ]
-
 }

@@ -70,6 +70,9 @@ var IGNORED_DOMAINS_LIST = 'ignored_domains_list';
 var EVENT_GENERATE_REPORT = 'performance_report';
 var EVENT_SIMILARWEB_REPORT = 'similarweb_report';
 
+// JS
+var POUNCHDB_JS  = '/static/vendor/pouchdb/dist/pouchdb.min.js';
+
 function isEmpty(obj) {
     for (var prop in obj) {
         if (obj.hasOwnProperty(prop))

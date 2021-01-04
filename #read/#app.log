@@ -1,19 +1,6 @@
 # couchdb 설치
 https://techexpert.tips/ko/%EC%95%84%ED%8C%8C%EC%B9%98-%EC%B9%B4%EC%9A%B0%EC%B9%98db/couchdb-%EC%9A%B0%EB%B6%84%ED%88%AC-%EB%A6%AC%EB%88%85%EC%8A%A4%EC%97%90-%EC%84%A4%EC%B9%98/
 
-# msgpack
- * header contents_type : msgpack | json
-
-# crypto
- * 크로스 브라우저를 위한 동기화 방안 (Chrome, Edge, Firefox, Opera)
- => Google OAuth사용(크롬외 불가..)
- => 모바일에서 1회용 키 사용, 브라우저 관리 기능, 브라우저 종류만큼만 가능, 최대 4개
-  - pub/prv 키를 사용함
-  - 크롬 기준으로 시작, profile => 인증키 생생 => 서버에서 jwt또는 expire키 생성
-    => 브라우저 profile메뉴에서 인증키 등록
-    ? 같은 브라우져에서 하면
-    ? 여러번 붙여 넣으면
-    ? 해제 방법은
 
 # pounchdb
 https://pouchdb.com/guides/setup-couchdb.html
@@ -21,7 +8,7 @@ sudo npm install -g pouchdb-server
 pouchdb-server --port 5984 -o 0.0.0.0
 http://172.24.78.188:5984/_utils/#/_all_dbs
 * 데이터 필터링
-   https://pouchdb.com/api.html#filtered-replication
+   https://pouchdb.comgit/api.html#filtered-replication
 * Q/A
    https://stackoverflow.com/questions/50994899/filtered-sync-between-couchdb-and-pouchdb
 
@@ -34,12 +21,3 @@ npm install --save-dev gulp jshint gulp-jshint gulp-minify-css gulp-uglify gulp-
  * 코드 참고
   https://github.com/quyentruong/MangaMark-Extension
   https://github.com/MixTeen/mixteen.org
-
-
-# 카테고리
- * 컬러 목록
- https://www.pressfoto.com/blog/choose-a-palette-for-infographic-tips-from-professionals/
- https://github.com/vicc/Chameleon
- * 랜덤 컬러 생성
- http://colormind.io/template/paper-dashboard/
- https://mycolor.space/?hex=%23845EC2&sub=1

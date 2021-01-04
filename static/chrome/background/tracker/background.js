@@ -2,15 +2,12 @@
 [2020-12-01 13:17:40]
 Useage.js에서 수집되는 데이터와 통합 필요
 */
-
 'use strict';
 
-
 function reload_tab() {
-    chrome.tabs.query({ url: "*://data.similarweb.com/api/*"}, tab => {
+    chrome.tabs.query({ url: "*://data.similarweb.com/api/*" }, tab => {
         tab.forEach(t => {
-            console.log('11reload');
-            chrome.tabs.reload(t.id,{bypassCache: true},() => {console.log('reload tabs')});
+            chrome.tabs.reload(t.id, { bypassCache: true }, () => { console.log('reload tabs') });
         })
         // console.log(4444,tab);
     });
@@ -19,7 +16,7 @@ function reload_tab() {
 function open_tab(domains) {
     domains.forEach(d => {
         chrome.tabs.create({
-            url: "https://data.similarweb.com/api/v1/data?domain="+d,
+            url: "https://data.similarweb.com/api/v1/data?domain=" + d,
             active: false
         });
     });
@@ -36,9 +33,27 @@ function get_reports(callback) {
         })
         // console.log(4444,tab);
     });
-
 }
 
+function init() {
+    // var scriptEl = document.createElement('script');
+    // scriptEl.src = chrome.extension.getURL(POUNCHDB_JS);
+    // scriptEl.addEventListener('load', function (e) {
+    //     db = new PouchDB();
+    //     console.log('...db...>', db);
+    // }, false);
+    // document.head.appendChild(scriptEl);
+}
+
+var db;
+new PouchStorage(function(instance) {
+    db = {
+        'tab':new instance('tabs'),
+        'status': new instance('status'),
+        'blocklist': new instance('blocklist')
+    };
+    console.log(db);
+});
 
 var tabs;
 // var timeIntervalList;
@@ -72,6 +87,7 @@ function updateStorage() {
 }
 
 function backgroundCheck() {
+    // console.log('backgroundCheck db.isReady > ', db);
     var today = formatDate();
     chrome.windows.getLastFocused({ populate: true }, function (currentWindow) {
         if (currentWindow.focused) {
@@ -204,7 +220,7 @@ function mainTRacker(activeUrl, tab, activeTab) {
         //     tabId: activeTab.id,
         //     text: '-'//String(convertSummaryTimeToBadgeString(summary))
         // });
-        console.log('mainTRacker > isInBlackList',activeUrl);
+        console.log('mainTRacker > isInBlackList', activeUrl);
     }
     // console.log('setting_view_in_badge',setting_view_in_badge);
     // if (true)//(setting_view_in_badge === true) {
@@ -318,7 +334,7 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
         if (results !== undefined && results[0] !== undefined && results[0] === true) {
             callback(activeUrl, tab, activeTab);
         } else {
-           // activity.closeIntervalForCurrentTab();
+            // activity.closeIntervalForCurrentTab();
         }
     });
 }
@@ -474,7 +490,17 @@ function getCurrentlyViewedTabId() {
     });
 }
 // $$
-function loadTabs() {
+function loadTabs(n) {
+    n = n || 0;
+    try {
+        // db.instance('test1')
+    } catch (error) {
+        console.log(n);
+        // loadTabs(n++);
+    }
+    // console.log('instance>', db.instance('test1'));
+    // [2021-01-04 15:34:47]
+    // 오버헤드가 심함. 어떻게 해결해야하나?
     storage.loadTabs(STORAGE_TABS, items => {
         tabs = [];
         if (items != undefined) {
@@ -616,7 +642,7 @@ function checkPermissionsForNotifications(callback, ...props) {
         isHasPermissioForNotification = result;
     });
 }
-
+init();
 loadPermissions();
 addListener();
 loadAddDataFromStorage();
