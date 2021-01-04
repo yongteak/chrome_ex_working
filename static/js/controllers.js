@@ -88,7 +88,7 @@ angular.module('app.controllers', [])
                         // },
 
                         animationEasingUpdate: "linear",
-                        emphasis: { focus: 'series' }
+                        emphasis: { focus: 'none' }
                     });
                 });
                 // console.log('$scope.model.summary',$scope.model.summary);

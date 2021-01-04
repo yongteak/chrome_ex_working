@@ -95,7 +95,7 @@ angular.module('app.controller.status', [])
                         // },
 
                         animationEasingUpdate: "linear",
-                        emphasis: { focus: 'series' }
+                        emphasis: { focus: 'none' }
                     });
                 });
                 // console.log('$scope.model.summary',$scope.model.summary);
@@ -166,7 +166,7 @@ angular.module('app.controller.status', [])
                             return idx * 250;
                         },
                         animationEasingUpdate: "linear",
-                        emphasis: { focus: 'series' }
+                        emphasis: { focus: 'none' }
                     });
                 });
                 $timeout(function () {
