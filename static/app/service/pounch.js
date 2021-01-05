@@ -41,7 +41,7 @@ function pounch($q) {
                         _rev: doc._rev,
                         // add epoc time
                         value: value
-                    });
+                    }, { force: true });
                 }).then(res => {
                     deferred.resolve(res);
                 }).catch(err => {
@@ -116,7 +116,7 @@ function pounch($q) {
                     _id: doc._id,
                     _rev: doc._rev,
                     value: value
-                });
+                }, { force: true });
             }).then(res => {
                 deferred.resolve(res);
             }).catch(err => {

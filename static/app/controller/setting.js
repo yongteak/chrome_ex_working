@@ -19,8 +19,9 @@ angular.module('app.controller.setting', [])
         $scope.run = {
             getSetting: () => {
                 pounch.getdoc(CONFIG.BUCKET, CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE).then(items => {
-                    $scope.model.setting = [items.value];
-                    $scope.model['select'] = { activity_detected: items.value.value };
+                    console.log(111,items.value);
+                    $scope.model.setting = items.value;
+                    $scope.model['select'] = { activity_detected: items.value[0].value };
                 }).catch(err => {
                     console.error(err);
                     var default_val = $scope.model.default;
@@ -28,9 +29,10 @@ angular.module('app.controller.setting', [])
                     default_val.updated = $filter('formatDate')();
                     pounch.setdoc(CONFIG.BUCKET,
                         CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE,
-                        default_val);
+                        [default_val]);
                     $scope.model.setting = [default_val];
-                    $scope.model['select'] = { activity_detected: default_val.value.value };
+                    console.log(333,$scope.model.setting);
+                    $scope.model['select'] = { activity_detected: default_val.value };
                 });
             },
             getblackList: () => {
@@ -49,7 +51,7 @@ angular.module('app.controller.setting', [])
                 item.value = $scope.model.select[field];
                 item.epoch = moment().valueOf();
                 item.updated = $filter('formatDate')();
-                pounch.setdoc(CONFIG.BUCKET, CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE, item)
+                pounch.setdoc(CONFIG.BUCKET, CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE, [item])
                     .then(res => {
                         $scope.run.getSetting();
                     }).catch(err => {

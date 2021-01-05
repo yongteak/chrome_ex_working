@@ -159,14 +159,20 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
                             response.isObserved ? response.increasedSize : response.transferSize);
                     }
                 });
-                var summary = tab.days.find(s => s.date === today).summary;
-                // var data = bytesToSize(activity.getDataUsaged(tab));
-                chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
-                chrome.browserAction.setBadgeText({
-                    tabId: activeTab.id,
-                    // text: data.size + "" + data.unit
-                    text: String(convertSummaryTimeToBadgeString(summary))
-                });
+                var day = tab.days.find(s => s.date === today);
+                // tab생성과 summary호출 간격이 짧으면 오류 발생함
+                if (day !== undefined) {
+                    var summary = day.summary;
+                    // var data = bytesToSize(activity.getDataUsaged(tab));
+                    chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
+                    chrome.browserAction.setBadgeText({
+                        tabId: activeTab.id,
+                        // text: data.size + "" + data.unit
+                        text: String(convertSummaryTimeToBadgeString(summary))
+                    });
+                } else {
+                }
+
             })
 
         chrome.idle.queryState(parseInt(setting_interval_inactivity), state => {
@@ -324,17 +330,16 @@ function backgroundUpdateStorage() {
         var variable = tab;
         (function (t) {
             api.get(t.url).then(doc => {
-                api.put({ _id: doc._id, _rev: doc._rev, value: t }).then(res => {
-                    // console.log('updated', t.url, res);
-                    // pounch.check();
+                api.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
                 }).catch(err => {
-                    console.log(err);
+                    console.error(err);
+                    console.log(doc,t);
                 });
-            }).catch(_err => { // not found / 404
+            }).catch(_err => {
                 api.put({ '_id': t.url, 'value': t }).then(res => {
-                    // console.log('new', t.url, res);
                 }).catch(err => {
-                    console.log(err);
+                    console.error(err);
+                    console.log(t);
                 });
             });
         })(variable)
@@ -416,6 +421,8 @@ function addListener() {
             if (key === STORAGE_NOTIFICATION_MESSAGE) {
                 loadNotificationMessage();
             }
+            // todo
+            // 비 활성 시간 계측용
             if (key === SETTINGS_INTERVAL_INACTIVITY) {
                 storage.getValue(SETTINGS_INTERVAL_INACTIVITY, item => { setting_interval_inactivity = item; });
             }
@@ -606,18 +613,23 @@ function checkPermissionsForNotifications(callback, ...props) {
 }
 
 // 시작!
-var pounch = new PouchStorage(function (instance) {
-    db = {
-        'tabs': new instance('tabs'),
-        'status': new instance('status'),
-        'blocklist': new instance('blocklist')
-    };
-    tabs = [];
-    // loadTabs
-    // console.log(db);
-    loadPermissions();
-    addListener();
-    loadAddDataFromStorage();
-    updateSummaryTime();
-    updateStorage();
-});
+var pounch;
+function reload() {
+    pounch = new PouchStorage(function (instance) {
+        db = {
+            'tabs': new instance('tabs'),
+            'status': new instance('status'),
+            'blocklist': new instance('blocklist')
+        };
+        tabs = [];
+        // loadTabs
+        // console.log(db);
+        loadPermissions();
+        addListener();
+        loadAddDataFromStorage();
+        updateSummaryTime();
+        updateStorage();
+    });
+}
+
+reload();

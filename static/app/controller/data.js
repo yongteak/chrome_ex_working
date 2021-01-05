@@ -1,12 +1,12 @@
 angular.module('app.controller.data', [])
-    .controller('dataController', function ($scope,$log, $filter, pounch, pouchDB, storage, CONFIG, COLLECTIONS) {
+    .controller('dataController', function ($scope, $log, $filter, pounch, pouchDB, storage, CONFIG, COLLECTIONS) {
         $scope.model = {
             collections: COLLECTIONS
         };
         $scope.run = {
             clear: () => {
                 pounch.clear(CONFIG.STORAGE_TABS).then(res => {
-                    $log.log('distory',res);
+                    $log.log('distory', res);
                     chrome.extension.getBackgroundPage().tabs = [];
                 }).catch(_err => { });
                 // chrome.storage.local.set({ 'tabs': null });
@@ -49,11 +49,11 @@ angular.module('app.controller.data', [])
                                 });
                             } else {
                                 pounch.getdoc(CONFIG.BUCKET, p).then(items => {
-                                    result[CONFIG.BUCKET] = {key:p,value:items.value};
+                                    result[CONFIG.BUCKET] = { key: p, value: items.value };
                                     if (Object.keys(result).length == round) {
                                         createFile(JSON.stringify(result), "application/json");
                                     }
-                                }).catch(_err => {})
+                                }).catch(_err => { })
                             }
                         };
                     })(variable);
@@ -78,16 +78,38 @@ angular.module('app.controller.data', [])
                     reader.readAsText(file, 'UTF-8');
                     reader.onload = readerEvent => {
                         let content = readerEvent.target.result;
-                        let collections = JSON.parse(content);
-                        for (var p in collections) {
-                            storage.saveValue(p, collections[p]);
-                            if (p == 'tabs') {
-                                chrome.extension.getBackgroundPage().tabs = collections[p];
+                        let data = JSON.parse(content);
+
+                        pounch.setTabs(CONFIG.STORAGE_TABS, null, data[CONFIG.STORAGE_TABS], true)
+                            .then(res => {
+                                console.log(res);
+                                chrome.extension.getBackgroundPage().reload();
+                            }).catch(err => {
+                                console.error(err);
+                            });
+
+                        pounch.clear(CONFIG.BUCKET).then(_res => {
+                            for (var p in data) {
+                                var variable = p;
+                                (function (tab) {
+                                    if (tab !== CONFIG.STORAGE_TABS) {
+                                        pounch.setdoc(CONFIG.BUCKET, tab, data[tab])
+                                            .then(res => {
+                                                console.log(tab, res)
+                                            }).catch(err => {
+                                                console.error(err);
+                                            });
+                                    }
+                                })(variable);
                             }
-                        }
+                        }).catch(err => {
+                            console.error(err);
+                        });
+                        $log.log('restore completed!');
+                        $scope.run.getCollections();
                     }
                 } else {
-                    // error
+                    //
                 }
             },
             restore: () => {

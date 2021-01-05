@@ -119,13 +119,18 @@ class Activity {
     }
 
     updateFavicon(tab) {
-        var domain = this.extractHostname(tab.url);
-        var currentTab = this.getTab(domain);
-        if (currentTab !== null && currentTab !== undefined) {
-            if (tab.favIconUrl !== undefined && tab.favIconUrl !== currentTab.favicon) {
-                currentTab.favicon = tab.favIconUrl;
+        try {
+            var domain = this.extractHostname(tab.url);
+            var currentTab = this.getTab(domain);
+            if (currentTab !== null && currentTab !== undefined) {
+                if (tab.favIconUrl !== undefined && tab.favIconUrl !== currentTab.favicon) {
+                    currentTab.favicon = tab.favIconUrl;
+                }
             }
+        } catch (err) {
+            console.error('tab',tab,'error',err);
         }
+
     }
 
     setCurrentActiveTab(domain) {
