@@ -56,5 +56,11 @@
   },
   "web_accessible_resources": [
     "static/assets/resource/*.json"
-  ]
+  ],
+  "externally_connectable": {
+    "matches": [
+      "https://*/*",
+      "http://*/"
+    ]
+  }
 }

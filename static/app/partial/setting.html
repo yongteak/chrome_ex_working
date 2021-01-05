@@ -45,7 +45,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr ng-repeat="row in model.domains">
+                                        <tr ng-repeat="row in model.blacklist">
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ row.domain }}</td>
                                             <td>{{ row.created | yyyymmdd_to_format_kr }}</td>
@@ -88,7 +88,7 @@
         </div>
     </div>
 
-    <div class="col-lg-12">
+    <!-- <div class="col-lg-12">
         <div class="grid">
             <p class="grid-header">로컬 저장소 초기화</p>
             <div class="grid-body">
@@ -99,5 +99,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>

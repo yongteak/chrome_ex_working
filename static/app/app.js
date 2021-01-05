@@ -1,10 +1,12 @@
 var app = angular.module('app', [
-	"ngRoute", "angular-echarts3", "angularMoment","pouchdb",
-	'app.controllers', 'app.controller.sync', 'app.controller.setting', 'app.controller.status',
-	'app.services','app.pounch', 'app.filter'
+	"ngRoute", "angular-echarts3", "angularMoment", "pouchdb",
+	'app.controllers', 'app.controller.sync', 'app.controller.setting',
+	'app.controller.status', 'app.controller.limit', 'app.controller.alarm',
+	'app.controller.data',
+	'app.services', 'app.pounch', 'app.filter'
 ]);
 
-app.run(function ($rootScope,identity,storage,CONFIG) {
+app.run(function ($rootScope, identity, storage, CONFIG) {
 
 	$rootScope['countries'] = {};
 
@@ -80,11 +82,11 @@ app.directive('elastic', [
 
 app.constant('CONFIG', {
 	'URI': 'http://34.83.116.28:8080/api/v1',
-	// 'URI':'http://127.0.0.1:8080/api/v1',
 	'IDENTITY': 'dentity',
-	'STORAGE_HISTORY_OF_SYNC': 'sync_history',
-	'STORAGE_SETTINGS_VIEW_TIME_IN_BADGE': 'setting_view_time_in_badge',
+	// 'URI':'http://127.0.0.1:8080/api/v1',
+	'BUCKET': 'bucket',
 	'STORAGE_TABS': 'tabs',
+	'STORAGE_SETTINGS_VIEW_TIME_IN_BADGE': 'setting_view_time_in_badge',
 	// 추적 금지
 	'STORAGE_BLACK_LIST': 'black_list',
 	// 제한 사이트
@@ -93,22 +95,27 @@ app.constant('CONFIG', {
 	'STORAGE_RESTRICTION_ACCESS_LIST': 'restriction_access_list',
 	// 알람 목록
 	'STORAGE_ALARM_LIST': 'alarm_list',
+	'STORAGE_HISTORY_OF_SYNC': 'sync_history',
 	'STORAGE_NOTIFICATION_LIST': 'notification_list'
 	// 'STORAGE_NOTIFICATION_MESSAGE': 'notification_message',
 	// 'STORAGE_TIMEINTERVAL_LIST': 'time_interval'
 })
 
+// [{
+// 	'bucket': ['setting_view_time_in_badge', 'black_list', 'restriction_list',
+// 		'restriction_access_list', 'alarm_list', 'sync_history','last'];
+// }, 'tabs',
+
 app.constant('COLLECTIONS', {
-	last: { name: 'last', desc: 'last', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-	similarweb: { name: 'similarweb', desc: 'similarweb', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-	sync_history: { name: '동기화 기록', desc: '동기화 기록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-	setting: { name: '설정', desc: '기본설정', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-	tabs: { name: '도메인별 사용기록', desc: '도메인별 사용기록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-	black_list: { name: '추적금지 도메인', desc: '추적금지 도메인', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-	restriction_list: { name: '접근제한 도메인', desc: '접근제한 도메인', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-	restriction_access_list: { name: '접근제한 도메인 접속 정보', desc: '접근제한 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
-	alarm_list: { name: '알람목록', desc: '알람목록', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 }
-	// time_interval: { name: '시간대별 도메인 접속 정보', desc: '시간대별 도메인 접속 정보', rows: 0, size: 0, updated: null, cloud_synced: null, cloud_synced_count: 0 },
+	last: { name: 'last', desc: 'last', hidden:true},
+	similarweb: { name: 'similarweb', desc: 'similarweb', hidden: true},
+	setting_view_time_in_badge: { name:'설정', desc:'설정'},
+	sync_history: { name: '동기화 기록', desc: '동기화 기록'},
+	tabs: { name: '도메인별 사용기록', desc: '도메인별 사용기록', top:true},
+	black_list: { name: '추적금지 도메인', desc: '추적금지 도메인'},
+	restriction_list: { name: '접근제한 도메인', desc: '접근제한 도메인'},
+	restriction_access_list: { name: '접근제한 도메인 접속 정보', desc: '접근제한 도메인 접속 정보'},
+	alarm_list: { name: '알람목록', desc: '알람목록'}
 })
 
 // app.run([

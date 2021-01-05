@@ -20,12 +20,12 @@ function pounch($q) {
                 // [2021-01-04 14:03:46]
                 // 기존 데이터 제거 필요
                 db.destroy().then(_res => {
-                    console.log(name,'db removed!');
+                    console.log(name, 'db removed!');
                 }).then(_res => {
                     db = new PouchDB(name);
                     console.log('remove next');
                     var docs = [];
-                    value.forEach(t => docs.push(prepareDoc(t.url, t)) );
+                    value.forEach(t => docs.push(prepareDoc(t.url, t)));
                     console.log(docs);
                     db.bulkDocs(docs).then(res => {
                         deferred.resolve(res);
@@ -42,9 +42,9 @@ function pounch($q) {
                         // add epoc time
                         value: value
                     });
-                }).then(function (res) {
+                }).then(res => {
                     deferred.resolve(res);
-                }).catch(function (err) {
+                }).catch(err => {
                     db.put(prepDocs).then(res => {
                         deferred.resolve(res);
                     }).catch(err => {
@@ -83,13 +83,48 @@ function pounch($q) {
 
             return deferred.promise;
         },
-        getData: (name, key) => {
+        alldocs: name => {
+            console.log('alldocs > ', name);
+            var deferred = $q.defer();
+            new PouchDB(name).allDocs({
+                include_docs: true
+            }).then(res => {
+                console.log(res);
+                deferred.resolve(res);
+            }).catch(err => {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        },
+        getdoc: (name, key) => {
+            console.log('getdoc > ', name, key);
+            // bucket, setting, blacklist, ..
+            var deferred = $q.defer();
+            new PouchDB(name).get(key).then(res => {
+                deferred.resolve(res);
+            }).catch(err => {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        },
+        setdoc: (name, key, value) => {
+            var prepDoc = prepareDoc(key, value);
             var deferred = $q.defer();
             var db = new PouchDB(name);
-            db.get(key).then(function (res) {
+            db.get(prepDoc._id).then(doc => {
+                return db.put({
+                    _id: doc._id,
+                    _rev: doc._rev,
+                    value: value
+                });
+            }).then(res => {
                 deferred.resolve(res);
-            }).catch(function (err) {
-                deferred.reject(err);
+            }).catch(err => {
+                db.put(prepDoc).then(res => {
+                    deferred.resolve(res);
+                }).catch(err => {
+                    deferred.resolve(err);
+                });
             });
             return deferred.promise;
         },

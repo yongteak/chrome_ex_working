@@ -72,7 +72,6 @@ function backgroundCheck() {
     chrome.windows.getLastFocused({ populate: true }, function (currentWindow) {
         if (currentWindow.focused) {
             var activeTab = currentWindow.tabs.find(t => t.active === true);
-            // console.log('11activeTab', activeTab);
             if (activeTab !== undefined && activity.isValidPage(activeTab)) {
                 var activeUrl = activity.extractHostname(activeTab.url);
                 var tab = activity.getTab(activeUrl);
@@ -321,23 +320,27 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
 function backgroundUpdateStorage() {
     const api = db.tabs;
     const copy = JSON.parse(JSON.stringify(tabs));
-    copy.forEach(t => {
-        api.get(t.url).then(doc => {
-            api.put({ _id: doc._id, _rev: doc._rev, value: t }).then(res => {
-                console.log('updated', t.url, res);
-            }).catch(_err => {
-                // nothing
+    copy.forEach(tab => {
+        var variable = tab;
+        (function (t) {
+            api.get(t.url).then(doc => {
+                api.put({ _id: doc._id, _rev: doc._rev, value: t }).then(res => {
+                    // console.log('updated', t.url, res);
+                    // pounch.check();
+                }).catch(err => {
+                    console.log(err);
+                });
+            }).catch(_err => { // not found / 404
+                api.put({ '_id': t.url, 'value': t }).then(res => {
+                    // console.log('new', t.url, res);
+                }).catch(err => {
+                    console.log(err);
+                });
             });
-        }).catch(_err => { // not found / 404
-            api.put({ '_id': t.url, 'value': t }).then(res => {
-                console.log('new', t.url, res);
-            }).catch(_err => {
-                // nothing
-            });
-        });
+        })(variable)
     })
     // 사본 생성후 가장 마지막 항목만 남기고 제거
-    tabs = tabs.slice(tabs.length-1,tabs.length);
+    tabs = [];//tabs.slice(tabs.length-1,tabs.length);
 }
 
 function setDefaultSettings() {

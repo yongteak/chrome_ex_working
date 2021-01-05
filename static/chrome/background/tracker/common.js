@@ -40,19 +40,10 @@ var STORAGE_NOTIFICATION_MESSAGE = 'notification_message';
 // 도메인 사용 유지 시간
 var STORAGE_TIMERANGE_LIST = 'time_range';
 // 시간당 소비 페이지 정보 5초이상 머물렀던 URL 페이지 목록 관리, daily관리
-/*
-    day: {
-        fav:icon,
-        title:string,
-        url:string,
-        second:int,
-        count:int
-    }
-*/
 var STORAGE_TIME_TO_URL = 'time_to_url';
 var SETTINGS_INTERVAL_INACTIVITY_DEFAULT = InactivityInterval.second30;
 var SETTINGS_INTERVAL_CHECK_DEFAULT = 1000;
-var SETTINGS_INTERVAL_SAVE_STORAGE_DEFAULT = 2000;
+var SETTINGS_INTERVAL_SAVE_STORAGE_DEFAULT = 1000 * 10;
 var SETTINGS_INTERVAL_CHECK_STORAGE_DEFAULT = 3000;
 var SETTINGS_INTERVAL_RANGE_DEFAULT = RangeForDays.days7;
 var SETTINGS_VIEW_TIME_IN_BADGE_DEFAULT = 'time_today';

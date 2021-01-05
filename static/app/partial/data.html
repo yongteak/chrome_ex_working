@@ -21,17 +21,11 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr ng-repeat="row in model.collections">
+                                        <tr ng-if="!row.hidden" ng-repeat="row in model.collections">
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ row.name }}</td>
                                             <td>{{ row.rows | num_comma }}개</td>
                                             <td>{{ row.size | dataSizeToUnit }}</td>
-                                            <!-- <td>{{ row.updated | yyyymmdd_to_format_kr }}회</td>
-                                            <td>{{ row.cloud_synced | yyyymmdd_to_format_kr }}회</td> -->
-                                            <!-- <td>
-                                                <button type="button" data-toggle="modal" data-target="#domainModal"
-                                                    ng-click="run.open_modal(row)" class="btn btn-xs">수정</button>
-                                            </td> -->
                                         </tr>
 
                                     </tbody>
@@ -42,13 +36,14 @@
                             <hr>
                         </p>
                         <div class="demo-wrapper">
-                            <div class="btn btn-primary has-icon pointer" ng-click="run.backup()" >
+                            <div class="btn btn-primary has-icon pointer" ng-click="run.backup()">
                                 <i class="mdi mdi-cloud-download"></i>백업(export)
                             </div>
-                            <div class="btn btn-danger has-icon pointer" ng-click="run.restore()" >
+                            <div class="btn btn-danger has-icon pointer" ng-click="run.restore()">
                                 <i class="mdi mdi-cloud-upload"></i>복구(restore)
 
-                                <input id="file-input-backup" class="hidden" type="file" name="backupFile" custom-on-change="run.restore_from_file" />
+                                <input id="file-input-backup" class="hidden" type="file" name="backupFile"
+                                    custom-on-change="run.restore_from_file" />
                             </div>
 
                             <div class="btn btn-primary has-icon pointer" ng-click="run.clear()">

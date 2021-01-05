@@ -17,7 +17,7 @@ class Activity {
                     if (favicon === undefined) {
                         favicon = 'chrome://favicon/' + domain;
                     }
-                    var newTab = new Tab(domain, favicon);
+                    var newTab = new Tab(domain, 'none', 'none', 'none', favicon,[],0,0,0);
                     tabs.push(newTab);
                 }
 

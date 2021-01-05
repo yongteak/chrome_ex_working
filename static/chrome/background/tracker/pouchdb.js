@@ -20,6 +20,18 @@ class PouchStorage {
         document.head.appendChild(scriptEl);
     }
 
+    check() {
+        ['similarweb', 'sync_history', 'alarm_list', 'restriction_access_list',
+            'setting ', 'tabs', 'black_list', 'restriction_list']
+        .forEach(d => {
+            new PouchDB(d).info().then(res => {
+                console.log('check > ',res);
+            }).catch(err => {
+                console.log('check > ',err);
+            });
+        });
+    }
+
     getdoc(db, id) {
         var deferred = $q.defer();
         db.get(id).then(doc => {
