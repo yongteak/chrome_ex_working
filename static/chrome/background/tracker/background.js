@@ -333,7 +333,7 @@ function backgroundUpdateStorage() {
                 api.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
                 }).catch(err => {
                     console.error(err);
-                    console.log(doc,t);
+                    console.log(doc, t);
                 });
             }).catch(_err => {
                 api.put({ '_id': t.url, 'value': t }).then(res => {
@@ -624,12 +624,12 @@ function reload() {
         tabs = [];
         // loadTabs
         // console.log(db);
-        loadPermissions();
-        addListener();
-        loadAddDataFromStorage();
-        updateSummaryTime();
-        updateStorage();
     });
 }
 
 reload();
+loadPermissions();
+addListener();
+loadAddDataFromStorage();
+updateSummaryTime();
+updateStorage();
