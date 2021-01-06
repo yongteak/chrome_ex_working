@@ -36,7 +36,7 @@ angular.module('app.controller.data', [])
                     (function (x) {
                         if (!c[x].hidden) {
                             if (c[x].top) {
-                                pounch.alldocs(CONFIG.STORAGE_TABS).then(items => {
+                                pounch.alldocs(CONFIG.STORAGE_TABS,true).then(items => {
                                     result[CONFIG.STORAGE_TABS] = items.rows.reduce((a, b) => {
                                         a.push(b.doc.value);
                                         return a;
