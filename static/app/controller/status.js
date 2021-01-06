@@ -92,7 +92,6 @@ angular.module('app.controller.status', [])
                 $scope.model.summary.forEach(e => {
                     var fill = new Array($scope.model.times.weeks.length - 1).fill(0);
                     var idx = $scope.model.times.weeks.indexOf('' + e.day);
-                    console.log($scope.model.times.weeks,''+e.day);
                     idx = idx == -1 ? 0 : idx;
                     fill.splice(idx, 0, e.times);
                     // console.log(e.day,fill, idx);
@@ -166,7 +165,6 @@ angular.module('app.controller.status', [])
                     return prev;
                 }, []);
                 pivot.forEach(e => {
-                    // console.log('data > ',e.times.map(a => a.second));
                     series.push({
                         name: e.category + '|' + $filter('category_to_name')(e.category),
                         data: e.times.map(a => a.value),
@@ -197,7 +195,6 @@ angular.module('app.controller.status', [])
                 $scope.today(day);
             },
             modalClose: () => {
-                // $scope.run.init_modal();
                 $('#domainModal').modal("hide");
             },
             info: row => {
@@ -218,9 +215,8 @@ angular.module('app.controller.status', [])
                     });
                     // 최근 30일 차트 데이터 생성
                     // 시작일,마지막일
-                    storage.getValue(CONFIG.STORAGE_TABS, tabs => {
-                        // 항상 1개만 존재함
-                        var tab = tabs.filter(t => { return t.url == row.url })[0];
+                    pounch.getdoc(CONFIG.STORAGE_TABS, row.url).then(tab => {
+                        tab = tab.value;
                         m.counter = tab.counter;
                         m.dataUsage = tab.dataUsage;
                         m.summaryTime = tab.summaryTime;
@@ -231,15 +227,13 @@ angular.module('app.controller.status', [])
                         m.chart = { data: {}, options: null };
                         Array(7 * 5).fill(0).map((_e, n) => n).forEach(n => {
                             var day = parseInt(moment().add(-n, 'day').format("YYYYMMDD"));
-                            // tab.days에 모든 날짜 데이터가 있어서 중복 처리되는 경향이 있음, 최적화 필요한가?
                             var find = tab.days.filter(d => { return d.date == day });
-                            // console.log('find',find);
                             m.chart.data[day] = find.length == 0 ? 0 : find[0].summary;
                         })
                         $timeout(function () {
                             m.chart.options = { 'option': chart(Object.keys(m.chart.data), Object.values(m.chart.data)), 'click': null }
                         }, 0.2 * 1000);
-                    });
+                    }).catch(err => {});
 
                     if (response.result_msg == "STATUS_NORMAL") {
                         // 설명
@@ -306,51 +300,26 @@ angular.module('app.controller.status', [])
 
 
             pounch.getdocs(CONFIG.STORAGE_TABS, domains).then(items => {
-                console.log(items);
                 var tabs = [];
+                $scope.model.totals.times = 0;
+                $scope.model.totals.dataUsage = 0;
+                $scope.model.totals.counter = 0;
                 items.results.forEach((tab, i, a) => {
                     tab = tab.docs[0]['ok'].value;
                     tab.part = tab.days.filter(x => x.date == day)[0];
                     tabs.push(tab);
-
-                    $scope.model.totals.times = 0;
-                    $scope.model.totals.dataUsage = 0;
-                    $scope.model.totals.counter = 0;
                     $scope.model.totals.times += tab.part.summary;
                     $scope.model.totals.dataUsage += tab.part.dataUsage;
                     $scope.model.totals.counter += tab.part.counter;
                 });
-                // });
+
                 tabs.sort(function (a, b) {
                     return b.days
                         .find(s => s.date === day).summary - a.days
                             .find(s => s.date === day).summary;
                 });
                 $scope.model.rows = tabs;
-                // $scope.$apply();
             });
-
-            // storage.getValue(CONFIG.STORAGE_TABS, rows => {
-            //     // todo
-            //     // filter return이 없는데 데이터가 나오나??
-            //     var tabs = rows.filter(x => { return x.days.find(s => s.date === day)});
-            //     $scope.model.totals.times = 0;
-            //     $scope.model.totals.dataUsage = 0;
-            //     $scope.model.totals.counter = 0;
-            //     tabs.forEach(e => {
-            //         e.part = e.days.filter(x => x.date == day)[0];
-            //         $scope.model.totals.times += e.part.summary;
-            //         $scope.model.totals.dataUsage += e.part.dataUsage;
-            //         $scope.model.totals.counter += e.part.counter;
-            //     });
-            //     tabs.sort(function (a, b) {
-            //         return b.days
-            //             .find(s => s.date === day).summary - a.days
-            //                 .find(s => s.date === day).summary;
-            //     });
-            //     $scope.model.rows = tabs;
-            //     $scope.$apply();
-            // });
         }
 
         function chart(key, value) {
@@ -361,10 +330,10 @@ angular.module('app.controller.status', [])
                 },
                 yAxis: {
                     type: 'value',
-                    // max: 60*60*24,
-                    // min:60*2,
+                    minInterval: 60,
                     axisLabel: {
-                        formatter: t => $filter('secondToFormat')(t, t >= 3600 ? 'HH시' : 'mm분')// '{value} Mbps'
+                        formatter: value => value % 60 == 0 ? (value / 60) + 'm' : ''
+                        // formatter: t => $filter('secondToFormat')(t, t >= 3600 ? 'HH시' : 'mm분')// '{value} Mbps'
                     }
                 },
                 tooltip: {

@@ -1,38 +1,40 @@
 <!doctype html>
 <html ng-app="app" ng-csp>
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>설정</title>
-<link rel="stylesheet" href="assets/css/style.css">
-<link rel="stylesheet" href="vendor/clockpicker/dist/bootstrap-clockpicker.min.css">
-<link rel="stylesheet" href="vendor/mdi/css/materialdesignicons.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>설정</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="vendor/clockpicker/dist/bootstrap-clockpicker.min.css">
+  <link rel="stylesheet" href="vendor/mdi/css/materialdesignicons.min.css">
 
-<script src="vendor/echarts/dist/echarts.min.js"></script>
-<script src="vendor/moment/min/moment-with-locales.min.js"></script>
-<script src="vendor/jquery/dist/jquery.min.js"></script>
-<script src="vendor/pouchdb/dist/pouchdb.min.js"></script>
+  <script src="vendor/echarts/dist/echarts.min.js"></script>
+  <script src="vendor/moment/min/moment-with-locales.min.js"></script>
+  <script src="vendor/jquery/dist/jquery.min.js"></script>
+  <script src="vendor/pouchdb/dist/pouchdb.min.js"></script>
 
-<script src="vendor/angular/angular.min.js"></script>
-<script src="vendor/angular-route/angular-route.min.js"></script>
-<script src="vendor/angular-moment/angular-moment.min.js"></script>
+  <script src="vendor/angular/angular.min.js"></script>
+  <script src="vendor/angular-route/angular-route.min.js"></script>
+  <script src="vendor/angular-moment/angular-moment.min.js"></script>
 
-<script src="vendor/angular-echarts3/src/app/angular-echarts3.js"></script>
-<script src="vendor/angular-pouchdb/angular-pouchdb.min.js"></script>
+  <script src="vendor/angular-echarts3/src/app/angular-echarts3.js"></script>
+  <script src="vendor/angular-pouchdb/angular-pouchdb.min.js"></script>
 
-<script src="vendor/clockpicker/dist/bootstrap-clockpicker.min.js"></script>
+  <script src="vendor/clockpicker/dist/bootstrap-clockpicker.min.js"></script>
 
-<script src="app/app.js"></script>
-<script src="app/controller/controllers.js"></script>
-<script src="app/controller/status.js"></script>
-<script src="app/controller/setting.js"></script>
-<script src="app/controller/sync.js"></script>
-<script src="app/controller/limit.js"></script>
-<script src="app/controller/alarm.js"></script>
-<script src="app/controller/data.js"></script>
-<script src="app/filter.js"></script>
-<script src="app/service/services.js"></script>
-<script src="app/service/pounch.js"></script>
+  <script src="app/app.js"></script>
+  <script src="app/controller/controllers.js"></script>
+  <script src="app/controller/dashboard.js"></script>
+  <script src="app/controller/status.js"></script>
+  <script src="app/controller/setting.js"></script>
+  <script src="app/controller/sync.js"></script>
+  <script src="app/controller/limit.js"></script>
+  <script src="app/controller/alarm.js"></script>
+  <script src="app/controller/data.js"></script>
+  <script src="app/filter.js"></script>
+  <script src="app/service/services.js"></script>
+  <script src="app/service/pounch.js"></script>
 </head>
 
 <body class="header-fixed">
@@ -66,12 +68,12 @@
     <div class="t-header-content-wrapper">
       <div class="t-header-content">
         <button class="t-header-toggler t-header-mobile-toggler d-block d-lg-none">
-          <i class="mdi mdi-menu"></i>
+          <em class="mdi mdi-menu"></em>
         </button>
       </div>
       <div class="col-lg-12">
-        <h2>{{ title  }}</h2>
-<!-- <hr> -->
+        <h2>{{ title }}</h2>
+        <!-- <hr> -->
       </div>
       <!-- <form action="#" class="t-header-search-box">
         <div class="input-group">
@@ -84,10 +86,19 @@
   <div class="page-body">
     <div class="sidebar">
       <ul class="navigation-menu" ng-controller="side">
+        <li class="nav-category-divider">MAIN</li>
+
+        <li ng-class="{tablink, active : isCurrentPath('/v1/dashboard')}">
+          <a href="#/v1/dashboard">
+            <span class="link-title">대시보드</span>
+            <em class="mdi mdi-routes link-icon"></em>
+          </a>
+        </li>
+
         <li ng-class="{tablink, active : isCurrentPath('/v1/setting')}">
           <a href="#/v1/setting">
             <span class="link-title">설정</span>
-            <em class="mdi mdi-gauge link-icon"></em>
+            <em class="mdi mdi-marker link-icon"></em>
           </a>
         </li>
 
@@ -126,10 +137,34 @@
           </a>
         </li>
 
+        <li>
+          <a href="#charts" data-toggle="collapse" aria-expanded="false">
+            <span class="link-title">통계</span>
+            <i class="mdi mdi-chart-donut link-icon"></i>
+          </a>
+          <ul class="collapse navigation-submenu" id="charts">
+            <li>
+              <a href="pages/charts/apex-charts.html">Apex Chart</a>
+            </li>
+            <li>
+              <a href="pages/charts/c3.html">C3 Chart</a>
+            </li>
+            <li>
+              <a href="pages/charts/chartist.html">Chartist</a>
+            </li>
+            <li>
+              <a href="pages/charts/chartjs.html">Chart js</a>
+            </li>
+            <li>
+              <a href="pages/charts/morris.html">Morris</a>
+            </li>
+          </ul>
+        </li>
+
         <li ng-class="{tablink, active : isCurrentPath('/v1/profile')}">
           <a href="#/v1/profile">
             <span class="link-title">사용자</span>
-            <em class="mdi mdi-account-card-details link-icon"></em>
+            <em class="mdi mdi-cat link-icon"></em>
           </a>
         </li>
 
@@ -159,9 +194,8 @@
               </ul>
             </div>
             <div class="col-sm-6 text-center text-sm-left mt-3 mt-sm-0">
-              <small class="text-muted d-block">Copyright © 2019 <a href="http://www.uxcandy.co"
-                  target="_blank">UXCANDY</a>. All rights reserved</small>
-              <small class="text-gray mt-2">Handcrafted With <i class="mdi mdi-heart text-danger"></i></small>
+              <small class="text-muted d-block">Copyright © 2021 <a href="http://www.eightsoft.net"
+                  target="_blank">EIGHTSOFT</a>. All rights reserved</small>
             </div>
           </div>
         </footer>

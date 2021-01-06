@@ -617,13 +617,11 @@ var pounch;
 function reload() {
     pounch = new PouchStorage(function (instance) {
         db = {
-            'tabs': new instance('tabs'),
-            'status': new instance('status'),
-            'blocklist': new instance('blocklist')
+            'tabs': new instance('tabs',{revs_limit: 1, auto_compaction: true}),
+            'status': new instance('status',{revs_limit: 1, auto_compaction: true}),
+            'blocklist': new instance('blocklist',{revs_limit: 1, auto_compaction: true})
         };
         tabs = [];
-        // loadTabs
-        // console.log(db);
     });
 }
 

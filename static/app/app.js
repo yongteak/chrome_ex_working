@@ -2,7 +2,7 @@ var app = angular.module('app', [
 	"ngRoute", "angular-echarts3", "angularMoment", "pouchdb",
 	'app.controllers', 'app.controller.sync', 'app.controller.setting',
 	'app.controller.status', 'app.controller.limit', 'app.controller.alarm',
-	'app.controller.data',
+	'app.controller.data', 'app.controller.dashboard',
 	'app.services', 'app.pounch', 'app.filter'
 ]);
 
@@ -107,15 +107,15 @@ app.constant('CONFIG', {
 // }, 'tabs',
 
 app.constant('COLLECTIONS', {
-	last: { name: 'last', desc: 'last', hidden:true},
-	similarweb: { name: 'similarweb', desc: 'similarweb', hidden: true},
-	setting_view_time_in_badge: { name:'설정', desc:'설정'},
-	sync_history: { name: '동기화 기록', desc: '동기화 기록'},
-	tabs: { name: '도메인별 사용기록', desc: '도메인별 사용기록', top:true},
-	black_list: { name: '추적금지 도메인', desc: '추적금지 도메인'},
-	restriction_list: { name: '접근제한 도메인', desc: '접근제한 도메인'},
-	restriction_access_list: { name: '접근제한 도메인 접속 정보', desc: '접근제한 도메인 접속 정보'},
-	alarm_list: { name: '알람목록', desc: '알람목록'}
+	last: { name: 'last', desc: 'last', hidden: true },
+	similarweb: { name: 'similarweb', desc: 'similarweb', hidden: true },
+	setting_view_time_in_badge: { name: '설정', desc: '설정' },
+	sync_history: { name: '동기화 기록', desc: '동기화 기록' },
+	tabs: { name: '도메인별 사용기록', desc: '도메인별 사용기록', top: true },
+	black_list: { name: '추적금지 도메인', desc: '추적금지 도메인' },
+	restriction_list: { name: '접근제한 도메인', desc: '접근제한 도메인' },
+	restriction_access_list: { name: '접근제한 도메인 접속 정보', desc: '접근제한 도메인 접속 정보' },
+	alarm_list: { name: '알람목록', desc: '알람목록' }
 })
 
 // app.run([
@@ -138,6 +138,10 @@ app.config(["$routeProvider", "$locationProvider", /*"$compileProvider", */
 		// $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|local|data|chrome-extension):/);
 
 		$routeProvider.
+			when("/v1/dashboard", {
+				templateUrl: "app/partial/dashboard.html",
+				controller: 'dashboardController'
+			}).
 			when("/v1/setting", {
 				templateUrl: "app/partial/setting.html",
 				controller: 'settingController'

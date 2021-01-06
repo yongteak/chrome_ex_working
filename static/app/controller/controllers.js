@@ -14,6 +14,8 @@ angular.module('app.controllers', [])
             var path = newVal.split('/').pop();
             if (path == 'setting') {
                 $scope.title = '설정';
+            } else if (path == 'dashboard') {
+                $scope.title = '대시보드';
             } else if (path == 'limit') {
                 $scope.title = '제한';
             } else if (path == 'alarm') {

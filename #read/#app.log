@@ -6,6 +6,8 @@ https://techexpert.tips/ko/%EC%95%84%ED%8C%8C%EC%B9%98-%EC%B9%B4%EC%9A%B0%EC%B9%
 https://pouchdb.com/guides/setup-couchdb.html
 sudo npm install -g pouchdb-server
 pouchdb-server --port 5984 -o 0.0.0.0
+
+nohup pouchdb-server --port 5984 -o 0.0.0.0 > myoutput.log &
 http://172.24.78.188:5984/_utils/#/_all_dbs
 * 데이터 필터링
    https://pouchdb.comgit/api.html#filtered-replication
