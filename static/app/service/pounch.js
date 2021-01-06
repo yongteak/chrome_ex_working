@@ -1,6 +1,6 @@
 angular.module('app.pounch', []).factory("pounch", pounch);
 
-function pounch($q) {
+function pounch($q, CONFIG) {
     var pounch;
 
     function prepareDoc(key, value) {
@@ -52,42 +52,14 @@ function pounch($q) {
                     });
                 });
             }
-
-
-            /*db.destroy('login').then(function (destroyError, destroyResponse) {
-                alert(1);
-                if(destroyError!=null){
-                    var db = new PouchDB('login');
-                    db.put(prepDoc).then(function (response) {
-                      // handle response
-                        deferred.resolve(response);
-                    }).catch(function (err) {
-                      console.log(err);
-                        deferred.reject(err);
-                    });
-                }
-                else{
-                    console.log(destroyError);
-                    deferred.reject(destroyError);
-                }
-            },function() {
-                alert(2);
-                db.put(prepDoc).then(function (response) {
-                      // handle response
-                        deferred.resolve(response);
-                    }).catch(function (err) {
-                      console.log(err);
-                        deferred.reject(err);
-                    });
-            });*/
-
             return deferred.promise;
         },
-        alldocs: name => {
-            console.log('alldocs > ', name);
+        alldocs: (name, include_docs) => {
+            include_docs = include_docs || false
+            // console.log('alldocs > ', name);
             var deferred = $q.defer();
             new PouchDB(name).allDocs({
-                include_docs: true
+                include_docs: include_docs
             }).then(res => {
                 console.log(res);
                 deferred.resolve(res);
@@ -96,9 +68,20 @@ function pounch($q) {
             });
             return deferred.promise;
         },
+        getdocs: (name, keys) => {
+            keys = keys.reduce((acc, cur) => {
+                acc.push({ 'id': cur });
+                return acc;
+            },[]);
+            var deferred = $q.defer();
+            new PouchDB(name).bulkGet({docs:keys}).then(res => {
+                deferred.resolve(res);
+            }).catch(err => {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        },
         getdoc: (name, key) => {
-            console.log('getdoc > ', name, key);
-            // bucket, setting, blacklist, ..
             var deferred = $q.defer();
             new PouchDB(name).get(key).then(res => {
                 deferred.resolve(res);
@@ -120,8 +103,7 @@ function pounch($q) {
             }).then(res => {
                 deferred.resolve(res);
             }).catch(err => {
-                db.put(prepDoc).then(res => {
-                    deferred.resolve(res);
+                db.put(prepDoc).then(res => {deferred.resolve(res);
                 }).catch(err => {
                     deferred.resolve(err);
                 });
@@ -132,95 +114,68 @@ function pounch($q) {
             console.log("Get");
             var deferred = $q.defer();
             var db = new PouchDB('test');
-            db.get(key).then(function (doc) {
-                return db.remove(doc);
-            }).then(function (res) {
-                deferred.resolve(res);
-            }).catch(function (err) {
-                deferred.reject(err);
-            });
+            db.get(key)
+            .then(doc => {return db.remove(doc)})
+            .then(res => {deferred.resolve(res)})
+            .catch(err => {deferred.reject(err)});
             return deferred.promise;
         },
         clear: name => {
             var db = new PouchDB(name);
             var deferred = $q.defer();
-
-            db.destroy().then(res => {
-            }).then(res => {
-                deferred.resolve(res);
-            }).catch(err => {
-                deferred.reject(err);
-            });
-
+            db.destroy()
+            .then(res => {deferred.resolve(res)})
+            .catch(err => {deferred.reject(err)});
             return deferred.promise;
         },
-        deleteLoginData: function () {
-            var db = new PouchDB('login');
-            var deferred = $q.defer();
-
-            db.destroy('login').then(function (destroyError, destroyResponse) {
-                console.log(destroyError);
-                if (destroyError != null) {
-                    deferred.resolve(destroyResponse);
+        summaryBuild: callback => {
+            return chrome.storage.local.get('summary', function (item) {
+                var empty = Object.keys(item).length === 0 && item.constructor === Object;
+                if (empty || moment().valueOf() - item.summary.last > 5000) {
+                    pounch.alldocs(CONFIG.STORAGE_TABS).then(docs => {
+                        if (docs.total_rows > 0) {
+                            var days = [];
+                            docs.rows.forEach((d, index) => {
+                                pounch.getdoc(CONFIG.STORAGE_TABS, d.key).then(doc => {
+                                    doc.value.days.forEach(d => {
+                                        var find = days.find(x => x.day == d.date);
+                                        if (find) {
+                                            find.url.push(doc.value.url);
+                                            find.counter += d.counter;
+                                            find.summary += d.summary;
+                                            find.dataUsage += d.dataUsage;
+                                        } else {
+                                            days.push({
+                                                day: d.date,
+                                                url: [doc.value.url],
+                                                counter: doc.value.counter,
+                                                summary: doc.value.summaryTime,
+                                                dataUsage: doc.value.dataUsage
+                                            })
+                                        }
+                                        if (index == docs.total_rows - 1) {
+                                            console.log('end of loop, ready!');
+                                            chrome.storage.local.set({
+                                                ['summary']: { 'last': moment().valueOf(), 'rows': days }
+                                            });
+                                            console.log('new epoc', moment().valueOf(), item.summary.last);
+                                            callback(days);
+                                        }
+                                    })
+                                });
+                            });
+                        } else {
+                            callback('tabs_not_found');
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                    })
+                } else {
+                    console.log('old epoc', moment().valueOf(), item.summary.last, moment().valueOf() - item.summary.last);
+                    callback(item.summary.rows);
                 }
-                else {
-                    deferred.reject(destroyError);
-                }
-            });
-            return deferred.promise;
+            })
         }
-        //      setConsentForm: function(consentFormData){
-        //				var deferred = $q.defer();
-        //				var db = new PouchDB('consentForm');
-        //				var prepDoc = prepareDoc('consentForm', consentFormData);
-        //				db.destroy('consentForm').then(function (destroyError, destroyResponse) {
-        //					if(destroyError!=null){
-        //						var db = new PouchDB('consentForm');
-        //						db.put(prepDoc).then(function (response) {
-        //						  // handle response
-        //							deferred.resolve(response);
-        //						}).catch(function (err) {
-        //						  console.log(err);
-        //							deferred.reject(err);
-        //						});
-        //					}
-        //					else{
-        //						deferred.reject(destroyError);
-        //					}
-        //				});
-        //				return deferred.promise;
-        //      },
-        //			getConsentForm: function(){
-        //                console.log("Get");
-        //				var deferred = $q.defer();
-        //				var db = new PouchDB('consentForm');
-        //				db.get('consentForm').then(function (response) {
-        //				  // handle response
-        //                    console.log("Get1");
-        //                    var responseData = angular.fromJson(EncryptionService.decrypt('consentForm',response.data));
-        //                    console.log(responseData);
-        //					deferred.resolve(responseData);
-        //				}).catch(function (err) {
-        //				  console.log(err);
-        //					deferred.reject(err);
-        //				});
-        //				return deferred.promise;
-        //      },
-        //			deleteConsentForm: function(){
-        //				var db = new PouchDB('consentForm');
-        //				var deferred = $q.defer();
-        //
-        //				db.destroy('consentForm').then(function (destroyError, destroyResponse) {
-        //					console.log(destroyError);
-        //					if(destroyError!=null){
-        //						deferred.resolve(destroyResponse);
-        //					}
-        //					else{
-        //						deferred.reject(destroyError);
-        //					}
-        //				});
-        //				return deferred.promise;
-        //			}
     };
     return pounch;
 }

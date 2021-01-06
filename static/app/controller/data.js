@@ -122,6 +122,8 @@ angular.module('app.controller.data', [])
                     (function (x) {
                         if (!c[x].hidden) {
                             if (c[x].top) {
+                                // [2021-01-06 10:38:22]
+                                // size계산 안함, 갯수로만 표현
                                 pounch.alldocs(CONFIG.STORAGE_TABS).then(items => {
                                     c[x].rows = items.rows.length;
                                     c[x].size = JSON.stringify(items.rows).length;

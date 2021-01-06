@@ -1,6 +1,6 @@
 // https://stackoverflow.com/questions/37160354/chrome-storage-sync-get-not-returning-value-angular-services
 angular.module('app.services', [])
-    .factory('storage', ['$window', '$timeout', function ($window, $timeout) {
+    .factory('storage', ['$window', '$timeout', function (pounch, CONFIG) {
         return {
             getMemoryUse: function (name, callback) {
                 return chrome.storage.local.getBytesInUse(name, callback);
@@ -54,7 +54,7 @@ angular.module('app.services', [])
                 return chrome.storage.sync.clear(function () {
                     callback();
                 })
-            },
+            }
         }
     }])
     .factory('identity', ['$window', '$timeout', function ($window, $timeout) {

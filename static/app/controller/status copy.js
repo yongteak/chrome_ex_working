@@ -1,5 +1,5 @@
 angular.module('app.controller.status', [])
-    .controller('statusController', function ($scope, $rootScope, $filter, $timeout, $http, moment, storage, pounch, CONFIG) {
+    .controller('statusController', function ($scope, $rootScope, $filter, $timeout, $http, moment, storage, CONFIG) {
         // Array.prototype.sum = function () { return [].reduce.call(this, (a, i) => a + i.value, 0); }
         // console.log(moment().format('LL').split(' ').slice(1).join(' '));
         // [2020-12-25 03:09:52]
@@ -12,7 +12,6 @@ angular.module('app.controller.status', [])
         // var week_range = [];
         $scope.model = {
             rows: [], todal_times: 0, summary: {}, interval_summary: [],
-            domain_by_day: [],
             charts: {
                 day: { category: [], date: [], times: [], series: [], title: '' },
                 time: { category: [], date: [], times: [], series: [] },
@@ -25,56 +24,44 @@ angular.module('app.controller.status', [])
         };
         $scope.param = null;
         $scope.param1 = null;
-        $scope.run = {
-            check: () => {
-                // domain_by_day
-                pounch.summaryBuild(res => {
-                    if (res == 'tab_is_not_found') {
-                        // throw
-                    } else {
-                        // [day,url,counter,summary,dataUsage]
-                        $scope.model.domain_by_day = res;
-                        $scope.run.init(res);
-                    }
-                });
-            },
-            init: (domain_by_day) => {
-                console.log('^init');
-                var week_of_start = moment().startOf('week').format("YYYYMMDD");
-                var week_of_end = moment(week_of_start).endOf('week').format("YYYYMMDD");
-                var diff = moment(week_of_end).diff(moment(week_of_start), 'days') + 1;
-                for (var i = 0; i < diff; i++) {
-                    $scope.model.times.weeks.push(moment(week_of_start).add(i, 'day').format("YYYYMMDD"));
-                }
-                var domains = domain_by_day
-                    .filter(s => $scope.model.times.weeks.includes('' + s.day))
-                    .reduce((acc, cur) => acc.concat(cur.url), []);
 
-                // 과거 날짜에도 도메인이 포함되어 있으므로 날짜 필터링 추가 필요
-                pounch.getdocs(CONFIG.STORAGE_TABS, domains).then(items => {
-                    items.results.forEach((tab, i, a) => {
-                        tab = tab.docs[0]['ok'].value;
-                        tab.days.forEach((t1, _i, _a) => {
-                            if (t1.date >= $scope.model.times.weeks[0]) {
-                                $scope.model.interval_summary.push({
-                                    domain: tab.url,
-                                    day: t1.date,
-                                    category: tab.category_top,
-                                    times: t1.hours
-                                });
-                            }
+        var week_of_start = moment().startOf('week').format("YYYYMMDD");
+        var week_of_end = moment(week_of_start).endOf('week').format("YYYYMMDD");
+        var diff = moment(week_of_end).diff(moment(week_of_start), 'days') + 1;
+        for (var i = 0; i < diff; i++) {
+            $scope.model.times.weeks.push(moment(week_of_start).add(i, 'day').format("YYYYMMDD"));
+        }
+
+        $scope.run = {
+            init: () => {
+                console.log('^init');
+                console.log('# 주간 날짜 생성');
+                storage.getValue(CONFIG.STORAGE_TABS, tabs => {
+                    console.log('tabs',tabs);
+                    console.log('weeks',$scope.model.times.weeks);
+                    $scope.interval_summary = [];
+                    tabs = tabs.filter(x => x.days.find(s => $scope.model.times.weeks.includes('' + s.date)));
+                    tabs.forEach( (tab,i,a) => {
+                        // if (tab.url == 'www.clien.net') {
+                        //     console.log('clien',tab);
+                        // }
+                        tab.days.forEach( (t1,_i,_a) => {
+                            $scope.interval_summary.push({
+                                domain: tab.url,
+                                day: t1.date,
+                                category: tab.category_top,
+                                times: t1.hours
+                            });
                         });
                         if (i == a.length - 1) {
                             $scope.run.setup();
                         }
                     });
-                }).catch(err => {
-                    console.error(err);
-                });
+                })
             },
             setup: () => {
                 console.log("^setup");
-                const copy = JSON.parse(JSON.stringify($scope.model.interval_summary));
+                const copy = JSON.parse(JSON.stringify($scope.interval_summary));
                 $scope.model.charts.day.series = [];
                 $scope.model.summary = copy.reduce((prev, cur) => {
                     let existing = prev.find(x => x.category === cur.category && x.day === cur.day);
@@ -88,14 +75,12 @@ angular.module('app.controller.status', [])
                     return prev;
                 }, []);
                 console.log('# day 차트 데이터 생성');
-                console.log('# summary', $scope.model.summary);
+                console.log('summary',$scope.model.summary);
                 $scope.model.summary.forEach(e => {
                     var fill = new Array($scope.model.times.weeks.length - 1).fill(0);
                     var idx = $scope.model.times.weeks.indexOf('' + e.day);
-                    console.log($scope.model.times.weeks,''+e.day);
                     idx = idx == -1 ? 0 : idx;
                     fill.splice(idx, 0, e.times);
-                    // console.log(e.day,fill, idx);
                     // scope.model.charts.day | time
                     $scope.model.charts.day.series.push({
                         name: e.category + '|' + $filter('category_to_name')(e.category),
@@ -105,6 +90,13 @@ angular.module('app.controller.status', [])
                             return idx * 250;
                         },
                         // [2020-12-25 02:01:26]
+                        // 카테고리별 고정 컬러 정의 고려
+                        // itemStyle: {
+                        //     normal: {
+                        //     color: 'rgba(237,125,49, 0.8)',
+                        //     }
+                        // },
+
                         animationEasingUpdate: "linear",
                         emphasis: { focus: 'none' }
                     });
@@ -136,12 +128,13 @@ angular.module('app.controller.status', [])
             charts: () => {
                 console.log('# opt1 차트 데이터 적용');
                 $scope.param = { 'option': opt1(), 'click': $scope.run.charts1 };
+                // console.log($scope.model.charts.day.series[0]);
                 $scope.run.charts1({ name: moment().format('YYYYMMDD') });
             },
             charts1: (e) => {
                 // console.log(e);
                 if (e.componentType == "markLine") return;
-                const copy = JSON.parse(JSON.stringify($scope.model.interval_summary));
+                const copy = JSON.parse(JSON.stringify($scope.interval_summary));
                 const day = parseInt(e.name);
                 var series = [];
 
@@ -153,7 +146,7 @@ angular.module('app.controller.status', [])
                             elem.value += cur.times[index].second;
                         });
                     } else {
-                        cur.times.forEach(e => {
+                        cur.times.forEach( e => {
                             if (!e.hasOwnProperty('value')) {
                                 e.value = 0;
                             }
@@ -232,12 +225,12 @@ angular.module('app.controller.status', [])
                         Array(7 * 5).fill(0).map((_e, n) => n).forEach(n => {
                             var day = parseInt(moment().add(-n, 'day').format("YYYYMMDD"));
                             // tab.days에 모든 날짜 데이터가 있어서 중복 처리되는 경향이 있음, 최적화 필요한가?
-                            var find = tab.days.filter(d => { return d.date == day });
+                            var find = tab.days.filter(d => {return d.date == day});
                             // console.log('find',find);
                             m.chart.data[day] = find.length == 0 ? 0 : find[0].summary;
                         })
                         $timeout(function () {
-                            m.chart.options = { 'option': chart(Object.keys(m.chart.data), Object.values(m.chart.data)), 'click': null }
+                            m.chart.options = { 'option': chart(Object.keys(m.chart.data),Object.values(m.chart.data)), 'click': null }
                         }, 0.2 * 1000);
                     });
 
@@ -270,8 +263,7 @@ angular.module('app.controller.status', [])
             }
         }
 
-        // $scope.run.init();
-        $scope.run.check();
+        $scope.run.init();
 
         $scope.all = function () {
             // $scope.model.totals.times = 0;
@@ -293,64 +285,30 @@ angular.module('app.controller.status', [])
             })
         }
         $scope.today = day => {
-            // $scope.model.domain_by_day
             day = day || moment().format('YYYYMMDD');
-            $scope.model.day_title = moment(day + '')
-                .format('llll')
-                .split(' ')
-                .filter((_, idx) => { return idx < 4 }).join(' ');
-
-            console.log($scope.model.domain_by_day);
-            var domains = $scope.model.domain_by_day
-                .find(s => '' + s.day == day).url;
-
-
-            pounch.getdocs(CONFIG.STORAGE_TABS, domains).then(items => {
-                console.log(items);
-                var tabs = [];
-                items.results.forEach((tab, i, a) => {
-                    tab = tab.docs[0]['ok'].value;
-                    tab.part = tab.days.filter(x => x.date == day)[0];
-                    tabs.push(tab);
-
-                    $scope.model.totals.times = 0;
-                    $scope.model.totals.dataUsage = 0;
-                    $scope.model.totals.counter = 0;
-                    $scope.model.totals.times += tab.part.summary;
-                    $scope.model.totals.dataUsage += tab.part.dataUsage;
-                    $scope.model.totals.counter += tab.part.counter;
+            $scope.model.day_title = moment(day + '').format('llll').split(' ').filter((_, idx) => { return idx < 4 }).join(' ');
+            // $scope.model.total_times = 0;
+            storage.getValue(CONFIG.STORAGE_TABS, rows => {
+                // todo
+                // filter return이 없는데 데이터가 나오나??
+                var tabs = rows.filter(x => { return x.days.find(s => s.date === day)});
+                $scope.model.totals.times = 0;
+                $scope.model.totals.dataUsage = 0;
+                $scope.model.totals.counter = 0;
+                tabs.forEach(e => {
+                    e.part = e.days.filter(x => x.date == day)[0];
+                    $scope.model.totals.times += e.part.summary;
+                    $scope.model.totals.dataUsage += e.part.dataUsage;
+                    $scope.model.totals.counter += e.part.counter;
                 });
-                // });
                 tabs.sort(function (a, b) {
                     return b.days
                         .find(s => s.date === day).summary - a.days
                             .find(s => s.date === day).summary;
                 });
                 $scope.model.rows = tabs;
-                // $scope.$apply();
+                $scope.$apply();
             });
-
-            // storage.getValue(CONFIG.STORAGE_TABS, rows => {
-            //     // todo
-            //     // filter return이 없는데 데이터가 나오나??
-            //     var tabs = rows.filter(x => { return x.days.find(s => s.date === day)});
-            //     $scope.model.totals.times = 0;
-            //     $scope.model.totals.dataUsage = 0;
-            //     $scope.model.totals.counter = 0;
-            //     tabs.forEach(e => {
-            //         e.part = e.days.filter(x => x.date == day)[0];
-            //         $scope.model.totals.times += e.part.summary;
-            //         $scope.model.totals.dataUsage += e.part.dataUsage;
-            //         $scope.model.totals.counter += e.part.counter;
-            //     });
-            //     tabs.sort(function (a, b) {
-            //         return b.days
-            //             .find(s => s.date === day).summary - a.days
-            //                 .find(s => s.date === day).summary;
-            //     });
-            //     $scope.model.rows = tabs;
-            //     $scope.$apply();
-            // });
         }
 
         function chart(key, value) {
@@ -372,7 +330,7 @@ angular.module('app.controller.status', [])
                     formatter: series => {
                         let tooltip = '';
                         const [firstSeries] = series;
-                        const title = $filter('formatDate')(firstSeries.name, 'MM월DD일');
+                        const title = $filter('formatDate')(firstSeries.name,'MM월DD일');
                         series.forEach(s => {
                             var val = $filter('secondToFormat')(s.value, s.value >= 3600 ? 'HH시간mm분ss초' : 'mm분ss초')
                             tooltip += `<div>${s.marker} ${title}: <code>${val}</code></div>`;
@@ -381,7 +339,7 @@ angular.module('app.controller.status', [])
                     }
                 },
                 axisLabel: {
-                    formatter: t => $filter('formatDate')(t, 'MM월DD일')
+                    formatter: t => $filter('formatDate')(t,'MM월DD일')
                 },
                 grid: {
                     left: '10%',
@@ -414,7 +372,7 @@ angular.module('app.controller.status', [])
                         });
                         sum = sum > 60 ? $filter('secondToFormat')(sum, sum >= 3600 ? 'HH시간mm분ss초' : 'mm분ss초') : sum == 0 ? '-' : sum + '초';
                         tooltip = `<div><h5><b>#${title} </b><code><u>${sum}</u></code></h5></div>` + tooltip;
-                        return sum == '-' ? '' : tooltip;
+                        return sum == '-' ? '' :  tooltip;
                     }
                 },
                 legend: {
@@ -432,9 +390,9 @@ angular.module('app.controller.status', [])
                 yAxis: {
                     type: 'value',
                     // max: 3600,
-                    minInterval: 60,
+                    minInterval:60,
                     axisLabel: {
-                        formatter: value => value % 60 == 0 ? (value / 60) + 'm' : ''
+                        formatter: value => value % 60 == 0 ? (value/60) + 'm' : ''
                         // formatter: value => $filter('secondToFormat')(value, value >= 3600 ? 'HH시mm분' : 'mm분ss초')// '{value} Mbps'
                     }
                 },
@@ -508,11 +466,11 @@ angular.module('app.controller.status', [])
                 yAxis: {
                     type: 'value',
                     // max: 3600 * 24,
-                    minInterval: 3600,
+                    minInterval:3600,
                     axisLabel: {
                         // [2021-01-04 03:19:24]
                         // global formatter 적용
-                        formatter: value => value % 3600 == 0 ? (value / 3600) + 'h' : ''
+                        formatter: value => value % 3600 == 0 ? (value/3600) + 'h' : ''
                         // formatter: value => value < (3600 * 24) - 1 ? $filter('secondToFormat')(value, 'HH시mm분') : '24시00분'
                     }
                 },
