@@ -2,7 +2,7 @@ var app = angular.module('app', [
 	"ngRoute", "angular-echarts3", "angularMoment", "pouchdb",
 	'app.controllers', 'app.controller.sync', 'app.controller.setting',
 	'app.controller.status', 'app.controller.limit', 'app.controller.alarm',
-	'app.controller.data', 'app.controller.dashboard',
+	'app.controller.data', 'app.controller.dashboard','app.controller.category',
 	'app.services', 'app.pounch', 'app.filter'
 ]);
 
@@ -138,6 +138,10 @@ app.config(["$routeProvider", "$locationProvider", /*"$compileProvider", */
 		// $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|local|data|chrome-extension):/);
 
 		$routeProvider.
+			when("/v1/category", {
+				templateUrl: "app/partial/category.html",
+				controller: 'categoryController'
+			}).
 			when("/v1/dashboard", {
 				templateUrl: "app/partial/dashboard.html",
 				controller: 'dashboardController'

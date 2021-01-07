@@ -30,6 +30,8 @@ angular.module('app.controllers', [])
                 $scope.title = '사용자 프로필';
             } else if (path == 'about') {
                 $scope.title = 'About';
+            } else if (path == 'category') {
+                $scope.title = '카테고리 분류';
             }
         })
     })
