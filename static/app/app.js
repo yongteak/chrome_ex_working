@@ -8,11 +8,17 @@ var app = angular.module('app', [
 
 app.run(function ($rootScope, identity, storage, CONFIG) {
 
-	$rootScope['countries'] = {};
+	// $rootScope['countries'] = {};
 
 	fetch(chrome.extension.getURL('static/assets/resource/iso-3166-countries-with-regional-codes.json'))
 		.then(resp => resp.json())
 		.then(jsonData => $rootScope['countries'] = jsonData);
+	fetch(chrome.extension.getURL('static/assets/resource/category.json'))
+		.then(resp => resp.json())
+		.then(jsonData => {
+			console.log(jsonData)
+			$rootScope['category'] = jsonData
+		});
 	fetch(chrome.extension.getURL('static/assets/resource/timezone.json'))
 		.then(resp => resp.json())
 		.then(jsonData => $rootScope['timezone'] = jsonData);
@@ -96,7 +102,8 @@ app.constant('CONFIG', {
 	// 알람 목록
 	'STORAGE_ALARM_LIST': 'alarm_list',
 	'STORAGE_HISTORY_OF_SYNC': 'sync_history',
-	'STORAGE_NOTIFICATION_LIST': 'notification_list'
+	'STORAGE_NOTIFICATION_LIST': 'notification_list',
+	'STORAGE_CATEGORY':'category'
 	// 'STORAGE_NOTIFICATION_MESSAGE': 'notification_message',
 	// 'STORAGE_TIMEINTERVAL_LIST': 'time_interval'
 })

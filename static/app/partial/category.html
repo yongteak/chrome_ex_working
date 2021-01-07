@@ -1,0 +1,33 @@
+<div class="grid">
+    <p class="grid-header">도메인별 카테고리 분류</p>
+    <div class="item-wrapper">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th width="25">#</th>
+                        <th width="200">URL</th>
+                        <th>분류(서버)</th>
+                        <th width="200">분류(로컬)</th>
+                        <th>적용항목</th>
+                        <th>저장</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in model.rows">
+                        <td>{{ model.rows.length - $index }}</td>
+                        <td>{{ row.url }}</td>
+                        <td>{{ run.code_to_name(row.code) }}</td>
+                        <td>
+                            <select class="custom-select" ng-change="run.selected('activity_detected',model.select.activity_detected)"
+                                ng-model='model.select.activity_detected'
+                                ng-options="item.code as item.ko for item in model.options.category.data"></select>
+                        </td>
+                        <td>1</td>
+                        <td>1</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
