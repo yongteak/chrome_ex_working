@@ -27,11 +27,9 @@ function pounch($q, CONFIG) {
                     var docs = [];
                     value.forEach(t => docs.push(prepareDoc(t.url, t)));
                     console.log(docs);
-                    db.bulkDocs(docs).then(res => {
-                        deferred.resolve(res);
-                    }).catch(err => {
-                        deferred.resolve(err);
-                    });
+                    db.bulkDocs(docs)
+                    .then(deferred.resolve)
+                    .catch(deferred.resolve);
                 }).catch(_err => { });
             } else {
                 var prepDoc = prepareDoc(key, value)
@@ -42,14 +40,12 @@ function pounch($q, CONFIG) {
                         // add epoc time
                         value: value
                     }, { force: true });
-                }).then(res => {
-                    deferred.resolve(res);
-                }).catch(err => {
-                    db.put(prepDocs).then(res => {
-                        deferred.resolve(res);
-                    }).catch(err => {
-                        deferred.resolve(err);
-                    });
+                })
+                .then(deferred.resolve)
+                .catch(err => {
+                    db.put(prepDocs)
+                    .then(deferred.resolve)
+                    .catch(deferred.resolve)
                 });
             }
             return deferred.promise;
@@ -59,13 +55,9 @@ function pounch($q, CONFIG) {
             // console.log('alldocs > ', name);
             var deferred = $q.defer();
             new PouchDB(name,{revs_limit: 1, auto_compaction: true}).allDocs({
-                include_docs: include_docs
-            }).then(res => {
-                console.log(res);
-                deferred.resolve(res);
-            }).catch(err => {
-                deferred.reject(err);
-            });
+                include_docs: include_docs})
+            .then(deferred.resolve)
+            .catch(deferred.reject);
             return deferred.promise;
         },
         getdocs: (name, keys) => {
@@ -74,20 +66,16 @@ function pounch($q, CONFIG) {
                 return acc;
             },[]);
             var deferred = $q.defer();
-            new PouchDB(name,{revs_limit: 1, auto_compaction: true}).bulkGet({docs:keys}).then(res => {
-                deferred.resolve(res);
-            }).catch(err => {
-                deferred.reject(err);
-            });
+            new PouchDB(name,{revs_limit: 1, auto_compaction: true}).bulkGet({docs:keys})
+            .then(deferred.resolve)
+            .catch(deferred.reject);
             return deferred.promise;
         },
         getdoc: (name, key) => {
             var deferred = $q.defer();
-            new PouchDB(name,{revs_limit: 1, auto_compaction: true}).get(key).then(res => {
-                deferred.resolve(res);
-            }).catch(err => {
-                deferred.reject(err);
-            });
+            new PouchDB(name,{revs_limit: 1, auto_compaction: true}).get(key)
+            .then(deferred.resolve)
+            .catch(deferred.reject);
             return deferred.promise;
         },
         setdoc: (name, key, value) => {
@@ -100,13 +88,11 @@ function pounch($q, CONFIG) {
                     _rev: doc._rev,
                     value: value
                 }, { force: true });
-            }).then(res => {
-                deferred.resolve(res);
-            }).catch(err => {
-                db.put(prepDoc).then(res => {deferred.resolve(res);
-                }).catch(err => {
-                    deferred.resolve(err);
-                });
+            }).then(deferred.resolve)
+            .catch(err => {
+                db.put(prepDoc)
+                .then(deferred.resolve)
+                .catch(deferred.resolve);
             });
             return deferred.promise;
         },
@@ -116,16 +102,16 @@ function pounch($q, CONFIG) {
             var db = new PouchDB('test',{revs_limit: 1, auto_compaction: true});
             db.get(key)
             .then(doc => {return db.remove(doc)})
-            .then(res => {deferred.resolve(res)})
-            .catch(err => {deferred.reject(err)});
+            .then(deferred.resolve)
+            .catch(deferred.resolve);
             return deferred.promise;
         },
         clear: name => {
             var db = new PouchDB(name,{revs_limit: 1, auto_compaction: true});
             var deferred = $q.defer();
             db.destroy()
-            .then(res => {deferred.resolve(res)})
-            .catch(err => {deferred.reject(err)});
+            .then(deferred.resolve)
+            .catch(deferred.resolve);
             return deferred.promise;
         },
         summaryBuild: callback => {
@@ -167,9 +153,7 @@ function pounch($q, CONFIG) {
                         } else {
                             callback('tabs_not_found');
                         }
-                    }).catch(err => {
-                        console.error(err);
-                    })
+                    }).catch(console.error)
                 } else {
                     console.log('old epoc', moment().valueOf(), item.summary.last, moment().valueOf() - item.summary.last);
                     callback(item.summary.rows);

@@ -15,6 +15,12 @@ angular.module('app.filter', [])
         };
     })
 
+    .filter('epoch', function () {
+        return function () {
+            return moment().valueOf();
+        }
+    })
+
     .filter('epochTimeToFormat', function () {
         return function (epochTime) {
             return moment(epochTime).format('YYYY-MM-DD HH:mm:ss');
@@ -185,11 +191,12 @@ angular.module('app.filter', [])
         }
     })
     .filter('num_comma', function () {
-        return function (num) {
+        return function (num, default_val) {
+            default_val = default_val || 0;
             if (num) {
                 return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             } else {
-                return num;
+                return default_val;
             }
         };
     })
