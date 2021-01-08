@@ -6,9 +6,11 @@ var app = angular.module('app', [
 	'app.services', 'app.pounch', 'app.filter'
 ]);
 
-app.run(function ($rootScope, identity, storage, CONFIG) {
-
-	// $rootScope['countries'] = {};
+app.run(function ($rootScope, identity, pounch, storage, CONFIG) {
+	// 혹시 몰라
+	pounch.create_bucket()
+		.then(console.log)
+		.catch(console.error);
 
 	fetch(chrome.extension.getURL('static/assets/resource/iso-3166-countries-with-regional-codes.json'))
 		.then(resp => resp.json())
@@ -90,7 +92,9 @@ app.constant('CONFIG', {
 	// 'URI': 'http://34.83.116.28:8080/api/v1',
 	'IDENTITY': 'dentity',
 	'URI':'http://172.24.69.139:8080/api/v1',
-	'BUCKET': 'bucket',
+	'BUCKET': 'bucket_$$$',
+
+	'STORAGE': 'couch',
 	'STORAGE_TABS': 'tabs',
 	'STORAGE_SETTINGS_VIEW_TIME_IN_BADGE': 'setting_view_time_in_badge',
 	// 추적 금지
@@ -106,6 +110,16 @@ app.constant('CONFIG', {
 	'STORAGE_CATEGORY':'category'
 	// 'STORAGE_NOTIFICATION_MESSAGE': 'notification_message',
 	// 'STORAGE_TIMEINTERVAL_LIST': 'time_interval'
+// {
+// 		"_id": "bucket_$$$",
+		// "setting_view_time_in_badge": {},
+		// "black_list": [],
+		// "restriction_list": [],
+		// "restriction_access_list": [],
+		// "alarm_list": [],
+		// "sync_history": [],
+		// "notification_list": []
+// 	}
 })
 
 // [{

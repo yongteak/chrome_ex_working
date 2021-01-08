@@ -37,15 +37,12 @@ angular.module('app.controller.limit', [])
                 list[index].enabled = row.enabled;
                 list[index].updated = today;
                 // storage.saveValue(CONFIG.STORAGE_RESTRICTION_LIST, $filter('clean')($scope.model.domains));
-                pounch.setdoc(CONFIG.BUCKET, CONFIG.STORAGE_RESTRICTION_LIST,
+                pounch.setbucket(CONFIG.STORAGE_RESTRICTION_LIST,
                     $filter('clean')($scope.model.domains))
                     .then(_res => {
                         $scope.run.init_modal();
                         $scope.run.getDomain();
-                    }).catch(err => {
-                        console.error(err);
-                    });
-                $scope.run.getDomain();
+                    }).catch(console.error);
             },
             modalClose: () => {
                 $('#domainModal').modal("hide");
@@ -70,15 +67,12 @@ angular.module('app.controller.limit', [])
                     }
 
                     // storage.saveValue(CONFIG.STORAGE_RESTRICTION_LIST, $filter('clean')($scope.model.domains));
-                    pounch.setdoc(CONFIG.BUCKET, CONFIG.STORAGE_RESTRICTION_LIST,
+                    pounch.setbucket(CONFIG.STORAGE_RESTRICTION_LIST,
                         $filter('clean')($scope.model.domains))
                         .then(_res => {
                             $scope.run.init_modal();
                             $scope.run.getDomain();
-                        }).catch(err => {
-                            console.error(err);
-                        });
-                    $scope.run.getDomain();
+                        }).catch(console.error);
                     $('#domainModal').modal("hide");
                 } else {
                     //
@@ -108,16 +102,13 @@ angular.module('app.controller.limit', [])
                     }
                     // storage.saveValue(CONFIG.STORAGE_RESTRICTION_LIST, $filter('clean')($scope.model.domains));
                     // init_modal();
-                    pounch.setdoc(CONFIG.BUCKET, CONFIG.STORAGE_RESTRICTION_LIST,
+                    pounch.setbucket(CONFIG.STORAGE_RESTRICTION_LIST,
                         $filter('clean')($scope.model.domains))
                         .then(_res => {
                             $scope.run.init_modal();
                             $scope.run.getDomain();
-                        }).catch(err => {
-                            console.error(err);
-                        });
+                        }).catch(console.error);
                     $scope.model.copy_modal = null;
-                    $scope.run.getDomain();
                 }
                 $('#domainModal').modal("hide");
             },
@@ -150,7 +141,7 @@ angular.module('app.controller.limit', [])
                 modal.enabled = true;
 
                 $scope.model.domains.push(modal);
-                pounch.setdoc(CONFIG.BUCKET, CONFIG.STORAGE_RESTRICTION_LIST,
+                pounch.setbucket(CONFIG.STORAGE_RESTRICTION_LIST,
                     $filter('clean')($scope.model.domains))
                     .then(_res => {
                         $scope.run.init_modal();
@@ -159,10 +150,6 @@ angular.module('app.controller.limit', [])
                         console.error(err);
                     });
                 $('#domainModal').modal("hide");
-                // console.log($scope.model);
-                // storage.saveValue(CONFIG.STORAGE_RESTRICTION_LIST, $filter('clean')($scope.model.domains));
-                // $scope.run.init_modal();
-                // $scope.run.getDomain();
             },
             init_modal: () => {
                 $scope.model.modal = {
@@ -177,39 +164,17 @@ angular.module('app.controller.limit', [])
                 }
             },
             getDomain: () => {
-                pounch.getdoc(CONFIG.BUCKET, CONFIG.STORAGE_RESTRICTION_ACCESS_LIST).then(items => {
+                pounch.getbucket(CONFIG.STORAGE_RESTRICTION_ACCESS_LIST).then(doc => {
                     // console.log('STORAGE_RESTRICTION_ACCESS_LIST',items);
-                    $scope.model.history = items.value.sort((a, b) => { return b.epoch - a.epoch });
-                    $scope.model.setting = [items.value];
-                }).catch(err => {
-                    console.error(err);
-                });
+                    $scope.model.history = doc.sort((a, b) => { return b.epoch - a.epoch });
+                    $scope.model.setting = [doc];
+                }).catch(console.error);
 
-                pounch.getdoc(CONFIG.BUCKET, CONFIG.STORAGE_RESTRICTION_LIST).then(items => {
+                pounch.getbucket(CONFIG.STORAGE_RESTRICTION_LIST).then(doc => {
                     // console.log('STORAGE_RESTRICTION_LIST',items);
-                    $scope.model.domains = items.value.sort((a, b) => { return b.epoch - a.epoch });
-                }).catch(err => {
-                    console.error(err);
-                });
-                // storage.getValue(CONFIG.STORAGE_RESTRICTION_ACCESS_LIST, e => {
-                //     console.log(e);
-                //     e = JSON.parse(angular.toJson(e));
-                //     if (e) {
-                //         $scope.model.history = e.sort((a, b) => { return b.epoch - a.epoch });
-                //     }
-                //     $scope.$apply();
-                // });
-
-                // storage.getValue(CONFIG.STORAGE_RESTRICTION_LIST, e => {
-                //     e = JSON.parse(angular.toJson(e));
-                //     if (e) {
-                //         $scope.model.domains = e.sort((a, b) => { return b.epoch - a.epoch });
-                //     }
-                //     // console.log(e);
-                //     $scope.$apply();
-                // });
+                    $scope.model.domains = doc.sort((a, b) => { return b.epoch - a.epoch });
+                }).catch(console.error);
             }
         };
         $scope.run.getDomain();
-
     })

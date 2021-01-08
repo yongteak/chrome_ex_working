@@ -1,5 +1,5 @@
 angular.module('app.controller.alarm', [])
-    .controller('alarmController', function ($scope, $filter, pounch,CONFIG) {
+    .controller('alarmController', function ($scope, $filter, pounch, CONFIG) {
         const today = $filter('formatDate')();
         $scope.model = {
             is_new: true,
@@ -107,7 +107,6 @@ angular.module('app.controller.alarm', [])
                     $scope.model.select = $scope.model.copy_modal.position;
                 }
                 $scope.model.is_new = row == undefined;
-                // console.log($scope.model.copy_modal);
                 $scope.model.title = $scope.model.is_new ? '알람 추가하기' : '알람 수정하기';
             },
             enabledChange: (row, field) => {
@@ -116,15 +115,11 @@ angular.module('app.controller.alarm', [])
                     return item.epoch === row.epoch;
                 });
                 list[index][field] = row[field];
-                pounch.setdoc(CONFIG.BUCKET, CONFIG.STORAGE_ALARM_LIST,
+                pounch.setbucket(CONFIG.STORAGE_ALARM_LIST,
                     $filter('clean')($scope.model.alarms))
                     .then(_res => {
                         $scope.run.getAlarms();
-                    }).catch(err => {
-                        console.error(err);
-                    });
-                // storage.saveValue(CONFIG.STORAGE_ALARM_LIST, $filter('clean')($scope.model.alarms));
-                $scope.run.getAlarms();
+                    }).catch(console.error);
             },
             modalClose: () => {
                 $scope.run.init_modal();
@@ -145,16 +140,11 @@ angular.module('app.controller.alarm', [])
                         console.log('error! 삭제할 데이터가 없다!!');
                     }
 
-                    pounch.setdoc(CONFIG.BUCKET, CONFIG.STORAGE_ALARM_LIST,
+                    pounch.setbucket(CONFIG.STORAGE_ALARM_LIST,
                         $filter('clean')(list))
                         .then(_res => {
                             $scope.run.getAlarms();
-                        }).catch(err => {
-                            console.error(err);
-                        });
-
-                    // storage.saveValue(CONFIG.STORAGE_ALARM_LIST, $filter('clean')(list));
-                    // $scope.run.getAlarms();
+                        }).catch(console.error);
                     $('#domainModal').modal("hide");
                 } else {
                     //
@@ -173,16 +163,12 @@ angular.module('app.controller.alarm', [])
                         for (var p in modal) {
                             find_domain[p] = modal[p];
                         }
-                        pounch.setdoc(CONFIG.BUCKET, CONFIG.STORAGE_ALARM_LIST,
+                        pounch.setbucket(CONFIG.STORAGE_ALARM_LIST,
                             $filter('clean')(list))
                             .then(_res => {
                                 $scope.model.copy_modal = null;
                                 $scope.run.getAlarms();
-                            }).catch(err => {
-                                console.error(err);
-                            });
-                        // storage.saveValue(CONFIG.STORAGE_ALARM_LIST, $filter('clean')(list));
-                        // init_modal();
+                            }).catch(console.error);
                     }
                     $('#domainModal').modal("hide");
                 }
@@ -201,37 +187,19 @@ angular.module('app.controller.alarm', [])
                     modal.enabled = true;
 
                     $scope.model.alarms.push(modal);
-                    pounch.setdoc(CONFIG.BUCKET, CONFIG.STORAGE_ALARM_LIST,
+                    pounch.setbucket(CONFIG.STORAGE_ALARM_LIST,
                         $filter('clean')($scope.model.alarms))
                         .then(_res => {
                             $scope.run.init_modal();
                             $scope.run.getAlarms();
-                        }).catch(err => {
-                            console.error(err);
-                        });
-                    // storage.saveValue(CONFIG.STORAGE_ALARM_LIST, $filter('clean')($scope.model.alarms));
-                    // // 창닫기
+                        }).catch(console.error);
                     $('#domainModal').modal("hide");
                 }
             },
             getAlarms: () => {
-                pounch.getdoc(CONFIG.BUCKET, CONFIG.STORAGE_ALARM_LIST).then(items => {
-                    console.log('STORAGE_ALARM_LIST', items.value);
-                    $scope.model.alarms = items.value.sort((a, b) => { return b.epoch - a.epoch });
-                }).catch(err => {
-                    console.error(err);
-                });
-                // storage.getValue(CONFIG.STORAGE_ALARM_LIST, e => {
-                //     // [2020-12-11 00:42:17]
-                //     // 최초 설정은 데이터가 없음, undefined
-                //     e = e === undefined ? [] : $filter('clean')(e);
-                //     if (e) {
-                //         $scope.model.alarms = e.sort((a, b) => { return b.epoch - a.epoch });
-                //     }
-                //     console.log(1, $scope.model.alarms);
-
-                //     $scope.$apply();
-                // });
+                pounch.getbucket(CONFIG.STORAGE_ALARM_LIST).then(doc => {
+                    $scope.model.alarms = doc.sort((a, b) => { return b.epoch - a.epoch });
+                }).catch(console.error);
             }
         };
         $scope.run.getAlarms();

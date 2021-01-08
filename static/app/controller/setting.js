@@ -1,5 +1,44 @@
 angular.module('app.controller.setting', [])
     .controller('settingController', function ($scope, $filter, pounch, CONFIG) {
+
+        // 로컬 파일 생성, 해당 내용으로 아이디와 패스워드 구성
+        // http://172.24.69.139:5984/114916629141904173371
+        var id = '114916629141904173371';
+        var pw = '114916629141904173371'.split("").reverse().join("");
+
+        // var db = new PouchDB('http://172.24.69.139:5984/114916629141904173371',
+        //     { skip_setup: true, revs_limit: 1, auto_compaction: true });
+        // db.login(id, pw)
+        //     .then(res => {
+        //         console.log(res);
+        //     }).catch(err => {
+        //         if (err.name == 'unauthorized') {
+        //             // 회원가입 시도후 계속 오류가 발생할경우 down
+        //             db.signUp(id, pw)
+        //             .then(res => {
+        //                 if (res.ok) {
+        //                     // login
+        //                 }
+        //             }).catch(err => {
+        //                 console.error('signup!',err);
+        //             });
+        //             //     console.log(err, response);
+        //             //     if (err) {
+        //             //         if (err.name === 'conflict') {
+        //             //             // "batman" already exists, choose another username
+        //             //         } else if (err.name === 'forbidden') {
+        //             //             // invalid username
+        //             //         } else {
+        //             //             // HTTP error, cosmic rays, etc.
+        //             //         }
+        //             //     }
+        //             //     var local = new PouchDB(CONFIG.STORAGE);
+        //             //     local.sync(db, { live: true, retry: true }).on('error', console.log.bind(console));
+        //             // });
+        //         }
+        //     });
+
+
         $scope.model = {
             blacklist: [],
             domain: null,
@@ -18,32 +57,24 @@ angular.module('app.controller.setting', [])
         };
         $scope.run = {
             getSetting: () => {
-                pounch.getdoc(CONFIG.BUCKET, CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE).then(items => {
-                    console.log(111,items.value);
+                pounch.getbucket(CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE).then(item => {
                     $scope.model.setting = items.value;
                     $scope.model['select'] = { activity_detected: items.value[0].value };
                 }).catch(err => {
-                    console.error(err);
                     var default_val = $scope.model.default;
                     default_val.epoch = moment().valueOf();
                     default_val.updated = $filter('formatDate')();
-                    pounch.setdoc(CONFIG.BUCKET,
-                        CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE,
-                        [default_val]);
+
+                    pounch.setbucket(CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE, [default_val]);
                     $scope.model.setting = [default_val];
-                    console.log(333,$scope.model.setting);
                     $scope.model['select'] = { activity_detected: default_val.value };
                 });
             },
             getblackList: () => {
-                pounch.getdoc(CONFIG.BUCKET, CONFIG.STORAGE_BLACK_LIST).then(e => {
-                    console.log(CONFIG.STORAGE_BLACK_LIST, ' > ', e.value);
-                    $scope.model.blacklist = e.value.sort((a, b) => { return b.epoch - a.epoch });
-                    console.log($scope.model.blacklist);
-                    // $scope.$apply();
-                }).catch(_err => {
-                    console.error(_err)
-                });
+                pounch.getbucket(CONFIG.STORAGE_BLACK_LIST).then(e => {
+                    // console.log(CONFIG.STORAGE_BLACK_LIST, ' > ', e);
+                    $scope.model.blacklist = e.sort((a, b) => { return b.epoch - a.epoch });
+                }).catch(console.error);
             },
             selected: (field, _item) => {
                 var items = $scope.model.setting;
@@ -51,12 +82,10 @@ angular.module('app.controller.setting', [])
                 item.value = $scope.model.select[field];
                 item.epoch = moment().valueOf();
                 item.updated = $filter('formatDate')();
-                pounch.setdoc(CONFIG.BUCKET, CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE, [item])
+                pounch.setbucket(CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE, [item])
                     .then(res => {
                         $scope.run.getSetting();
-                    }).catch(err => {
-                        console.error(err);
-                    });
+                    }).catch(console.error)
             },
             // clear: () => {
             //     storage.saveValue(CONFIG.STORAGE_BLACK_LIST, null);
@@ -74,18 +103,12 @@ angular.module('app.controller.setting', [])
                         // throw error
                     }
 
-                    pounch.setdoc(CONFIG.BUCKET,
-                        CONFIG.STORAGE_BLACK_LIST,
-                        $scope.model.blacklist)
+                    pounch.setbucket(CONFIG.STORAGE_BLACK_LIST, $scope.model.blacklist)
                         .then(res => {
                             console.log('STORAGE_BLACK_LIST > ', res);
                             $scope.run.getblackList();
                             chrome.extension.getBackgroundPage().loadBlackList();
-                        }).catch(err => {
-                            console.error(err);
-                        });
-                    chrome.extension.getBackgroundPage().loadBlackList();
-                    $scope.run.getblackList();
+                        }).catch(console.error);;
                 } else {
                     //
                 }
@@ -97,18 +120,11 @@ angular.module('app.controller.setting', [])
                 });
                 list[index].enabled = row.enabled;
                 list[index].updated = $filter('formatDate')();
-                pounch.setdoc(CONFIG.BUCKET,
-                    CONFIG.STORAGE_BLACK_LIST,
-                    $scope.model.blacklist)
+                pounch.setbucket(CONFIG.STORAGE_BLACK_LIST, $scope.model.blacklist)
                     .then(res => {
-                        console.log('STORAGE_BLACK_LIST > ', res);
                         $scope.run.getblackList();
                         chrome.extension.getBackgroundPage().loadBlackList();
-                    }).catch(err => {
-                        console.error(err);
-                    });
-                chrome.extension.getBackgroundPage().loadBlackList();
-                $scope.run.getblackList();
+                    }).catch(console.error);
             },
             add_domain: () => {
                 var list = $scope.model.blacklist;
@@ -118,24 +134,19 @@ angular.module('app.controller.setting', [])
                     alert('이미 등록된 도메인 입니다.')
                     return;
                 }
-                var model = {
+                $scope.model.blacklist.push({
                     domain: $scope.model.domain,
                     created: isNewDomain ? $filter('formatDate')() : find_domain.created,
                     updated: $filter('formatDate')(),
                     epoch: isNewDomain ? moment().valueOf() : find_domain.epoch,
                     enabled: true
-                };
-                $scope.model.blacklist.push(model);
-                pounch.setdoc(CONFIG.BUCKET,
-                    CONFIG.STORAGE_BLACK_LIST,
-                    $scope.model.blacklist)
+                });
+                pounch.setbucket(CONFIG.STORAGE_BLACK_LIST, $scope.model.blacklist)
                     .then(res => {
                         console.log('STORAGE_BLACK_LIST > ', res);
                         $scope.run.getblackList();
                         chrome.extension.getBackgroundPage().loadBlackList();
-                    }).catch(err => {
-                        console.error(err);
-                    });
+                    }).catch(console.error);
             }
         }
         $scope.run.getSetting();
