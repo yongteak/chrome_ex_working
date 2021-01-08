@@ -9,6 +9,7 @@ angular.module('app.controller.category', [])
         };
         $scope.run = {
             init: () => {
+                //
                 // 서버에서 동기화된 tab
                 pounch.alldocs(CONFIG.STORAGE_TABS, true).then(docs => {
                     var args = [];

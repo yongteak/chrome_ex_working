@@ -61,13 +61,13 @@ function pounch($q, CONFIG) {
                 .catch(deferred.reject);
             return deferred.promise;
         },
-        getdocs: (name, keys) => {
+        getdocs: (keys) => {
             keys = keys.reduce((acc, cur) => {
                 acc.push({ 'id': cur });
                 return acc;
             }, []);
             var deferred = $q.defer();
-            new PouchDB(name, { revs_limit: 1, auto_compaction: true }).bulkGet({ docs: keys })
+            new PouchDB(CONFIG.STORAGE_TABS, { revs_limit: 1, auto_compaction: true }).bulkGet({ docs: keys })
                 .then(deferred.resolve)
                 .catch(deferred.reject);
             return deferred.promise;
@@ -111,9 +111,9 @@ function pounch($q, CONFIG) {
                 .catch(deferred.reject)
             return deferred.promise;
         },
-        getdoc: (name, key) => {
+        getdoc: (key) => {
             var deferred = $q.defer();
-            new PouchDB(name, { revs_limit: 1, auto_compaction: true }).get(key)
+            new PouchDB(CONFIG.STORAGE_TABS, { revs_limit: 1, auto_compaction: true }).get(key)
                 .then(deferred.resolve)
                 .catch(deferred.reject);
             return deferred.promise;
@@ -162,32 +162,34 @@ function pounch($q, CONFIG) {
                         if (docs.total_rows > 0) {
                             var days = [];
                             docs.rows.forEach((d, index) => {
-                                pounch.getdoc(CONFIG.STORAGE_TABS, d.key).then(doc => {
-                                    doc.value.days.forEach(d => {
-                                        var find = days.find(x => x.day == d.date);
-                                        if (find) {
-                                            find.url.push(doc.value.url);
-                                            find.counter += d.counter;
-                                            find.summary += d.summary;
-                                            find.dataUsage += d.dataUsage;
-                                        } else {
-                                            days.push({
-                                                day: d.date,
-                                                url: [doc.value.url],
-                                                counter: doc.value.counter,
-                                                summary: doc.value.summaryTime,
-                                                dataUsage: doc.value.dataUsage
-                                            })
-                                        }
-                                        if (index == docs.total_rows - 1) {
-                                            console.log('end of loop, ready!');
-                                            chrome.storage.local.set({
-                                                ['summary']: { 'last': moment().valueOf(), 'rows': days }
-                                            });
-                                            console.log('new epoc', moment().valueOf());
-                                            callback(days);
-                                        }
-                                    })
+                                pounch.getdoc(d.key).then(doc => {
+                                    if (doc.value) {  // check bucket
+                                        doc.value.days.forEach(day => {
+                                            var find = days.find(x => x.day == day.date);
+                                            if (find) {
+                                                find.url.push(doc.value.url);
+                                                find.counter += day.counter;
+                                                find.summary += day.summary;
+                                                find.dataUsage += day.dataUsage;
+                                            } else {
+                                                days.push({
+                                                    day: day.date,
+                                                    url: [doc.value.url],
+                                                    counter: doc.value.counter,
+                                                    summary: doc.value.summaryTime,
+                                                    dataUsage: doc.value.dataUsage
+                                                })
+                                            }
+                                        })
+                                    }
+
+                                    if (index == docs.total_rows - 1) {
+                                        console.log('end of loop, ready!');
+                                        chrome.storage.local.set({
+                                            ['summary']: { 'last': moment().valueOf(), 'rows': days }
+                                        });
+                                        callback(days);
+                                    }
                                 });
                             });
                         } else {

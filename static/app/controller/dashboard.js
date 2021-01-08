@@ -1,34 +1,118 @@
 angular.module('app.controller.dashboard', [])
-    .controller('dashboardController', function ($scope, $rootScope, $filter, $timeout, $http, moment, storage, CONFIG) {
+    .controller('dashboardController', function ($scope, $rootScope, $filter, $timeout, pounch, moment, storage, CONFIG) {
+        Array.prototype.forEachAsync = async function (fn) {
+            for (let t of this) { await fn(t) }
+        }
+
+        Array.prototype.forEachAsyncParallel = async function (fn) {
+            await Promise.all(this.map(fn));
+        }
+
         $scope.model = {
             charts: {
                 traffic: {},
                 scatter: {}
+            },
+            week_of_days: [],
+            domain_by_day: [],
+            usability: [],
+            cumulative_usage:[],
+            usabilitys: [],
+        };
+        $scope.run = {
+            init: () => {
+                pounch.summaryBuild(build => {
+                    $scope.run.start(build.sort((a, b) => { return b.day - a.day }));
+                });
+            },
+            start: args => {
+                // 30일 데이터만 수집?
+                console.log(args);
+                $scope.model.days =
+                    Array(30).fill(0).map((_e, idx) => idx).reduce((a, b) => {
+                        a.push(moment('' + args[0].day).add(-b, 'day').format("YYYYMMDD"));
+                        return a;
+                    }, []);
+                var weeks = $scope.model.days.slice(0, 7).reverse()
+                var monthly = $scope.model.days.reverse(); //Usability
+
+                var wsize = weeks.length - 1;
+                // 날짜에 데이터 넣기
+                var reduce = args.reduce((a, b) => {
+                    var idx = weeks.indexOf('' + b.day);
+                    idx = idx == -1 ? 0 : idx;
+                    a[0].splice(idx, 0, b.summary);
+                    a[1].splice(idx, 0, b.dataUsage);
+                    a[2].splice(idx, 0, b.counter);
+                    return a;
+                }, [new Array(wsize).fill(0), // times
+                new Array(wsize).fill(0), // traffic
+                new Array(wsize).fill(0)]); // count
+
+                console.log(reduce);
+                $scope.model.charts.times = { 'option': chart(weeks, reduce[0]), 'click': null };
+                $scope.model.charts.traffic = { 'option': chart(weeks, reduce[1]), 'click': null };
+                $scope.model.charts.count = { 'option': chart(weeks, reduce[2]), 'click': null };
+
+                // 30일간 사용된 도메인 목록
+                var domains = args
+                    .filter(a => '' + a.day >= monthly[0] && a.day <= monthly[monthly.length - 1])
+                    .reduce((a, b) => {
+                        a = a.concat(b.url)
+                        return a;
+                    }, []);
+                domains = Array.from(new Set(domains));
+                pounch.getdocs(domains).then(docs => {
+                    var usability = docs.results.reduce((acc, doc) => {
+                        // console.log(doc);
+                        var sum = { url: doc.id, count: 0, summary: 0, dataUsage: 0, rate: [0, 0, 0] };
+                        doc.docs[0]['ok'].value.days
+                            .filter(a => '' + a.date >= monthly[0] && a.date <= monthly[monthly.length - 1])
+                            .forEach(e => {
+                                sum['dataUsage'] += e.dataUsage;
+                                sum['summary'] += e.summary;
+                                sum['count'] += e.counter;
+                            });
+                        sum.rate = percent(sum.count * 10, sum.summary, sum.dataUsage / 1000000);//.join(',');
+                        acc.push(sum);
+                        return acc;
+                    }, []);
+                    // cache..
+                    $scope.model.usabilitys = usability;
+                    $scope.model.usability = $scope.model.usabilitys.sort((a, b) => { return b.dataUsage - a.dataUsage }).slice(0, 5);
+                    $scope.model.cumulative_usage = $scope.model.usabilitys.sort((a, b) => { return b.dataUsage - a.dataUsage }).slice(0, 5);
+                });
             }
         }
 
         $timeout(function () {
-            $scope.model.charts.times = { 'option': chart(), 'click': null };
-            $scope.model.charts.traffic = { 'option': chart(), 'click': null };
-            $scope.model.charts.count = { 'option': chart(), 'click': null };
             $scope.model.charts.limit = { 'option': chart(), 'click': null };
 
             $scope.model.charts.monthly = { 'option': chart2(), 'click': null };
             $scope.model.charts.scatter = { 'option': chart3(), 'click': null };
         }, 0.2 * 1000);
 
+        $scope.run.init();
+
+        // var percent = (count, times, usaged) => {
+        //     var sum = count + times + usaged;
+        //     return [Math.round( (count / sum) * 100),
+        //     Math.round( (times / sum) * 100),
+        //     Math.round( (usaged / sum) * 100)]
+        // };
+        // percent(18,370,753153).
         function percent(count, times, usaged) {
             var sum = count + times + usaged;
-            return [Math.round(count / sum * 100),
-            Math.round(count / sum * 100),
-            Math.round(count / sum * 100)];
+            return [((count / sum) * 100).toFixed(0),
+            ((times / sum) * 100).toFixed(0),
+            ((usaged / sum) * 100).toFixed(0)]
         };
 
-        function chart(key, series) {
+        function chart(days, data) {
             return {
                 xAxis: {
                     type: 'category',
-                    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    data: days,
                     show: true
                 },
                 yAxis: {
@@ -38,13 +122,18 @@ angular.module('app.controller.dashboard', [])
                 },
                 tooltip: {
                     trigger: 'axis',
-                    formatter: series => { return '' },
+                    formatter: _series => { return '' },
                     axisPointer: {
                         type: 'cross',
                         crossStyle: {
                             color: '#999'
                         }
                     }
+                },
+                axisLabel: {
+                    formatter: t => $filter('formatDate')(t, 'ddd')
+                    // moment(mydate).format('ddd')
+                    // $filter('formatDate')(t, 'MM월DD일')
                 },
                 legend: {
                     padding: 0,
@@ -53,18 +142,19 @@ angular.module('app.controller.dashboard', [])
                 },
                 grid: {
                     left: 10,
-                    top: 4,
+                    top: 10,
                     right: 6,
                     bottom: 18
                 },
                 series: [{
-                    data: Array.from({ length: 7 }, () => Math.floor(Math.random() * 500)),
+                    data: data,
+                    // Array.from({ length: 7 }, () => Math.floor(Math.random() * 500)),
                     type: 'line',
                     symbolSize: 0,
                     smooth: true,
                     lineStyle: {
                         color: '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6),
-                        width: 4
+                        width: 3
                     }
                 }]
             }
@@ -144,7 +234,7 @@ angular.module('app.controller.dashboard', [])
                     }
                 },
                 yAxis: {
-                    show:false,
+                    show: false,
                     scale: true,
                     max: 3600,
                     // minInterval: 60,
@@ -157,20 +247,20 @@ angular.module('app.controller.dashboard', [])
                     }
                 },
                 series:
-                [
-                    {
-                    type: 'effectScatter',
-                    symbolSize: 5,
-                    data: [
-                        [21, 1543],
-                        [12, 900]
-                    ]
-                },
-                 {
-                    type: 'scatter',
-                        data: Array.from({ length: 350 }, () =>
-                            [Math.floor(Math.random() * 25), Math.floor(Math.random() * 3600)]),
-                }]
+                    [
+                        {
+                            type: 'effectScatter',
+                            symbolSize: 5,
+                            data: [
+                                [21, 1543],
+                                [12, 900]
+                            ]
+                        },
+                        {
+                            type: 'scatter',
+                            data: Array.from({ length: 350 }, () =>
+                                [Math.floor(Math.random() * 25), Math.floor(Math.random() * 3600)]),
+                        }]
             }
         }
     })

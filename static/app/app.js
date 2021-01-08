@@ -90,6 +90,7 @@ app.directive('elastic', [
 
 app.constant('CONFIG', {
 	// 'URI': 'http://34.83.116.28:8080/api/v1',
+	'COUCHDB_REMOTE_URI':'http://34.83.116.28:5984',
 	'IDENTITY': 'dentity',
 	'URI':'http://172.24.69.139:8080/api/v1',
 	'BUCKET': 'bucket_$$$',

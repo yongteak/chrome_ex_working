@@ -6,9 +6,6 @@ angular.module('app.controller.status', [])
         // 우선 언어 관련 페이지에 다 집어넣자
         moment.locale(window.navigator.language.split('-')[0]);
         console.log(moment().subtract(3, 'days').calendar());
-
-
-
         // var week_range = [];
         $scope.model = {
             rows: [], todal_times: 0, summary: {}, interval_summary: [],
@@ -27,6 +24,7 @@ angular.module('app.controller.status', [])
         $scope.param1 = null;
         $scope.run = {
             check: () => {
+                console.log('^check');
                 // domain_by_day
                 pounch.summaryBuild(res => {
                     if (res == 'tab_is_not_found') {
@@ -40,18 +38,18 @@ angular.module('app.controller.status', [])
             },
             init: (domain_by_day) => {
                 console.log('^init');
+                console.log(domain_by_day);
                 var week_of_start = moment().startOf('week').format("YYYYMMDD");
                 var week_of_end = moment(week_of_start).endOf('week').format("YYYYMMDD");
                 var diff = moment(week_of_end).diff(moment(week_of_start), 'days') + 1;
                 for (var i = 0; i < diff; i++) {
                     $scope.model.times.weeks.push(moment(week_of_start).add(i, 'day').format("YYYYMMDD"));
-                }
+                };
                 var domains = domain_by_day
                     .filter(s => $scope.model.times.weeks.includes('' + s.day))
                     .reduce((acc, cur) => acc.concat(cur.url), []);
-
                 // 과거 날짜에도 도메인이 포함되어 있으므로 날짜 필터링 추가 필요
-                pounch.getdocs(CONFIG.STORAGE_TABS, domains).then(items => {
+                pounch.getdocs(domains).then(items => {
                     items.results.forEach((tab, i, a) => {
                         tab = tab.docs[0]['ok'].value;
                         tab.days.forEach((t1, _i, _a) => {
@@ -215,7 +213,7 @@ angular.module('app.controller.status', [])
                     });
                     // 최근 30일 차트 데이터 생성
                     // 시작일,마지막일
-                    pounch.getdoc(CONFIG.STORAGE_TABS, row.url).then(tab => {
+                    pounch.getdoc(row.url).then(tab => {
                         tab = tab.value;
                         m.counter = tab.counter;
                         m.dataUsage = tab.dataUsage;
@@ -264,28 +262,6 @@ angular.module('app.controller.status', [])
             }
         }
 
-        // $scope.run.init();
-        $scope.run.check();
-
-        $scope.all = function () {
-            // $scope.model.totals.times = 0;
-            storage.getValue(CONFIG.STORAGE_TABS, rows => {
-                rows.forEach(e => {
-                    e.part = {
-                        counter: e.counter,
-                        dataUsage: e.dataUsage,
-                        summary: e.summaryTime
-                    }
-                    $scope.model.total_times += e.part.summary;
-                });
-                rows = rows.sort(function (a, b) {
-                    return b.part.summary - a.part.summary;
-                });
-                $scope.model.rows = rows;
-                // console.log(rows);
-                $scope.$apply();
-            })
-        }
         $scope.today = day => {
             // $scope.model.domain_by_day
             day = day || moment().format('YYYYMMDD');
@@ -294,12 +270,11 @@ angular.module('app.controller.status', [])
                 .split(' ')
                 .filter((_, idx) => { return idx < 4 }).join(' ');
 
-            console.log($scope.model.domain_by_day);
             var domains = $scope.model.domain_by_day
                 .find(s => '' + s.day == day).url;
 
 
-            pounch.getdocs(CONFIG.STORAGE_TABS, domains).then(items => {
+            pounch.getdocs(domains).then(items => {
                 var tabs = [];
                 $scope.model.totals.times = 0;
                 $scope.model.totals.dataUsage = 0;
@@ -321,6 +296,8 @@ angular.module('app.controller.status', [])
                 $scope.model.rows = tabs;
             });
         }
+
+        $scope.run.check();
 
         function chart(key, value) {
             return {
