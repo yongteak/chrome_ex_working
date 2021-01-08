@@ -32,7 +32,7 @@ angular.module('app.controller.setting', [])
         //             //             // HTTP error, cosmic rays, etc.
         //             //         }
         //             //     }
-        //             //     var local = new PouchDB(CONFIG.STORAGE);
+        //             //     var local = new PouchDB(CONFIG.CONFIG.STORAGE);
         //             //     local.sync(db, { live: true, retry: true }).on('error', console.log.bind(console));
         //             // });
         //         }

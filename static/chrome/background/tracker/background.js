@@ -69,12 +69,15 @@ function updateStorage() {
 }
 
 function backgroundCheck() {
+    const today = formatDate();
     chrome.windows.getLastFocused({ populate: true }, function (currentWindow) {
         if (currentWindow.focused) {
             var activeTab = currentWindow.tabs.find(t => t.active === true);
             if (activeTab !== undefined && activity.isValidPage(activeTab)) {
                 var activeUrl = activity.extractHostname(activeTab.url);
                 var tab = activity.getTab(activeUrl);
+                // [2021-01-08 15:45:30]
+                // db저장시간이 오래걸릴경우 문제생김
                 if (tab === undefined) {
                     db.tabs.get(activeUrl).then(doc => {
                         // 기존 데이터가 있는경우 push
@@ -147,7 +150,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
             storage.saveValue(STORAGE_RESTRICTION_ACCESS_LIST, setting_restriction_access_list);
         }
     } else {
-        if (currentTab !== tab.url) {
+        if (tab && tab.hasOwnProperty('url') && currentTab !== tab.url) {
             activity.setCurrentActiveTab(tab.url);
         }
         getCurrentlyViewedTabId()
@@ -163,6 +166,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
                 // tab생성과 summary호출 간격이 짧으면 오류 발생함
                 if (day !== undefined) {
                     var summary = day.summary;
+                    console.log('summary >', summary);
                     // var data = bytesToSize(activity.getDataUsaged(tab));
                     chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
                     chrome.browserAction.setBadgeText({
@@ -171,6 +175,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
                         text: String(convertSummaryTimeToBadgeString(summary))
                     });
                 } else {
+                    console.error('day not found!', day);
                 }
 
             })
@@ -324,28 +329,25 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
 }
 
 function backgroundUpdateStorage() {
+    if (!tabs) return;
     const api = db.tabs;
     const copy = JSON.parse(JSON.stringify(tabs));
     copy.forEach(tab => {
         var variable = tab;
         (function (t) {
+            // console.log('tab 저장..',t.url);
             api.get(t.url).then(doc => {
                 api.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
-                }).catch(err => {
-                    console.error(err);
-                    console.log(doc, t);
-                });
+                }).catch(console.error);
             }).catch(_err => {
                 api.put({ '_id': t.url, 'value': t }).then(res => {
-                }).catch(err => {
-                    console.error(err);
-                    console.log(t);
-                });
+                }).catch(console.error);
             });
         })(variable)
     })
     // 사본 생성후 가장 마지막 항목만 남기고 제거
-    tabs = [];//tabs.slice(tabs.length-1,tabs.length);
+    tabs = tabs.slice(tabs.length - 1, tabs.length);
+    console.log('tabs 저장완료, size > ', tabs.length)
 }
 
 function setDefaultSettings() {
@@ -382,6 +384,7 @@ function addListener() {
                             tabs.push(prevTab(doc.value));
                         }).catch(err => {
                             activity.addTab(tab);
+                            backgroundUpdateStorage();
                         });
                     }
                 }
@@ -508,6 +511,7 @@ function getCurrentlyViewedTabId() {
     });
 }
 
+// db에서 과거 데이터를 로드하면 그 뒤에 새로운 데이터를 추가함
 function prevTab(tab) {
     return new Tab(tab.url,
         tab.category,
@@ -617,9 +621,9 @@ var pounch;
 function reload() {
     pounch = new PouchStorage(function (instance) {
         db = {
-            'tabs': new instance('tabs',{revs_limit: 1, auto_compaction: true}),
-            'status': new instance('status',{revs_limit: 1, auto_compaction: true}),
-            'blocklist': new instance('blocklist',{revs_limit: 1, auto_compaction: true})
+            'tabs': new instance('tabs', { revs_limit: 1, auto_compaction: true }),
+            'status': new instance('status', { revs_limit: 1, auto_compaction: true }),
+            'blocklist': new instance('blocklist', { revs_limit: 1, auto_compaction: true })
         };
         tabs = [];
     });

@@ -12,13 +12,13 @@ angular.module('app.controller.category', [])
                 // 서버에서 동기화된 tab
                 pounch.alldocs(CONFIG.STORAGE_TABS, true).then(docs => {
                     var args = [];
+                    console.log(docs);
                     if (docs.total_rows > 0) {
+                        // console.log(docs.rows);
                         docs.rows.forEach((d, index) => {
-                            // 정기적으로 업로드될때 사용자 id: 카테고리 code 정보를 서버에서 관리함
-                            //
-                            var code = d.doc.value.category_code || '000';
-                            // args.push({ code: code, url: d.doc.value.url });
-                            args.push(d.doc.value.url);
+                            if (d.id !== CONFIG.BUCKET) {
+                                args.push(d.doc.value.url);
+                            }
                             if (index == docs.total_rows - 1) {
                                 $scope.run.start(args);
                             }

@@ -75,7 +75,7 @@ function pounch($q, CONFIG) {
         // check!
         create_bucket: () => {
             var deferred = $q.defer();
-            new PouchDB(CONFIG.STORAGE, { revs_limit: 1, auto_compaction: true })
+            new PouchDB(CONFIG.STORAGE_TABS, { revs_limit: 1, auto_compaction: true })
                 .put({
                     _id: CONFIG.BUCKET,
                     "setting_view_time_in_badge": null,
@@ -92,7 +92,7 @@ function pounch($q, CONFIG) {
         },
         getbucket: (key) => {
             var deferred = $q.defer();
-            new PouchDB(CONFIG.STORAGE, { revs_limit: 1, auto_compaction: true }).get(CONFIG.BUCKET)
+            new PouchDB(CONFIG.STORAGE_TABS, { revs_limit: 1, auto_compaction: true }).get(CONFIG.BUCKET)
                 .then(items => {
                     deferred.resolve(items[key])
                 })
@@ -102,7 +102,7 @@ function pounch($q, CONFIG) {
         setbucket: (key, value) => {
             var prepDoc = prepareDoc(key, value);
             var deferred = $q.defer();
-            var db = new PouchDB(CONFIG.STORAGE, { revs_limit: 1, auto_compaction: true });
+            var db = new PouchDB(CONFIG.STORAGE_TABS, { revs_limit: 1, auto_compaction: true });
             db.get(CONFIG.BUCKET)
                 .then(doc => {
                     doc[key] = value;

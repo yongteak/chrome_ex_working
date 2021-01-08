@@ -94,7 +94,6 @@ app.constant('CONFIG', {
 	'URI':'http://172.24.69.139:8080/api/v1',
 	'BUCKET': 'bucket_$$$',
 
-	'STORAGE': 'couch',
 	'STORAGE_TABS': 'tabs',
 	'STORAGE_SETTINGS_VIEW_TIME_IN_BADGE': 'setting_view_time_in_badge',
 	// 추적 금지
