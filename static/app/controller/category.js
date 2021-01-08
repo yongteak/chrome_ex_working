@@ -1,9 +1,10 @@
 angular.module('app.controller.category', [])
-    .controller('categoryController', function ($scope, $log, $rootScope, $filter, identity, $http, moment, pounch, CONFIG) {
+    .controller('categoryController', function ($scope, $window, $rootScope, $filter, identity, $http, moment, pounch, CONFIG) {
         $scope.model = {
             options: {
                 category: []
             },
+            select:[],
             rows: []
         };
         $scope.run = {
@@ -43,6 +44,11 @@ angular.module('app.controller.category', [])
                                     return acc;
                                 }, {});
                                 $scope.model.rows = response.result_data;
+                                $scope.model.rows.forEach( (e,index) => {
+                                    $scope.model.select[index] = e.code || "000";
+                                });
+                                // console.log($scope.model.select);
+                                // $scope.model.select
                                 console.log($scope.model.rows);
                             } else {
                                 alert('서버 오류');
@@ -68,13 +74,7 @@ angular.module('app.controller.category', [])
                         }).then(response => {
                             response = response.data;
                             if (response.result_msg == "STATUS_NORMAL") {
-                                $scope.model.options.category = $rootScope['category'];
-                                $scope.model.kv = $scope.model.options.category.data.reduce((acc, cur) => {
-                                    acc[cur.code] = { ko: cur.ko, en: cur.en };
-                                    return acc;
-                                }, {});
-                                $scope.model.rows = response.result_data;
-                                console.log($scope.model.rows);
+                                console.log(response.result_data);
                             } else {
                                 alert('서버 오류');
                             }
@@ -83,6 +83,9 @@ angular.module('app.controller.category', [])
                         alert('사용자 정보가 존재하지 않습니다.');
                     }
                 })
+            },
+            open:url => {
+                $window.open('https://'+url);
             }
         };
         $scope.run.init();
