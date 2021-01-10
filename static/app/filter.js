@@ -39,8 +39,11 @@ angular.module('app.filter', [])
     // 'YYYY-MM-DD HH:mm:ss'
     .filter('secondToFormat', function () {
         return function (sec, format) {
-            format = format || 'DD일hh시간mm분ss초';
-            return moment.utc(sec * 1000).format(format);
+            // format = format || 'H시간mm분ss'//'DD일hh시간mm분ss초';
+            format = (sec < 60) ? 'ss초' : (sec < 60*60) ? 'mm분ss초': 'H시간mm분';
+            return moment().startOf('day').seconds(sec).format(format);
+            // moment().startOf('day').seconds(sec).format(format)
+            // return moment.utc(sec * 1000).format(format);
         }
     })
 
@@ -283,6 +286,19 @@ angular.module('app.filter', [])
             }
             return rh(a) + rh(b) + rh(c) + rh(d);
         }
+    })
+    .filter('category_code_to_name', function ($rootScope) {
+        return function (code,lang) {
+            lang = lang || 'ko';
+            code = code || '000';
+            return $rootScope['category_kv'][code][lang];
+        };
+    })
+    .filter('category_code_to_color', function ($rootScope) {
+        return function (code) {
+            code = code || '000';
+            return $rootScope['category_kv'][code]['color'];
+        };
     })
     .filter('country_to_name', function ($rootScope) {
         return function (country_code, field) {

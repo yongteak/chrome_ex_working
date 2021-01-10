@@ -20,7 +20,7 @@ angular.module('app.controller.setting', [])
             db.login(id, pw)
                 .then(res => {
                     console.log('login > ',res);
-                    sync();
+                    sync(db);
                 }).catch(err => {
                     if (err.name == 'unauthorized') {
                         join()
@@ -28,18 +28,18 @@ angular.module('app.controller.setting', [])
                 })
         }
 
-        function sync() {
+        function sync(db) {
             console.log('start sync!')
             var local = new PouchDB(CONFIG.STORAGE_TABS);
             local.sync(db, {
                 live: true, retry: true
             })
-                .on('change', console.log)
-                .on('paused', console.log)
-                .on('active', console.log)
-                .on('denied', console.log)
-                .on('complete', console.log)
-                .on('error', console.error);
+            .on('change', console.log)
+            .on('paused', console.log)
+            .on('active', console.log)
+            .on('denied', console.log)
+            .on('complete', console.log)
+            .on('error', console.error);
         }
 
         login();

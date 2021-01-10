@@ -4,7 +4,7 @@ angular.module('app.indexer', [])
             domain_by_day: callback => {
                 return chrome.storage.local.get('summary', function (item) {
                     var empty = Object.keys(item).length === 0 && item.constructor === Object;
-                    if (empty || moment().valueOf() - item.summary.last > 5000) {
+                    if (empty || moment().valueOf() - item.summary.last > 1000 * 60 * 60) {
                         pounch.alldocs('tabs').then(docs => {
                             if (docs.total_rows > 0) {
                                 var days = [];

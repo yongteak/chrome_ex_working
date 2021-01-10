@@ -24,18 +24,27 @@ app.run(function ($rootScope,identity,pounch, storage, CONFIG) {
 	// 			.catch(err => { console.log(err) });
 	// 	}).catch(e => console.error(e))
 	// 혹시 몰라
-	pounch.create_bucket()
-		.then(console.log)
-		.catch(console.error);
+	// pounch.create_bucket()
+	// 	.then(console.log)
+	// 	.catch(console.error);
+	// pounch.cleanbucket()
+	// 	.then(console.log)
+	// 	.catch(console.error);
 
 	fetch(chrome.extension.getURL('static/assets/resource/iso-3166-countries-with-regional-codes.json'))
 		.then(resp => resp.json())
 		.then(jsonData => $rootScope['countries'] = jsonData);
 	fetch(chrome.extension.getURL('static/assets/resource/category.json'))
 		.then(resp => resp.json())
-		.then(jsonData => {
-			console.log(jsonData)
-			$rootScope['category'] = jsonData
+		.then(cate => {
+			// console.log($rootScope['category_kv']);
+			$rootScope['category'] = cate.data;
+			$rootScope['category_kv'] = cate.data.reduce((acc, cur) => {
+				acc[cur.code] = { ko: cur.ko, en: cur.en, color:cur.color };
+				return acc;
+			}, {});
+			// console.log('111111',rows);
+
 		});
 	fetch(chrome.extension.getURL('static/assets/resource/timezone.json'))
 		.then(resp => resp.json())
@@ -112,7 +121,7 @@ app.constant('CONFIG', {
 	// 'URI':'http://172.24.69.139:8080/api/v1',
 	'URI':'http://localhost:8080/api/v1',
 	'BUCKET': 'bucket_$$$',
-
+	'SECOND_OF_DAY' : 60*60*24,
 	'STORAGE_TABS': 'tabs',
 	'STORAGE_SETTINGS_VIEW_TIME_IN_BADGE': 'setting_view_time_in_badge',
 	// 추적 금지

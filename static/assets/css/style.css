@@ -1,3 +1,8 @@
+.small_text {
+  font-size:smaller
+}
+
+
 .hidden{
   display: none !important;
 }

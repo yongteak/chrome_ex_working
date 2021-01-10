@@ -1,27 +1,5 @@
 angular.module('app.controller.sync', [])
     .controller('syncController', function ($scope, $rootScope, $http, $filter, pounch, identity, storage, CONFIG, COLLECTIONS) {
-
-        // var tz = $rootScope['timezone'];
-        // var ltz = $rootScope['local_timezone'];
-        // var u1 = tz.filter(z => { return z.abbr === 'UTC'});
-        // var u2 = tz.filter(z => { return z.utc.find(x => x === ltz) });
-        // storage.getValue(CONFIG.STORAGE_TABS, tabs => {
-        //     console.log(tabs);
-        //     pounch.setTabs(CONFIG.STORAGE_TABS,null,tabs,true).then(res => {
-        //         console.log(res);
-        //     });
-        // });
-        // pounch.clear(CONFIG.STORAGE_TABS).then(res => {
-        //     console.log('clear tabs > ', res);
-        // });
-            // pounch.getData(CONFIG.STORAGE_TABS, 'news.google.com').then(items => {
-            //     console.log('clien getData > ', items);
-            // })
-        // });
-
-        //
-
-
         $scope.model = {
             rows: [
                 { from: '로컬', to: '크롬', direction: 'local_to_chrome', count: 0, last: 0, repeat_min: 5, sync_enabled: true },
@@ -96,6 +74,11 @@ angular.module('app.controller.sync', [])
         storage.getValue('similarweb', item => $scope.model.similarweb = item || []);
 
         $scope.run = {
+            sync_catetory: () => {
+                // /api/v1/analytics/category?lite=true
+                // 로컬 도메인 목록 조회
+
+            },
             open_tab: () => {
                 $http({
                     url: CONFIG.URI + '/system/queue/analytics/10',
@@ -132,6 +115,59 @@ angular.module('app.controller.sync', [])
                 $scope.model.similarweb1 = [];
             },
             getIdentity: () => {
+                storage.getValue(CONFIG.IDENTITY,user => {
+                    const user_id = user.id;
+
+                    pounch.alldocs(CONFIG.STORAGE_TABS, true).then(docs => {
+                        if (docs.total_rows > 0) {
+                            var source = [];
+                            var source_kv = {};
+                            docs.rows.forEach((row, index) => {
+                                if (row.id !== CONFIG.BUCKET) {
+                                    var epoch = row.doc.value.hasOwnProperty('category_epoch')
+                                        ? row.doc.value.category_epoch : true;
+                                    // console.log(epoch);
+                                    if (epoch == true || moment().valueOf() - epoch >= CONFIG.SECOND_OF_DAY * 1000) {
+                                        // console.log(epoch,moment().valueOf() - epoch)
+                                        console.log(row)
+                                        source.push(row.id);
+                                        source_kv[row.id] = row.doc;
+                                    }
+                                }
+                                if (false && source.length >= 1 && index == docs.total_rows - 1) {
+                                    $http({
+                                        url: CONFIG.URI + '/analytics/category?lite=true',
+                                        method: "POST",
+                                        data: { urls: source, user_id: user_id }
+                                    }).then(response => {
+                                        response = response.data;
+                                        if (response.result_msg == "STATUS_NORMAL") {
+                                            // console.log(response.result_data);
+                                            // console.log(source_kv);
+                                            var new_docs = response.result_data.reduce( (acc,cur) => {
+                                                var kv = source_kv[cur.url];
+                                                kv.value.category_epoch = moment().valueOf();
+                                                kv.value.category_code = cur.code;
+                                                var new_doc = {_id:kv._id, _rev:kv._rev, value:kv.value};
+                                                acc.push(new_doc);
+                                                return acc;
+                                            }, []);
+                                            pounch.setdocs(new_docs)
+                                                .then(res=>{
+                                                    console.log('카테고리 동기화 완료!', res);
+                                                }).catch(console.error)
+                                        } else {
+                                            alert('서버 오류');
+                                        }
+                                    }).catch(e =>{
+                                        console.log(e);
+                                    })
+                                }
+                            });
+                        }
+                    })
+                })
+
                 storage.getValue(CONFIG.IDENTITY, item => {
                     if (item == undefined) {
                         identity.getUserID(userInfo => {

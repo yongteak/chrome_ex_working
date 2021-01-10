@@ -18,7 +18,6 @@ angular.module('app.pounch', [])
                         value.forEach(t =>
                             docs.push($filter('prepareDoc')(t.url, t))
                         );
-                        console.log('000000',docs[0]);
                         db.bulkDocs(docs)
                             .then(deferred.resolve)
                             .catch(deferred.resolve);
@@ -66,20 +65,31 @@ angular.module('app.pounch', [])
             },
             // check!
             create_bucket: () => {
+                // var deferred = $q.defer();
+                // var db = new PouchDB('tabs', { revs_limit: 1, auto_compaction: true });
+                // db.get('bucket_$$$')
+                //     .then(deferred.resolve)
+                //     .catch(e=>{
+                //         db.put({
+                //             _id: 'bucket_$$$',
+                //             "setting_view_time_in_badge": null,
+                //             "black_list": [],
+                //             "restriction_list": [],
+                //             "restriction_access_list": [],
+                //             "alarm_list": [],
+                //             "sync_history": [],
+                //             "notification_list": []
+                //         }, { force: false })
+                //     })
+                // return deferred.promise;
+            },
+            cleanbucket: () => {
                 var deferred = $q.defer();
-                new PouchDB('tabs', { revs_limit: 1, auto_compaction: true })
-                    .put({
-                        _id: 'bucket_$$$',
-                        "setting_view_time_in_badge": null,
-                        "black_list": [],
-                        "restriction_list": [],
-                        "restriction_access_list": [],
-                        "alarm_list": [],
-                        "sync_history": [],
-                        "notification_list": []
-                    }, { force: false })
+                var db = new PouchDB('tabs', { revs_limit: 1, auto_compaction: true });
+                db.get('bucket_$$$')
+                    .then(doc => {return db.remove(doc)})
                     .then(deferred.resolve)
-                    .catch(deferred.resolve);
+                    .catch(deferred.reject);
                 return deferred.promise;
             },
             getbucket: (key) => {
@@ -92,7 +102,7 @@ angular.module('app.pounch', [])
                 return deferred.promise;
             },
             setbucket: (key, value) => {
-                var prepDoc = $filter('prepareDoc')(key, value);
+                // var prepDoc = $filter('prepareDoc')(key, value);
                 var deferred = $q.defer();
                 var db = new PouchDB('tabs', { revs_limit: 1, auto_compaction: true });
                 db.get('bucket_$$$')
@@ -126,6 +136,14 @@ angular.module('app.pounch', [])
                             .then(deferred.resolve)
                             .catch(deferred.resolve);
                     });
+                return deferred.promise;
+            },
+            setdocs: (docs) => {
+                var deferred = $q.defer();
+                new PouchDB('tabs', { revs_limit: 1, auto_compaction: true })
+                    .bulkDocs(docs)
+                    .then(deferred.resolve)
+                    .catch(deferred.resolve);
                 return deferred.promise;
             },
             removeData: function (key) {

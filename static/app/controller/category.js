@@ -11,7 +11,7 @@ angular.module('app.controller.category', [])
             newRows: [],
             paginate: {
                 currentPage:1,
-                numPerPage:20,
+                numPerPage:8,
                 total:0,
                 pageSize:10, // 페이징 버튼 갯수
                 limit:0,
@@ -64,14 +64,15 @@ angular.module('app.controller.category', [])
                             response = response.data;
                             if (response.result_msg == "STATUS_NORMAL") {
                                 $scope.model.options.category = $rootScope['category'];
-                                $scope.model.kv = $scope.model.options.category.data.reduce((acc, cur) => {
-                                    acc[cur.code] = { ko: cur.ko, en: cur.en };
-                                    return acc;
-                                }, {});
+                                $scope.model.kv = $rootScope['category_kv'];
+                                // $scope.model.options.category.data.reduce((acc, cur) => {
+                                //     acc[cur.code] = { ko: cur.ko, en: cur.en };
+                                //     return acc;
+                                // }, {});
                                 $scope.model.rows = response.result_data;
                                 $scope.model.paginate.total = $scope.model.rows.length;
                                 $scope.model.rows.forEach((e, index) => {
-                                    e.index = $scope.model.paginate.total - index;
+                                    e.index = index;//$scope.model.paginate.total - index;
                                     $scope.model.select[index] = e.code || "000";
                                 });
                                 // console.log($scope.model.select);
@@ -93,7 +94,8 @@ angular.module('app.controller.category', [])
             },
             selected: (row, code) => {
                 identity.getUserID(userInfo => {
-                    console.log(userInfo, row, code)
+                    // console.log(userInfo, row, code)
+                    console.log('req => http',code);
                     if (userInfo.hasOwnProperty('id')) {
                         $http({
                             url: CONFIG.URI + '/analytics/category',
@@ -103,6 +105,11 @@ angular.module('app.controller.category', [])
                             response = response.data;
                             if (response.result_msg == "STATUS_NORMAL") {
                                 console.log(response.result_data);
+                                // var index = $scope.model.rows.map(m => m.url).indexOf(row.url);
+                                // row.code = code;
+                                $scope.model.rows[row.index].code = code;
+                                console.log('res => http',code,);
+                                // console.log($scope.model.rows[0],$scope.model.rows[row.index]);
                             } else {
                                 alert('서버 오류');
                             }
