@@ -1,0 +1,30 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="cancel()">x</button>
+    <h4 class="modal-title" id="defModalHead"><strong>문의하기</strong> | 서비스사용에 불편함이나 문의사항을 질의해주세요.</h4>
+</div>
+
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-12">
+            <form name="registerform" ng-validate="validationOptions" class="form-horizontal">
+                <div class="form-group">
+                    <code>필수</code> <label>회신받으실 이메일 주소를 입력해주세요.</label>
+                    <input name="email" ng-model="model.email" class="form-control" placeholder="youremail@domain.com"
+                    >
+                </div>
+                <div class="form-group">
+                    <code>필수</code> <label>제목</label>
+                    <input name="title" ng-model="model.title" class="form-control" placeholder="제목을 입력해주세요.">
+                </div>
+                <div class="form-group">
+                    <code>필수</code> <label>내용</label>
+                    <textarea name="content" ng-model="model.content" class="form-control" placeholder="문의사항을 입력해주세요." rows="3"></textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button class="btn col-md-12 col-xs-12 btn-danger" ng-click="register(registerform)">웹서비스 관리자에게 문의하기</button>
+</div>

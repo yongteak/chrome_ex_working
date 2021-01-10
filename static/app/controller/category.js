@@ -1,12 +1,36 @@
 angular.module('app.controller.category', [])
+    .controller('AdminContactController', function ($scope, items) {
+    })
     .controller('categoryController', function ($scope, $window, $rootScope, $filter, identity, $http, moment, pounch, CONFIG) {
         $scope.model = {
             options: {
                 category: []
             },
-            select:[],
-            rows: []
+            select: [],
+            rows: [],
+            newRows: [],
+            paginate: {
+                currentPage:1,
+                numPerPage:20,
+                total:0,
+                pageSize:10, // 페이징 버튼 갯수
+                limit:0,
+                offset:0
+            }
         };
+
+        $scope.pageChanged = function () {
+            // console.log('currentPage', $scope.currentPage);
+            $scope.paginate($scope.model.rows,$scope.model.paginate.currentPage)
+        };
+
+        $scope.paginate = (rows,page_number) => {
+            console.log('paginate',$scope.model.paginate.total,page_number)
+            $scope.model.newRows = rows.slice((page_number - 1) * $scope.model.paginate.numPerPage,
+            page_number * $scope.model.paginate.numPerPage);
+            console.log($scope.model.newRows);
+        }
+
         $scope.run = {
             init: () => {
                 //
@@ -45,12 +69,15 @@ angular.module('app.controller.category', [])
                                     return acc;
                                 }, {});
                                 $scope.model.rows = response.result_data;
-                                $scope.model.rows.forEach( (e,index) => {
+                                $scope.model.paginate.total = $scope.model.rows.length;
+                                $scope.model.rows.forEach((e, index) => {
+                                    e.index = $scope.model.paginate.total - index;
                                     $scope.model.select[index] = e.code || "000";
                                 });
                                 // console.log($scope.model.select);
                                 // $scope.model.select
-                                console.log($scope.model.rows);
+                                // console.log($scope.model.rows);
+                                $scope.pageChanged();
                             } else {
                                 alert('서버 오류');
                             }
@@ -66,12 +93,12 @@ angular.module('app.controller.category', [])
             },
             selected: (row, code) => {
                 identity.getUserID(userInfo => {
-                    console.log(userInfo,row, code)
+                    console.log(userInfo, row, code)
                     if (userInfo.hasOwnProperty('id')) {
                         $http({
                             url: CONFIG.URI + '/analytics/category',
                             method: "PUT",
-                            data: { url: row.url, code:code, user_id: userInfo.id }
+                            data: { url: row.url, code: code, user_id: userInfo.id }
                         }).then(response => {
                             response = response.data;
                             if (response.result_msg == "STATUS_NORMAL") {
@@ -85,8 +112,8 @@ angular.module('app.controller.category', [])
                     }
                 })
             },
-            open:url => {
-                $window.open('https://'+url);
+            open: url => {
+                $window.open('https://' + url);
             }
         };
         $scope.run.init();

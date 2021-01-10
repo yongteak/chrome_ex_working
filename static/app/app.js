@@ -1,12 +1,28 @@
 var app = angular.module('app', [
+	'ui.bootstrap',
 	"ngRoute", "angular-echarts3", "angularMoment", "pouchdb",
 	'app.controllers', 'app.controller.sync', 'app.controller.setting',
 	'app.controller.status', 'app.controller.limit', 'app.controller.alarm',
 	'app.controller.data', 'app.controller.dashboard','app.controller.category',
-	'app.services', 'app.pounch', 'app.filter'
+	'app.services', 'app.pounch', 'app.indexer', 'app.filter'
 ]);
 
-app.run(function ($rootScope, identity, pounch, storage, CONFIG) {
+app.run(function ($rootScope,identity,pounch, storage, CONFIG) {
+	new PouchDB('tabs', { revs_limit: 1, auto_compaction: true }).allDocs({
+	}).then(e =>{
+		console.log('alldocs > ',e);
+	});
+
+	// fetch(chrome.extension.getURL('static/assets/resource/user.json'))
+	// 	.then(resp => resp.json())
+	// 	.then(docs => {
+	// 		// console.log(docs);
+	// 		pounch.setTabs(null, docs, true)
+	// 			.then(e => {
+	// 				console.log(e)
+	// 			})
+	// 			.catch(err => { console.log(err) });
+	// 	}).catch(e => console.error(e))
 	// 혹시 몰라
 	pounch.create_bucket()
 		.then(console.log)
@@ -90,9 +106,11 @@ app.directive('elastic', [
 
 app.constant('CONFIG', {
 	// 'URI': 'http://34.83.116.28:8080/api/v1',
-	'COUCHDB_REMOTE_URI':'http://34.83.116.28:5984',
+	'COUCHDB_REMOTE_URI':'http://localhost:5984',
+	// 'COUCHDB_REMOTE_URI':'http://34.83.116.28:5984',
 	'IDENTITY': 'dentity',
-	'URI':'http://172.24.69.139:8080/api/v1',
+	// 'URI':'http://172.24.69.139:8080/api/v1',
+	'URI':'http://localhost:8080/api/v1',
 	'BUCKET': 'bucket_$$$',
 
 	'STORAGE_TABS': 'tabs',
@@ -138,19 +156,6 @@ app.constant('COLLECTIONS', {
 	restriction_access_list: { name: '접근제한 도메인 접속 정보', desc: '접근제한 도메인 접속 정보' },
 	alarm_list: { name: '알람목록', desc: '알람목록' }
 })
-
-// app.run([
-//     '$rootScope', '$modalStack',
-//     function ($rootScope, $modalStack) {
-//         $rootScope.$on('$locationChangeStart', function (event) {
-//             var top = $modalStack.getTop();
-//             if (top) {
-//                 $modalStack.dismiss(top.key);
-//                 event.preventDefault();
-//             }
-//         });
-//     }
-// ])
 
 app.config(["$routeProvider", "$locationProvider", /*"$compileProvider", */
 	($routeProvider, /*$compileProvider,*/ $locationProvider) => {

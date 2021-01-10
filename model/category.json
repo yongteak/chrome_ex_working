@@ -1,28 +1,16 @@
-{
-    "result_dt": "2021-01-07 22:14:58",
-    "result_ts": 1610025298147,
-    "result_code": 0,
-    "result_msg": "STATUS_NORMAL",
-    "result_data": [
-        {
-            "url": "my_domain.com",
-            "code": "000",
-            "vote": {
-                "user_id": "xxx",
-                "code": "001",
-                "epoch": 3234234
-            },
-            "voters": 2
+[
+    {
+        "url": "your_domain.com",
+        "code": "022",
+        "votes": [{
+            "user_id": "xxx",
+            "code": "031",
+            "epoch": 3234234
         },
         {
-            "url": "your_domain.com",
-            "code": "022",
-            "vote": {
-                "user_id": "xxx",
-                "code": "031",
-                "epoch": 3234234
-            },
-            "voters": 2
-        }
-    ]
-}
+            "user_id": "__SYSTEM__",
+            "code": "031",
+            "epoch": 3234234
+        }]
+    }
+]

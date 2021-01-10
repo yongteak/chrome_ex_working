@@ -1,5 +1,14 @@
 angular.module('app.filter', [])
 
+    .filter('prepareDoc', function () {
+        return function (key, value) {
+            var doc = {};
+            doc['_id'] = key;
+            doc['value'] = value;
+            return doc;
+        };
+    })
+
     .filter('isEmpty', function () {
         return function (val) {
             return (val == undefined || val.length === 0 || !val.trim());
@@ -35,7 +44,7 @@ angular.module('app.filter', [])
         }
     })
 
-    .filter('dayForamyType', function () {
+    .filter('dayFormatType', function () {
         return function (day, type) {
             moment.locale(window.navigator.language.split('-')[0]);
             return moment(day + '').format('llll').split(' ').filter((_, idx) => { return idx < type }).join(' ');

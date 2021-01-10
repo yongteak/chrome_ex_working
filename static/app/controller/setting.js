@@ -6,37 +6,27 @@ angular.module('app.controller.setting', [])
         var id = '114916629141904173371';
         var pw = '114916629141904173371'.split("").reverse().join("");
 
-        var db = new PouchDB(CONFIG.COUCHDB_REMOTE_URI + '/114916629141904173371',
-            { skip_setup: true, revs_limit: 1, auto_compaction: true });
-        db.login(id, pw)
-            .then(res => {
-                console.log(res);
-                sync();
-            }).catch(err => {
-                if (err.name == 'unauthorized') {
-                    // 회원가입 시도후 계속 오류가 발생할경우 down
-                    db.signUp(id, pw)
-                        .then(res => {
-                            if (res.ok) {
-                                // login
-                                sync();
-                            }
-                        }).catch(console.error);
-                    //     console.log(err, response);
-                    //     if (err) {
-                    //         if (err.name === 'conflict') {
-                    //             // "batman" already exists, choose another username
-                    //         } else if (err.name === 'forbidden') {
-                    //             // invalid username
-                    //         } else {
-                    //             // HTTP error, cosmic rays, etc.
-                    //         }
-                    //     }
-                    // var local = new PouchDB(CONFIG.CONFIG.STORAGE);
-                    // local.sync(db, { live: true, retry: true }).on('error', console.log.bind(console));
-                    // });
-                }
-            });
+        function join() {
+            db.signUp(id, pw)
+                .then(res => {
+                    if (res.ok) {
+                        login();
+                    }
+                }).catch(console.error);
+        }
+        function login() {
+            var db = new PouchDB(CONFIG.COUCHDB_REMOTE_URI + '/114916629141904173371',
+                { skip_setup: true, revs_limit: 1, auto_compaction: true });
+            db.login(id, pw)
+                .then(res => {
+                    console.log('login > ',res);
+                    sync();
+                }).catch(err => {
+                    if (err.name == 'unauthorized') {
+                        join()
+                    }
+                })
+        }
 
         function sync() {
             console.log('start sync!')
@@ -51,6 +41,8 @@ angular.module('app.controller.setting', [])
                 .on('complete', console.log)
                 .on('error', console.error);
         }
+
+        login();
 
         $scope.model = {
             blacklist: [],

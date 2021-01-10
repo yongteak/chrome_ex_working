@@ -1,0 +1,10 @@
+[
+    {
+        "domain": "^*.github.com",
+        "code": "002"
+    },
+    {
+        "domain":"^*.aliexpress.com",
+        "code": "022"
+    }
+]

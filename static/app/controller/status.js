@@ -1,5 +1,5 @@
 angular.module('app.controller.status', [])
-    .controller('statusController', function ($scope, $rootScope, $filter, $timeout, $http, moment, storage, pounch, CONFIG) {
+    .controller('statusController', function ($scope, $filter, $timeout, $http, moment, storage, indexer,pounch, CONFIG) {
         // Array.prototype.sum = function () { return [].reduce.call(this, (a, i) => a + i.value, 0); }
         // console.log(moment().format('LL').split(' ').slice(1).join(' '));
         // [2020-12-25 03:09:52]
@@ -26,7 +26,7 @@ angular.module('app.controller.status', [])
             check: () => {
                 console.log('^check');
                 // domain_by_day
-                pounch.summaryBuild(res => {
+                indexer.domain_by_day(res => {
                     if (res == 'tab_is_not_found') {
                         // throw
                     } else {
