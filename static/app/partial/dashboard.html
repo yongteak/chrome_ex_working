@@ -6,7 +6,7 @@
           <span data-toggle="tooltip" data-placement="left" title="최근 일주일 데이터를 사용하며, 지난주 같은날 대비 오늘의 사용량을 %로 표시합니다.">
             <em class="mdi mdi-information-outline text-muted"></em> 사용시간
           </span>
-          <code class="text-danger">15.47%<em class="mdi mdi-arrow-up"></em></code>
+          <code class="dottedUnderline small_text text-gray">{{ model.sums.times | secondToFormat }}</code>
         </div>
         <div class="wrapper">
           <mw-chart style="width:100%;height:80%;top:0px;bottom:0px;left:0px;" ng-model="model.charts.times">
@@ -20,9 +20,9 @@
       <div class="grid-body">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 데이터 사용량
+            <em class="mdi mdi-information-outline text-muted"></em> 데이터량
           </span>
-          <code class="text-info">15.47%<em class="mdi mdi-arrow-down"></em></code>
+          <code class="dottedUnderline small_text text-gray">{{ model.sums.traffic | dataSizeToUnit }}</code>
         </div>
         <div class="wrapper">
           <mw-chart style="width:100%;height:80%;top:0px;bottom:0px;left:0px;" ng-model="model.charts.traffic">
@@ -36,9 +36,9 @@
       <div class="grid-body">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 사이트 접속량
+            <em class="mdi mdi-information-outline text-muted"></em> 접속횟수
           </span>
-          <code class="text-info">15.47%<em class="mdi mdi-arrow-down"></em></code>
+          <code class="dottedUnderline small_text text-gray">{{ model.sums.count | num_comma}}회</code>
         </div>
         <div class="wrapper">
           <mw-chart style="width:100%;height:80%;top:0px;bottom:0px;left:0px;" ng-model="model.charts.count">
@@ -52,9 +52,8 @@
       <div class="grid-body">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 추적금지 접속량
+            <em class="mdi mdi-information-outline text-muted"></em> ...
           </span>
-          <code class="text-info">15.47%<em class="mdi mdi-arrow-down"></em></code>
         </div>
         <div class="wrapper">
           <mw-chart style="width:100%;height:80%;top:0px;bottom:0px;left:0px;" ng-model="model.charts.limit">
@@ -68,9 +67,9 @@
       <div class="grid-body py-3">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 주간 사용량
+            <em class="mdi mdi-information-outline text-muted"></em> 일별 사용량
           </span>
-          <code class="text-danger">156시간25분</code>
+          <code class="dottedUnderline small_text text-gray">{{ model.sums.times | secondToFormat }}</code>
         </div>
       </div>
       <div class="mt-auto">
@@ -84,12 +83,15 @@
       <div class="grid-body py-3">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 주간 카테고리별
+            <em class="mdi mdi-information-outline text-muted"></em> 사용성 측정
           </span>
         </div>
       </div>
-      <div class="grid table-responsive">
-
+      <div class="mt-auto">
+        <br />
+        <br />
+        <mw-chart style="width:100%;height:280px;top:0px;bottom:0px;left:0px;" ng-model="model.charts.radar">
+        </mw-chart>
       </div>
     </div>
   </div>
@@ -98,7 +100,7 @@
       <div class="grid-body py-3">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 주간 누적 사용량 TOP 5
+            <em class="mdi mdi-information-outline text-muted"></em> 카테고리별 통계
           </span>
         </div>
       </div>
@@ -124,20 +126,23 @@
               </td>
               <td class="font-weight-medium text-center">
                 {{ row.summary | secondToFormat }}
-                <div>
+                <!-- <div>
                   <code class="small_text text-danger">15.47%<em class="mdi mdi-arrow-up"></em></code>
-                </div>
+                </div> -->
               </td>
               <td class="font-weight-medium text-center">
-                {{ row.count | num_comma }}
-                <div>
+                {{ row.count | num_comma }}회
+                <!-- <div>
                   <code class="small_text text-info">15.47%<em class="mdi mdi-arrow-down"></em></code>
-                </div>
+                </div> -->
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+      <a class="border-top px-3 py-2 d-block text-gray" href="#">
+        <small class="font-weight-medium"><i class="mdi mdi-chevron-down mr-2"></i>더 많은 데이터 보기</small>
+      </a>
     </div>
   </div>
   <div class="col-lg-5 col-md-6 col-sm-12 equel-grid">
@@ -147,7 +152,7 @@
           <span data-toggle="tooltip" data-placement="left" title="">
             <em class="mdi mdi-information-outline text-muted"></em> 도메인별 사용성
           </span>
-          <code class="text-danger">집계기간:1월1일 ~ 1월30일</code>
+          <!-- <code class="text-danger">집계기간:1월1일 ~ 1월30일</code> -->
         </div>
       </div>
       <div class="table-responsive">
@@ -194,7 +199,7 @@
         </table>
       </div>
       <a class="border-top px-3 py-2 d-block text-gray" href="#">
-        <small class="font-weight-medium"><i class="mdi mdi-chevron-down mr-2"></i>View All Order History</small>
+        <small class="font-weight-medium"><i class="mdi mdi-chevron-down mr-2"></i>더 많은 데이터 보기</small>
       </a>
     </div>
   </div>
@@ -206,13 +211,13 @@
 
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 사용시간 대역 (blue:오늘)
+            <em class="mdi mdi-information-outline text-muted"></em> 24시간 누적 사용 대역
           </span>
           <!-- <code class="text-danger">집계기간:1월1일 ~ 1월30일</code> -->
         </div>
       </div>
       <div class="mt-auto">
-        <mw-chart style="width:100%;height:300px;top:0px;bottom:0px;left:0px;" ng-model="model.charts.scatter">
+        <mw-chart style="width:100%;height:350px;top:0px;bottom:0px;left:0px;" ng-model="model.charts.scatter">
         </mw-chart>
       </div>
     </div>
@@ -225,7 +230,7 @@
       <div class="grid-body py-3">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 주간 누적 사용량 TOP 5
+            <em class="mdi mdi-information-outline text-muted"></em> 도메인별 통계
           </span>
           <!-- <code class="text-danger">집계기간:1월1일 ~ 1월30일</code> -->
         </div>
@@ -300,10 +305,10 @@
           <div class="timeline-vertical dashboard-timeline">
             <div class="activity-log">
               <p class="log-name">업데이트</p>
-              <div class="log-details">WST 확장기능 v1.05 업데이트<span class="text-primary ml-1">#Slack</span>
+              <div class="log-details">업데이트<span class="text-primary ml-1">#Slack</span>
                 <div class="wrapper mt-2">
-                  <button type="button" class="btn btn-xs btn-primary">Approve</button>
-                  <button type="button" class="btn btn-xs btn-inverse-primary">Reject</button>
+                  <button type="button" class="btn btn-xs btn-primary">업데이트</button>
+                  <button type="button" class="btn btn-xs btn-inverse-primary">취소</button>
                 </div>
               </div>
               <small class="log-time">8 mins Ago</small>
@@ -332,7 +337,7 @@
         </div>
       </div>
       <a class="border-top px-3 py-2 d-block text-gray" href="#">
-        <small class="font-weight-medium"><i class="mdi mdi-chevron-down mr-2"></i> View All </small>
+        <small class="font-weight-medium"><i class="mdi mdi-chevron-down mr-2"></i> 전체 보기</small>
       </a>
     </div>
   </div>

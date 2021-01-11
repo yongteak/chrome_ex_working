@@ -1,3 +1,5 @@
+.dottedUnderline { border-bottom: 1px dotted; }
+
 .small_text {
   font-size:smaller
 }

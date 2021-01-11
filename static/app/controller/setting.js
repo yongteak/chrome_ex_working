@@ -42,7 +42,7 @@ angular.module('app.controller.setting', [])
             .on('error', console.error);
         }
 
-        // login();
+        login();
 
         $scope.model = {
             blacklist: [],

@@ -12,8 +12,10 @@ angular.module('app.controller.dashboard', [])
             charts: {
                 traffic: {},
                 scatter: {},
-                by_category:{}
+                by_category: {},
+                radar: {}
             },
+            sums: { times: 0, traffic: 0, count: 0 },
             top_rank: {
                 category: [],
                 url: []
@@ -54,6 +56,10 @@ angular.module('app.controller.dashboard', [])
                         a[0].splice(idx, 1, b.summary);
                         a[1].splice(idx, 1, b.dataUsage);
                         a[2].splice(idx, 1, b.counter);
+
+                        $scope.model.sums.times += b.summary;
+                        $scope.model.sums.traffic += b.dataUsage;
+                        $scope.model.sums.count += b.counter;
                     }
                     return a;
                 }, [new Array(wsize).fill(0), // times
@@ -125,25 +131,6 @@ angular.module('app.controller.dashboard', [])
                         acc.push(sum);
                         return [acc, day_by_cat];
                     }, [[], {}]);
-
-                    // console.log(weeks,'reduce1', reduce1[1]);
-                    var catSeriesData = [];
-                    for(var p in reduce1[1]) {
-                        var fill = new Array(wsize).fill(0);
-                        reduce1[1][p].filter(s => weeks.includes('' + s.date)).forEach(e=> {
-                            var idx = weeks.indexOf('' + e.date);
-                            if (idx != -1) {
-                                // console.log(p, idx, fill);
-                                fill.splice(idx, 1, e.summary);
-                            }
-                        })
-                        catSeriesData.push({
-                            name:p,type:'bar',stack:'total',
-                            data: fill, hoverAnimation: false
-                        });
-                    };
-                    console.log('catSeriesData >',catSeriesData);
-                    $scope.model.charts.by_category = { 'option': chart(weeks, catSeriesData), 'click': null };
                     // console.log('series=>',series)
 
                     // [
@@ -213,19 +200,79 @@ angular.module('app.controller.dashboard', [])
                     // distribution_of_time_use
 
                     // yAxisFormat = secondToFormat,dataSizeToUnit,num_comma
-
                     [['times', 'secondToFormat'],
                     ['traffic', 'dataSizeToUnit'],
-                    ['count','num_comma']].forEach((e, idx) => {
+                    ['count', 'num_comma']].forEach((e, idx) => {
                         var seriesData = [{
                             data: reduce[idx], type: 'line', symbolSize: 0, smooth: true,
                             lineStyle: { width: 3, color: '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6) }
                         }];
-                        $scope.model.charts[e[0]] = { 'option': chart(weeks, seriesData,e[1]), 'click': null };
+                        // $scope.model.charts[e[0]] = { 'option': chart(weeks, seriesData,e[1]), 'click': null };
                     });
-                    console.log(usability);
+                    // console.log(usability);
                     // 일자별 카테고리별 사용시간
+                    // console.log(weeks,'reduce1', reduce1[1]);
+                    // 주간 사용량
+                    var catSeriesData = [];
+                    for (var p in reduce1[1]) {
+                        var fill = new Array(wsize).fill(0);
+                        reduce1[1][p].filter(s => weeks.includes('' + s.date)).forEach(e => {
+                            var idx = weeks.indexOf('' + e.date);
+                            if (idx != -1) fill.splice(idx, 1, e.summary);
+                        })
+                        catSeriesData.push({
+                            name: p, type: 'bar', stack: 'total',
+                            data: fill, hoverAnimation: false
+                        });
+                    };
+                    $scope.model.charts.radar = { 'option': chart2(weeks, catSeriesData), 'click': null };
+                    // $scope.model.charts.by_category = { 'option': chart(weeks, catSeriesData), 'click': null };
                     // $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
+                    // 전체 카테고리 목록중 비율을 계산하여 사용시간 x 접속횟수 통계 잡기
+                    // console.log(2222, cat_url_rank[0]);
+                    // url 5 summary 60, count 10, datausage 100000
+                    // col 백분율 계산 + 전체 합산
+                    // 5개 필터링 필요
+                    var a1 = cat_url_rank[0].reduce((acc, cur) => {
+                        // if (cur.urls >= 5 && cur.summary >= 60 && cur.count >= 10) {
+                            acc.urls += cur.urls;
+                            acc.summary += cur.summary;
+                            acc.count += cur.count;
+                            acc.rows++;
+                        // }
+                        return acc;
+                    }, { rows: 0, urls: 0, summary: 0, count: 0 });
+                    var a2 = cat_url_rank[0].reduce((acc, cur) => {
+                        if (cur.urls >= 5 && cur.summary >= 60 && cur.count >= 10) {
+                            var rate =
+                                parseInt(((cur.urls / a1.urls) * 100).toFixed(0))
+                                + parseInt(((cur.summary / a1.summary) * 100).toFixed(0))
+                                + parseInt(((cur.count / a1.count) * 100).toFixed(0));
+                            acc[0].push(rate);
+                            acc[1].push({name: cur.categroy_code,max:0});
+                            acc[2] += rate;
+                        }
+                        return acc;
+                    }, [[], [], 0]);
+                    var max = a2[1];
+                    console.log(222222222,a2);
+
+                    // (200+19624+205)
+
+                    // { name: '미분류(기타)', max: 52000 },
+                    // { name: '개발자도구', max: 52000 },
+                    // { name: '생산성', max: 52000 },
+                    // { name: '소프트웨어', max: 52000 },
+                    // { name: '라이프스타일', max: 52000 }
+                    // [{
+                    //     type: 'radar',
+                    //     // areaStyle: {normal: {}},
+                    //     data: [
+                    //         {
+                    //             value: [4300, 10000, 28000, 35000, 50000]
+                    //         }
+                    //     ]
+                    // }]
                 });
             }
         }
@@ -239,13 +286,6 @@ angular.module('app.controller.dashboard', [])
 
         $scope.run.init();
 
-        // var percent = (count, times, usaged) => {
-        //     var sum = count + times + usaged;
-        //     return [Math.round( (count / sum) * 100),
-        //     Math.round( (times / sum) * 100),
-        //     Math.round( (usaged / sum) * 100)]
-        // };
-        // percent(18,370,753153).
         function percent(count, times, usaged) {
             var sum = count + times + usaged;
             return [((count / sum) * 100).toFixed(0),
@@ -275,7 +315,6 @@ angular.module('app.controller.dashboard', [])
                     splitLine: {
                         show: false
                     }
-                    // min: 800
                 },
                 tooltip: {
                     trigger: 'axis',
@@ -309,46 +348,48 @@ angular.module('app.controller.dashboard', [])
             }
         }
 
-        function chart2(key, series) {
+        function chart2(indicator, series) {
             return {
-                xAxis: {
-                    type: 'category',
-                    data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-                },
+                // title: {
+                //     text: '基础雷达图'
+                // },
+                // tooltip: {},
+                // legend: {
+                //     data: ['预算分配（Allocated Budget）', '实际开销（Actual Spending）']
+                // },
                 legend: {
                     padding: 0,
                     itemGap: 0,
                     data: [' ', ' ']
                 },
                 grid: {
-                    left: 50,
-                    top: 6,
-                    right: 5,
-                    bottom: 20
+                    left: 8,
+                    top: 100,
+                    right: 6,
+                    bottom: 18
                 },
-                yAxis: {
-                    type: 'value',
-                    axisLabel: {
-                        formatter: value => $filter('moneyFormat')(value)
-                    }
-                },
-                tooltip: {
-                    trigger: 'axis',
-                    formatter: series => { return '' },
-                    axisPointer: {
-                        type: 'cross',
-                        crossStyle: {
-                            color: '#999'
+                radar: {
+                    // shape: 'circle',
+                    name: {
+                        textStyle: {
+                            color: '#fff',
+                            backgroundColor: '#999',
+                            borderRadius: 3,
+                            padding: [3, 5]
                         }
-                    }
-                },
-                series: [{
-                    type: 'bar',
-                    itemStyle: {
-                        barBorderRadius: 4
                     },
-                    data: Array.from({ length: 12 }, () => Math.floor(Math.random() * 90000000))
-                }]
+                    indicator: indicator
+                },
+                series: series
+                // [{
+                //     type: 'radar',
+                //     // areaStyle: {normal: {}},
+                //     data: [
+                //         {
+                //             value: [4300, 10000, 28000, 35000, 50000]
+                //         }
+                //     ]
+                // }]
             }
         }
 
@@ -363,50 +404,55 @@ angular.module('app.controller.dashboard', [])
                     trigger: 'axis',
                     formatter: series => { return '' },
                     axisPointer: {
+                        animation: false,
                         type: 'cross',
                         crossStyle: {
                             color: '#999'
+                        },
+                        label: {
+                            formatter: e => {
+                                return e.axisDimension == 'x' ? e.value + '시'
+                                    : $filter('secondToFormat')(e.value)
+                            }
                         }
                     }
                 },
+
                 grid: {
-                    left: 50,
+                    left: 10,
                     top: 35,
                     right: 12,
                     bottom: 20
                 },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: t => $filter('secondToFormat')(t)
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    scale: true,
+                },
+
                 xAxis: {
                     scale: true,
                     max: 23,
                     axisLabel: {
-                        formatter: '{value}h'
+                        formatter: '{value}시'
                     }
                 },
-                yAxis: {
-                    show: false,
-                    scale: true,
-                    max: 3600,
-                    // minInterval: 60,
-                    axisLabel: {
-                        formatter: value => {
-                            value = value % 60 == 0 ? (value / 60) + 'm' : value;
-                            return value;
-                        }
-                    }
-                },
+
                 series:
                     [
                         {
                             type: 'effectScatter',
                             symbolSize: 5,
-                            data: [
-                                [21, 1543],
-                                [12, 900]
-                            ]
+                            data: data
                         },
                         {
                             type: 'scatter',
-                            data: data
+                            // data: data
                             // Array.from({ length: 350 }, () =>
                             //     [Math.floor(Math.random() * 25), Math.floor(Math.random() * 3600)]),
                         }]
