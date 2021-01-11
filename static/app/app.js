@@ -3,14 +3,14 @@ var app = angular.module('app', [
 	"ngRoute", "angular-echarts3", "angularMoment", "pouchdb",
 	'app.controllers', 'app.controller.sync', 'app.controller.setting',
 	'app.controller.status', 'app.controller.limit', 'app.controller.alarm',
-	'app.controller.data', 'app.controller.dashboard','app.controller.category',
+	'app.controller.data', 'app.controller.dashboard', 'app.controller.category',
 	'app.services', 'app.pounch', 'app.indexer', 'app.filter'
 ]);
 
-app.run(function ($rootScope,identity,pounch, storage, CONFIG) {
+app.run(function ($rootScope, identity, pounch, storage, CONFIG) {
 	new PouchDB('tabs', { revs_limit: 1, auto_compaction: true }).allDocs({
-	}).then(e =>{
-		console.log('alldocs > ',e);
+	}).then(e => {
+		console.log('alldocs > ', e);
 	});
 
 	// fetch(chrome.extension.getURL('static/assets/resource/user.json'))
@@ -32,23 +32,25 @@ app.run(function ($rootScope,identity,pounch, storage, CONFIG) {
 	// 	.catch(console.error);
 
 	fetch(chrome.extension.getURL('static/assets/resource/iso-3166-countries-with-regional-codes.json'))
-		.then(resp => resp.json())
-		.then(jsonData => $rootScope['countries'] = jsonData);
+		.then(res => res.json())
+		.then(res => $rootScope['countries'] = res);
 	fetch(chrome.extension.getURL('static/assets/resource/category.json'))
-		.then(resp => resp.json())
-		.then(cate => {
-			// console.log($rootScope['category_kv']);
-			$rootScope['category'] = cate.data;
-			$rootScope['category_kv'] = cate.data.reduce((acc, cur) => {
-				acc[cur.code] = { ko: cur.ko, en: cur.en, color:cur.color };
+		.then(res => res.json())
+		.then(res => {
+			$rootScope['category'] = res.data;
+			$rootScope['category_kv'] = res.data.reduce((acc, cur) => {
+				acc[cur.code] = { ko: cur.ko, en: cur.en, color: cur.color };
 				return acc;
 			}, {});
-			// console.log('111111',rows);
-
 		});
+	fetch(chrome.extension.getURL('static/assets/resource/category_preset.json'))
+		.then(res => res.json())
+		.then(res => $rootScope['category_preset'] = res);
+
 	fetch(chrome.extension.getURL('static/assets/resource/timezone.json'))
-		.then(resp => resp.json())
-		.then(jsonData => $rootScope['timezone'] = jsonData);
+		.then(res => res.json())
+		.then(res => $rootScope['timezone'] = res);
+
 	$rootScope['local_timezone'] = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 	identity.getUserID(userInfo => {
@@ -115,13 +117,13 @@ app.directive('elastic', [
 
 app.constant('CONFIG', {
 	// 'URI': 'http://34.83.116.28:8080/api/v1',
-	'COUCHDB_REMOTE_URI':'http://34.83.116.28:5984',
+	'COUCHDB_REMOTE_URI': 'http://34.83.116.28:5984',
 	// 'COUCHDB_REMOTE_URI':'http://34.83.116.28:5984',
 	'IDENTITY': 'dentity',
-	'URI':'http://172.24.69.139:8080/api/v1',
-	// 'URI':'http://localhost:8080/api/v1',
+	// 'URI': 'http://172.24.69.139:8080/api/v1',
+	'URI':'http://localhost:8080/api/v1',
 	'BUCKET': 'bucket_$$$',
-	'SECOND_OF_DAY' : 60*60*24,
+	'SECOND_OF_DAY': 60 * 60 * 24,
 	'STORAGE_TABS': 'tabs',
 	'STORAGE_SETTINGS_VIEW_TIME_IN_BADGE': 'setting_view_time_in_badge',
 	// 추적 금지
@@ -134,19 +136,19 @@ app.constant('CONFIG', {
 	'STORAGE_ALARM_LIST': 'alarm_list',
 	'STORAGE_HISTORY_OF_SYNC': 'sync_history',
 	'STORAGE_NOTIFICATION_LIST': 'notification_list',
-	'STORAGE_CATEGORY':'category'
+	'STORAGE_CATEGORY': 'category'
 	// 'STORAGE_NOTIFICATION_MESSAGE': 'notification_message',
 	// 'STORAGE_TIMEINTERVAL_LIST': 'time_interval'
-// {
-// 		"_id": "bucket_$$$",
-		// "setting_view_time_in_badge": {},
-		// "black_list": [],
-		// "restriction_list": [],
-		// "restriction_access_list": [],
-		// "alarm_list": [],
-		// "sync_history": [],
-		// "notification_list": []
-// 	}
+	// {
+	// 		"_id": "bucket_$$$",
+	// "setting_view_time_in_badge": {},
+	// "black_list": [],
+	// "restriction_list": [],
+	// "restriction_access_list": [],
+	// "alarm_list": [],
+	// "sync_history": [],
+	// "notification_list": []
+	// 	}
 })
 
 // [{

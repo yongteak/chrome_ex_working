@@ -108,43 +108,16 @@ angular.module('app.controller.dashboard', [])
                                         summary: e.summary
                                     }];
                                 }
-                                // if (day_by_cat[e.date]) {
-                                //     var idx = day_by_cat[e.date].map(m => m.category_code).indexOf(code);
-                                //     if (idx >= 0) {
-                                //         day_by_cat[e.date][idx].summary += e.summary;
-                                //     } else {
-                                //         day_by_cat[e.date].push({
-                                //             category_code: code,
-                                //             date: e.date,
-                                //             summary: e.summary
-                                //         })
-                                //     }
-                                // } else {
-                                //     day_by_cat[[e.date]] = [{
-                                //         category_code: code,
-                                //         date: e.date,
-                                //         summary: e.summary
-                                //     }];
-                                // }
                             });
                         sum.rate = percent(sum.count * 10, sum.summary, sum.dataUsage / 1000000);//.join(',');
                         acc.push(sum);
                         return [acc, day_by_cat];
                     }, [[], {}]);
-                    // console.log('series=>',series)
-
-                    // [
-                    //     {
-                    //         name: '000', // code
-                    //         type: 'bar',
-                    //         stack: 'total',
-                    //         data: [..0] // 7개 데이터
-                    //     },
 
                     const usability = reduce1[0];
                     // cache..
                     $scope.model.usabilitys = usability;
-                    console.log(usability);
+                    // console.log(usability);
                     // 시간 10분이상, 접속횟수 10회이상, 데이터 1MB 이상
                     $scope.model.usability = usability
                         .filter(a => a.count >= 1 && a.summary >= 60 && a.dataUsage >= 100)
@@ -225,54 +198,50 @@ angular.module('app.controller.dashboard', [])
                             data: fill, hoverAnimation: false
                         });
                     };
-                    $scope.model.charts.radar = { 'option': chart2(weeks, catSeriesData), 'click': null };
-                    // $scope.model.charts.by_category = { 'option': chart(weeks, catSeriesData), 'click': null };
-                    // $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
+
+                    // ### RADAR
+                    // max = 300, 3개의 값을 대조했으니 100% * 3
                     // 전체 카테고리 목록중 비율을 계산하여 사용시간 x 접속횟수 통계 잡기
-                    // console.log(2222, cat_url_rank[0]);
-                    // url 5 summary 60, count 10, datausage 100000
-                    // col 백분율 계산 + 전체 합산
-                    // 5개 필터링 필요
-                    var a1 = cat_url_rank[0].reduce((acc, cur) => {
-                        // if (cur.urls >= 5 && cur.summary >= 60 && cur.count >= 10) {
-                            acc.urls += cur.urls;
-                            acc.summary += cur.summary;
-                            acc.count += cur.count;
-                            acc.rows++;
-                        // }
-                        return acc;
-                    }, { rows: 0, urls: 0, summary: 0, count: 0 });
-                    var a2 = cat_url_rank[0].reduce((acc, cur) => {
-                        if (cur.urls >= 5 && cur.summary >= 60 && cur.count >= 10) {
+                    // [2021-01-11 21:56:34] 기준값을 잡고 다시 계산하자
+                    var radarReduce = cat_url_rank[0]
+                        .sort((a, b) => { return b.dataUsage - a.dataUsage })
+                        .slice(0, 5)
+                        .reduce((acc, cur) => {
+                            if (acc.length > 0) {
+                                var t = acc[acc.length - 1].sum;
+                                cur.sum = [t[0] + cur.urls, t[1] + cur.summary, t[2] + cur.count]
+                            } else {
+                                cur.sum = [cur.urls, cur.summary, cur.count];
+                            }
+                            acc.push(cur);
+                            if (acc.length == 5) {
+                                acc.map(x => x.sum = cur.sum);
+                            }
+                            return acc;
+                        }, [])
+                        .reduce((acc, cur) => {
                             var rate =
-                                parseInt(((cur.urls / a1.urls) * 100).toFixed(0))
-                                + parseInt(((cur.summary / a1.summary) * 100).toFixed(0))
-                                + parseInt(((cur.count / a1.count) * 100).toFixed(0));
+                                parseInt(((cur.urls / cur.sum[0]) * 100).toFixed(0))
+                                + parseInt(((cur.summary / cur.sum[1]) * 100).toFixed(0))
+                                + parseInt(((cur.count / cur.sum[2]) * 100).toFixed(0));
                             acc[0].push(rate);
-                            acc[1].push({name: cur.categroy_code,max:0});
-                            acc[2] += rate;
-                        }
-                        return acc;
-                    }, [[], [], 0]);
-                    var max = a2[1];
-                    console.log(222222222,a2);
+                            acc[1].push({ name: cur.categroy_code, max: 0 });
+                            if (acc[0].length == 5) {
+                                var max = acc[0].reduce( (a,b) => a+b,0);
+                                acc[1].map(x => x.max = max);
+                            }
+                            return acc;
+                        }, [[], []]);
 
-                    // (200+19624+205)
+                    var radarSeries = [{
+                            type: 'radar',
+                            data: [ { value: radarReduce[0] }]
+                        }];
+                    // console.log(radarSum,a2)
+                    $scope.model.charts.radar = { 'option': chart2(radarReduce[1],radarSeries), 'click': null };
+                    //  $scope.model.charts.by_category = { 'option': chart(weeks, catSeriesData), 'click': null };
+                    // $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
 
-                    // { name: '미분류(기타)', max: 52000 },
-                    // { name: '개발자도구', max: 52000 },
-                    // { name: '생산성', max: 52000 },
-                    // { name: '소프트웨어', max: 52000 },
-                    // { name: '라이프스타일', max: 52000 }
-                    // [{
-                    //     type: 'radar',
-                    //     // areaStyle: {normal: {}},
-                    //     data: [
-                    //         {
-                    //             value: [4300, 10000, 28000, 35000, 50000]
-                    //         }
-                    //     ]
-                    // }]
                 });
             }
         }
@@ -357,6 +326,7 @@ angular.module('app.controller.dashboard', [])
                 // legend: {
                 //     data: ['预算分配（Allocated Budget）', '实际开销（Actual Spending）']
                 // },
+
                 legend: {
                     padding: 0,
                     itemGap: 0,
@@ -376,20 +346,15 @@ angular.module('app.controller.dashboard', [])
                             backgroundColor: '#999',
                             borderRadius: 3,
                             padding: [3, 5]
+                        },
+                        formatter: function (value) {
+                            return $filter('category_code_to_name')(value)
                         }
+
                     },
                     indicator: indicator
                 },
-                series: series
-                // [{
-                //     type: 'radar',
-                //     // areaStyle: {normal: {}},
-                //     data: [
-                //         {
-                //             value: [4300, 10000, 28000, 35000, 50000]
-                //         }
-                //     ]
-                // }]
+                series: series,
             }
         }
 
@@ -442,7 +407,6 @@ angular.module('app.controller.dashboard', [])
                         formatter: '{value}시'
                     }
                 },
-
                 series:
                     [
                         {
@@ -451,10 +415,7 @@ angular.module('app.controller.dashboard', [])
                             data: data
                         },
                         {
-                            type: 'scatter',
-                            // data: data
-                            // Array.from({ length: 350 }, () =>
-                            //     [Math.floor(Math.random() * 25), Math.floor(Math.random() * 3600)]),
+                            type: 'scatter'
                         }]
             }
         }

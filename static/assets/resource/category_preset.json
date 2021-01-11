@@ -1,0 +1,18 @@
+[
+    {"url":"*.facebook.com","code":"023"},
+
+    {"url":"*.github.com","code":"003"},
+    {"url":"*.stackoverflow.com","code":"003"},
+    {"url":"*.apache.com","code":"003"},
+
+    {"url":"*.youtube.com","code":"005"},
+    {"url":"*.netflix.com","code":"005"},
+
+    {"url":"blog.naver.com","code":"031"},
+    {"url":"blog.daum.net","code":"031"},
+
+    {"url":"*.live.com","code":"020"},
+    {"url":"*.gmail.com","code":"020"},
+    {"url":"*.outlook.com","code":"020"},
+    {"url":"mail.*","code":"020"}
+]
