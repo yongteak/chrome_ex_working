@@ -115,11 +115,11 @@ app.directive('elastic', [
 
 app.constant('CONFIG', {
 	// 'URI': 'http://34.83.116.28:8080/api/v1',
-	'COUCHDB_REMOTE_URI':'http://localhost:5984',
+	'COUCHDB_REMOTE_URI':'http://34.83.116.28:5984',
 	// 'COUCHDB_REMOTE_URI':'http://34.83.116.28:5984',
 	'IDENTITY': 'dentity',
-	// 'URI':'http://172.24.69.139:8080/api/v1',
-	'URI':'http://localhost:8080/api/v1',
+	'URI':'http://172.24.69.139:8080/api/v1',
+	// 'URI':'http://localhost:8080/api/v1',
 	'BUCKET': 'bucket_$$$',
 	'SECOND_OF_DAY' : 60*60*24,
 	'STORAGE_TABS': 'tabs',

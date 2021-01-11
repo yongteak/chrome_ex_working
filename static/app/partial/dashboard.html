@@ -70,10 +70,12 @@
           <span data-toggle="tooltip" data-placement="left" title="">
             <em class="mdi mdi-information-outline text-muted"></em> 주간 사용량
           </span>
+          <code class="text-danger">156시간25분</code>
         </div>
       </div>
-      <div class="grid table-responsive">
-
+      <div class="mt-auto">
+        <mw-chart style="width:100%;height:360px;top:0px;bottom:0px;left:0px;" ng-model="model.charts.by_category">
+        </mw-chart>
       </div>
     </div>
   </div>
@@ -210,7 +212,6 @@
         </div>
       </div>
       <div class="mt-auto">
-
         <mw-chart style="width:100%;height:300px;top:0px;bottom:0px;left:0px;" ng-model="model.charts.scatter">
         </mw-chart>
       </div>

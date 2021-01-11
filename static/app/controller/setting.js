@@ -5,7 +5,7 @@ angular.module('app.controller.setting', [])
         // http://172.24.69.139:5984/114916629141904173371
         var id = '114916629141904173371';
         var pw = '114916629141904173371'.split("").reverse().join("");
-
+        var db;
         function join() {
             db.signUp(id, pw)
                 .then(res => {
@@ -15,7 +15,7 @@ angular.module('app.controller.setting', [])
                 }).catch(console.error);
         }
         function login() {
-            var db = new PouchDB(CONFIG.COUCHDB_REMOTE_URI + '/114916629141904173371',
+            db = new PouchDB(CONFIG.COUCHDB_REMOTE_URI + '/114916629141904173371',
                 { skip_setup: true, revs_limit: 1, auto_compaction: true });
             db.login(id, pw)
                 .then(res => {
@@ -42,7 +42,7 @@ angular.module('app.controller.setting', [])
             .on('error', console.error);
         }
 
-        login();
+        // login();
 
         $scope.model = {
             blacklist: [],

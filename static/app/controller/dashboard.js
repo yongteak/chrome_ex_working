@@ -11,7 +11,8 @@ angular.module('app.controller.dashboard', [])
         $scope.model = {
             charts: {
                 traffic: {},
-                scatter: {}
+                scatter: {},
+                by_category:{}
             },
             top_rank: {
                 category: [],
@@ -44,22 +45,20 @@ angular.module('app.controller.dashboard', [])
                 // 날짜 기간 고민필요
                 var monthly = weeks;//$scope.model.days.reverse(); //Usability
 
-                var wsize = weeks.length - 1;
+                var wsize = weeks.length;// - 1;
                 // 날짜에 데이터 넣기
                 var reduce = args.reduce((a, b) => {
                     var idx = weeks.indexOf('' + b.day);
                     idx = idx == -1 ? 0 : idx;
-                    a[0].splice(idx, 0, b.summary);
-                    a[1].splice(idx, 0, b.dataUsage);
-                    a[2].splice(idx, 0, b.counter);
+                    if (idx != -1) {
+                        a[0].splice(idx, 1, b.summary);
+                        a[1].splice(idx, 1, b.dataUsage);
+                        a[2].splice(idx, 1, b.counter);
+                    }
                     return a;
                 }, [new Array(wsize).fill(0), // times
                 new Array(wsize).fill(0), // traffic
                 new Array(wsize).fill(0)]); // count
-
-                // console.log(reduce);
-
-
                 // 30일간 사용된 도메인 목록
                 var domains = args
                     .filter(a => '' + a.day >= monthly[0] && a.day <= monthly[monthly.length - 1])
@@ -125,14 +124,27 @@ angular.module('app.controller.dashboard', [])
                         sum.rate = percent(sum.count * 10, sum.summary, sum.dataUsage / 1000000);//.join(',');
                         acc.push(sum);
                         return [acc, day_by_cat];
-                    }, [[], []]);
-                    console.log(weeks,'reduce1', reduce1[1]);
-                    // var day_by_cat_reduce = reduce1[1].reduce((a, b) => {
-                    //     var idx = weeks.indexOf('' + b.date);
-                    //     idx = idx == -1 ? 0 : idx;
-                    //     a.splice(idx, 0, b.summary);
-                    //     return a;
-                    // }, []); // count
+                    }, [[], {}]);
+
+                    // console.log(weeks,'reduce1', reduce1[1]);
+                    var catSeriesData = [];
+                    for(var p in reduce1[1]) {
+                        var fill = new Array(wsize).fill(0);
+                        reduce1[1][p].filter(s => weeks.includes('' + s.date)).forEach(e=> {
+                            var idx = weeks.indexOf('' + e.date);
+                            if (idx != -1) {
+                                // console.log(p, idx, fill);
+                                fill.splice(idx, 1, e.summary);
+                            }
+                        })
+                        catSeriesData.push({
+                            name:p,type:'bar',stack:'total',
+                            data: fill, hoverAnimation: false
+                        });
+                    };
+                    console.log('catSeriesData >',catSeriesData);
+                    $scope.model.charts.by_category = { 'option': chart(weeks, catSeriesData), 'click': null };
+                    // console.log('series=>',series)
 
                     // [
                     //     {
@@ -200,12 +212,16 @@ angular.module('app.controller.dashboard', [])
                     // console.log(dotu)
                     // distribution_of_time_use
 
-                    ['times', 'traffic', 'count'].forEach((e, idx) => {
+                    // yAxisFormat = secondToFormat,dataSizeToUnit,num_comma
+
+                    [['times', 'secondToFormat'],
+                    ['traffic', 'dataSizeToUnit'],
+                    ['count','num_comma']].forEach((e, idx) => {
                         var seriesData = [{
                             data: reduce[idx], type: 'line', symbolSize: 0, smooth: true,
                             lineStyle: { width: 3, color: '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6) }
                         }];
-                        $scope.model.charts[e] = { 'option': chart(weeks, seriesData), 'click': null };
+                        $scope.model.charts[e[0]] = { 'option': chart(weeks, seriesData,e[1]), 'click': null };
                     });
                     console.log(usability);
                     // 일자별 카테고리별 사용시간
@@ -237,32 +253,46 @@ angular.module('app.controller.dashboard', [])
             ((usaged / sum) * 100).toFixed(0)]
         };
 
-        function chart(days, seriesData) {
+        function chart(days, seriesData, yAxisFormat, showSplitLine) {
+            yAxisFormat = yAxisFormat || 'secondToFormat';
+            showSplitLine = showSplitLine || false;
             return {
                 xAxis: {
                     type: 'category',
                     data: days,
-                    show: true
+                    splitLine: {
+                        show: false
+                    },
+                    axisLabel: {
+                        formatter: value => moment(value).format('ddd')
+                    }
                 },
                 yAxis: {
                     type: 'value',
-                    show: false,
+                    axisLabel: {
+                        formatter: t => $filter(yAxisFormat)(t)
+                    },
+                    splitLine: {
+                        show: false
+                    }
                     // min: 800
                 },
                 tooltip: {
                     trigger: 'axis',
                     formatter: _series => { return '' },
                     axisPointer: {
+                        animation: false,
                         type: 'cross',
                         crossStyle: {
                             color: '#999'
+                        },
+                        label: {
+                            formatter: e => {
+                                return e.axisDimension == 'x' ? $filter('formatDate')(e.value, 'MM월DD일')
+                                    : $filter(yAxisFormat)(yAxisFormat == 'num_comma' ? e.value.toFixed(0) : e.value)
+                            }
                         }
                     }
-                },
-                axisLabel: {
-                    formatter: t => $filter('formatDate')(t, 'ddd')
-                    // moment(mydate).format('ddd')
-                    // $filter('formatDate')(t, 'MM월DD일')
                 },
                 legend: {
                     padding: 0,
@@ -270,7 +300,7 @@ angular.module('app.controller.dashboard', [])
                     data: [' ', ' ']
                 },
                 grid: {
-                    left: 10,
+                    left: 8,
                     top: 10,
                     right: 6,
                     bottom: 18
@@ -359,7 +389,6 @@ angular.module('app.controller.dashboard', [])
                     // minInterval: 60,
                     axisLabel: {
                         formatter: value => {
-                            console.log(value);
                             value = value % 60 == 0 ? (value / 60) + 'm' : value;
                             return value;
                         }
