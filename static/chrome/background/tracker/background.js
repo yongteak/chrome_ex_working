@@ -71,7 +71,7 @@ function updateStorage() {
 function backgroundCheck() {
     const today = formatDate();
     chrome.windows.getLastFocused({ populate: true }, function (currentWindow) {
-        if (currentWindow.focused) {
+        if (currentWindow && currentWindow.focused) {
             var activeTab = currentWindow.tabs.find(t => t.active === true);
             if (activeTab !== undefined && activity.isValidPage(activeTab)) {
                 var activeUrl = activity.extractHostname(activeTab.url);
