@@ -9,35 +9,38 @@ angular.module('app.indexer', [])
                             if (docs.total_rows > 0) {
                                 var days = [];
                                 docs.rows.forEach((d, index) => {
-                                    pounch.getdoc(d.key).then(doc => {
-                                        if (doc.value) {  // check bucket
-                                            doc.value.days.forEach(day => {
-                                                var find = days.find(x => x.day == day.date);
-                                                if (find) {
-                                                    find.url.push(doc.value.url);
-                                                    find.counter += day.counter;
-                                                    find.summary += day.summary;
-                                                    find.dataUsage += day.dataUsage;
-                                                } else {
-                                                    days.push({
-                                                        day: day.date,
-                                                        url: [doc.value.url],
-                                                        counter: doc.value.counter,
-                                                        summary: doc.value.summaryTime,
-                                                        dataUsage: doc.value.dataUsage
-                                                    })
-                                                }
-                                            })
-                                        }
+                                    if (d.id.indexOf(CONFIG.BUCKET_PREFIX) == -1) {
 
-                                        if (index == docs.total_rows - 1) {
-                                            console.log('end of loop, ready!');
-                                            chrome.storage.local.set({
-                                                ['summary']: { 'last': moment().valueOf(), 'rows': days }
-                                            });
-                                            callback(days);
-                                        }
-                                    });
+                                        pounch.getdoc(d.key).then(doc => {
+                                            if (doc.value) {  // check bucket
+                                                doc.value.days.forEach(day => {
+                                                    var find = days.find(x => x.day == day.date);
+                                                    if (find) {
+                                                        find.url.push(doc.value.url);
+                                                        find.counter += day.counter;
+                                                        find.summary += day.summary;
+                                                        find.dataUsage += day.dataUsage;
+                                                    } else {
+                                                        days.push({
+                                                            day: day.date,
+                                                            url: [doc.value.url],
+                                                            counter: doc.value.counter,
+                                                            summary: doc.value.summaryTime,
+                                                            dataUsage: doc.value.dataUsage
+                                                        })
+                                                    }
+                                                })
+                                            }
+
+                                            if (index == docs.total_rows - 1) {
+                                                console.log('end of loop, ready!');
+                                                chrome.storage.local.set({
+                                                    ['summary']: { 'last': moment().valueOf(), 'rows': days }
+                                                });
+                                                callback(days);
+                                            }
+                                        });
+                                    }
                                 });
                             } else {
                                 callback('tabs_not_found');

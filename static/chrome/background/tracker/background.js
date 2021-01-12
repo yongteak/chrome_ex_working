@@ -167,25 +167,34 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
         // }
 
         if (isLimitList) {
+            // restriction_access_list
             setBlockPageToCurrent(activeUrl);
-            // update
-            var item = setting_restriction_list.find(e => e.domain === domain);
-            if (item !== undefined) {
-                item.count += 1;
-                storage.saveValue(STORAGE_RESTRICTION_LIST, setting_restriction_list);
-            }
-            item = setting_restriction_access_list.find(o => o.domain === domain && o.day == today);
-            if (item !== undefined) {
-                item.count += 1;
-            } else {
-                setting_restriction_access_list.push({
-                    domain: domain,
-                    epoch: Math.round(Date.now() / 1000),
-                    day: today,
-                    count: 1
-                });
-            }
-            storage.saveValue(STORAGE_RESTRICTION_ACCESS_LIST, setting_restriction_access_list);
+            db.get('bucket_blacklist_access').then(doc => {
+                var index = doc.value.findIndex(e => e.url == domain && e.epoch == epoch);
+                if (index == -1) {
+                    doc.value.push({ 'url': domain, 'date': today, 'count': 1, epoch: epoch});
+                    db.put(doc).then(console.log).catch(console.error);
+                } else {
+                    doc.value[index].count++;
+                    doc.value[index].epoch = epoch;
+                    db.put(doc).then(console.log).catch(console.error);
+                }
+            }).catch(err => {
+                if (err.name == "not_found") {
+                    var new_doc = {
+                        '_id': 'bucket_blacklist_access',
+                        'value': [{
+                            'url': domain,
+                            'date': today,
+                            'count': 1,
+                            'epoch': epoch
+                        }]
+                    };
+                    db.put(new_doc).then(console.log).catch(console.error)
+                } else {
+                    // nothing..
+                }
+            });
         }
     } else {
         // var is_ready = tab && tab.hasOwnProperty('url') && currentTab !== tab.url;
@@ -311,7 +320,8 @@ function notificationAction(activeUrl, tab) {
 }
 
 function setBlockPageToCurrent(activeUrl) {
-    var blockUrl = chrome.runtime.getURL("static/tmpl/block.html") + '?url=' + activeUrl;
+    // static/app/tmpl/block.html
+    var blockUrl = chrome.runtime.getURL("static/html/block.html") + '?url=' + activeUrl;
     chrome.tabs.query({ currentWindow: true, active: true }, tab => {
         chrome.tabs.update(tab.id, { url: blockUrl });
     });
@@ -449,37 +459,39 @@ function addListener() {
             // isNeedDeleteTimeIntervalFromTabs = true;
         }
     });
-    chrome.storage.onChanged.addListener((changes, namespace) => {
-        for (var key in changes) {
-            if (key === STORAGE_BLACK_LIST) {
-                loadBlackList();
-            }
-            if (key === STORAGE_RESTRICTION_LIST) {
-                loadRestrictionList();
-            }
-            if (key === STORAGE_NOTIFICATION_LIST) {
-                loadNotificationList();
-            }
-            if (key === STORAGE_NOTIFICATION_MESSAGE) {
-                loadNotificationMessage();
-            }
-            // todo
-            // 비 활성 시간 계측용
-            if (key === SETTINGS_INTERVAL_INACTIVITY) {
-                storage.getValue(SETTINGS_INTERVAL_INACTIVITY, item => { setting_interval_inactivity = item; });
-            }
-            if (key === SETTINGS_VIEW_TIME_IN_BADGE) {
-                storage.getValue(SETTINGS_VIEW_TIME_IN_BADGE, item => { setting_view_in_badge = item; });
-            }
-        }
-    });
+    // [2021-01-13 00:44:20]
+    // 비활성 시간 계측 코드 필요
+    // chrome.storage.onChanged.addListener((changes, namespace) => {
+    //     for (var key in changes) {
+    //         if (key === STORAGE_BLACK_LIST) {
+    //             loadBlackList();
+    //         }
+    //         if (key === STORAGE_RESTRICTION_LIST) {
+    //             loadRestrictionList();
+    //         }
+    //         if (key === STORAGE_NOTIFICATION_LIST) {
+    //             loadNotificationList();
+    //         }
+    //         if (key === STORAGE_NOTIFICATION_MESSAGE) {
+    //             loadNotificationMessage();
+    //         }
+    //         // todo
+    //         // 비 활성 시간 계측용
+    //         if (key === SETTINGS_INTERVAL_INACTIVITY) {
+    //             storage.getValue(SETTINGS_INTERVAL_INACTIVITY, item => { setting_interval_inactivity = item; });
+    //         }
+    //         if (key === SETTINGS_VIEW_TIME_IN_BADGE) {
+    //             storage.getValue(SETTINGS_VIEW_TIME_IN_BADGE, item => { setting_view_in_badge = item; });
+    //         }
+    //     }
+    // });
     // [2020-12-01 13:31:41] 네트워크 리소스 사용량 계측
     const filter = { urls: ["<all_urls>"] };
     // tab 활성
-    chrome.tabs.onActivated.addListener(onTabSwitch);
+    // chrome.tabs.onActivated.addListener(onTabSwitch);
     // 요청이 발생하려고 할 때 발생, 이 이벤트는 TCP 연결이 이루어지기 전에 전송되며 요청을 취소하거나 리디렉션하는 데 사용가능
-    chrome.webRequest.onBeforeRequest.addListener(onBeforeRequest, filter);
-    chrome.webRequest.onResponseStarted.addListener(onResponseStarted, filter);
+    // chrome.webRequest.onBeforeRequest.addListener(onBeforeRequest, filter);
+    // chrome.webRequest.onResponseStarted.addListener(onResponseStarted, filter);
 
     // 요청이 성공적으로 처리
     // chrome.webRequest.onCompleted.addListener(onRequestCompletedOrErrored, filter);
@@ -488,15 +500,15 @@ function addListener() {
     // onBeforeNavigate -> onCommitted -> onDOMContentLoaded -> onCompleted
     // 화면 수신중
     // chrome.webNavigation.onCommitted.addListener(resetTabState, filter);
-    chrome.webNavigation.onBeforeNavigate.addListener(webNavigation, filter);
+    // chrome.webNavigation.onBeforeNavigate.addListener(webNavigation, filter);
 
     // chrome.runtime.setUninstallURL("https://docs.google.com/forms/d/e/1FAIpQLSdImHtvey6sg5mzsQwWfAQscgZOOV52blSf9HkywSXJhuQQHg/viewform");
 }
 
-function webNavigation(e) {}
-function onTabSwitch({ tabId }) {}
-function onResponseStarted(_info) {}
-function onBeforeRequest(info) {}
+// function webNavigation(e) {}
+// function onTabSwitch({ tabId }) {}
+// function onResponseStarted(_info) {}
+// function onBeforeRequest(info) {}
 
 function getCurrentlyViewedTabId() {
     return new Promise(resolve => {
@@ -545,27 +557,36 @@ function loadBlackList() {
                     setting_black_list.push(e.domain)
                 }
             });
-            console.log(setting_black_list);
-            // rows[STORAGE_BLACK_LIST],
-            // rows[STORAGE_BLACK_ELEMENT]
+            console.log('blacklist',setting_black_list);
         })
         .catch(console.error);
-    // storage.getValue(STORAGE_BLACK_LIST, items => {
-    //     setting_black_list = items;
-    // })
 }
 
 function loadRestrictionList() {
-    storage.getValue(STORAGE_RESTRICTION_LIST, function (items) {
-        setting_restriction_list = isEmpty2(items) ? [] : items;
-    })
+    db.get(STORAGE_BUCKET)
+        .then(rows => {
+            setting_restriction_list = rows['restriction_list'] || [];
+            console.log('setting_restriction_list',setting_restriction_list);
+            // var ele = rows['setting_restriction_list'];
+            // if (ele) {
+            //     ele.forEach(e => {
+            //         if (e.enabled) {
+            //             setting_restriction_list.push(e.domain)
+            //         }
+            //     })
+            // }
+        })
+        .catch(console.error);
+    // storage.getValue(STORAGE_RESTRICTION_LIST, function (items) {
+    //     setting_restriction_list = isEmpty2(items) ? [] : items;
+    // })
 }
 
-function loadRestrictionAccessList() {
-    storage.getValue(STORAGE_RESTRICTION_ACCESS_LIST, function (items) {
-        setting_restriction_access_list = isEmpty2(items) ? [] : items;
-    });
-}
+// function loadRestrictionAccessList() {
+//     storage.getValue(STORAGE_RESTRICTION_ACCESS_LIST, function (items) {
+//         setting_restriction_access_list = isEmpty2(items) ? [] : items;
+//     });
+// }
 
 function loadNotificationList() {
     storage.getValue(STORAGE_NOTIFICATION_LIST, items => {
@@ -593,7 +614,7 @@ function loadAddDataFromStorage() {
     // loadTimeIntervals();
     loadBlackList();
     loadRestrictionList();
-    loadRestrictionAccessList();
+    // loadRestrictionAccessList();
     loadNotificationList();
     loadNotificationMessage();
     loadSettings();

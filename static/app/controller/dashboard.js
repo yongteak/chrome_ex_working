@@ -54,7 +54,7 @@ angular.module('app.controller.dashboard', [])
                 // 날짜에 데이터 넣기
                 var reduce = args.reduce((a, b) => {
                     var idx = weeks.indexOf('' + b.day);
-                    idx = idx == -1 ? 0 : idx;
+                    // idx = idx == -1 ? 0 : idx;
                     if (idx != -1) {
                         a[0].splice(idx, 1, b.summary);
                         a[1].splice(idx, 1, b.dataUsage);
@@ -69,30 +69,26 @@ angular.module('app.controller.dashboard', [])
                     new Array(wsize).fill(0), // traffic
                     new Array(wsize).fill(0)]); // count
 
-                var _bacc = baccess.reduce((a, b) => {
-                    if (a[b.date]) {
-                        a[b.date] += b.count;
-                    } else {
-                        a[b.date] = b.count
-                    }
-                    return a;
-                },{});
-                // var reduce = baccess.reduce((a, b) => {
-                //     var idx = weeks.indexOf('' + b.day);
-                //     idx = idx == -1 ? 0 : idx;
-                //     if (idx != -1) {
-                //         a[0].splice(idx, 1, b.summary);
-                //         a[1].splice(idx, 1, b.dataUsage);
-                //         a[2].splice(idx, 1, b.counter);
-
-                //         $scope.model.sums.times += b.summary;
-                //         $scope.model.sums.traffic += b.dataUsage;
-                //         $scope.model.sums.count += b.counter;
-                //     }
-                //     return a;
-                // }, new Array(wsize).fill(0));
-                // console.log(bacc);
-                // reduce.push(bacc);
+                var baccess1 = baccess
+                    .reduce((a, b) => {
+                        var index = a.findIndex(x => x.date == b.date);
+                        if (index != -1) {
+                            a[index].count += b.count;
+                        } else {
+                            a.push({date:b.date,count:b.count})
+                        }
+                        return a;
+                    },[])
+                    .reduce( (a,b) => {
+                        var idx = weeks.indexOf('' + b.date);
+                        if (idx != -1) {
+                            a.splice(idx, 1, b.count);
+                        }
+                        return a;
+                    },new Array(wsize).fill(0));
+                    $scope.model.sums.blacklist = baccess1.reduce( (a,b) => a + b,0);
+                // black list access append reduces
+                reduce.push(baccess1);
 
                 // 30일간 사용된 도메인 목록
                 var domains = args
@@ -206,14 +202,14 @@ angular.module('app.controller.dashboard', [])
 
                     [['times', 'secondToFormat'],
                     ['traffic', 'dataSizeToUnit'],
-                    ['count', 'num_comma']
+                    ['count', 'num_comma'],
                     ['blacklist', 'num_comma']
                 ].forEach((e, idx) => {
                         var seriesData = [{
                             data: reduce[idx], type: 'line', symbolSize: 0, smooth: true,
                             lineStyle: { width: 3, color: '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6) }
                         }];
-                        $scope.model.charts[e[0]] = { 'option': chart(weeks, seriesData,e[1]), 'click': null };
+                        // $scope.model.charts[e[0]] = { 'option': chart(weeks, seriesData,e[1]), 'click': null };
                     });
                     // console.log(usability);
                     // 일자별 카테고리별 사용시간
@@ -272,7 +268,7 @@ angular.module('app.controller.dashboard', [])
                         }];
                     // console.log(radarSum,a2)
                     $scope.model.charts.radar = { 'option': chart2(radarReduce[1],radarSeries), 'click': null };
-                    //  $scope.model.charts.by_category = { 'option': chart(weeks, catSeriesData), 'click': null };
+                    // $scope.model.charts.by_category = { 'option': chart(weeks, catSeriesData), 'click': null };
                     // $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
 
                 });
@@ -417,7 +413,7 @@ angular.module('app.controller.dashboard', [])
                 },
 
                 grid: {
-                    left: 10,
+                    left: 9,
                     top: 35,
                     right: 12,
                     bottom: 20

@@ -8,10 +8,10 @@ var app = angular.module('app', [
 ]);
 
 app.run(function ($rootScope, identity, pounch, storage, CONFIG) {
-	new PouchDB('tabs', { revs_limit: 1, auto_compaction: true }).allDocs({
-	}).then(e => {
-		console.log('alldocs > ', e);
-	});
+	// new PouchDB('tabs', { revs_limit: 1, auto_compaction: true }).allDocs({
+	// }).then(e => {
+	// 	console.log('alldocs > ', e);
+	// });
 
 	// fetch(chrome.extension.getURL('static/assets/resource/user.json'))
 	// 	.then(resp => resp.json())
@@ -118,7 +118,8 @@ app.directive('elastic', [
 app.constant('CONFIG', {
 	// 'URI': 'http://34.83.116.28:8080/api/v1',
 	// 'COUCHDB_REMOTE_URI': 'http://34.83.116.28:5984',
-	'COUCHDB_REMOTE_URI':'http://172.24.69.139:5984',
+	// 'COUCHDB_REMOTE_URI':'http://172.24.69.139:5984',
+	'COUCHDB_REMOTE_URI':'http://127.0.0.1:5984',
 	'IDENTITY': 'dentity',
 	// 'URI': 'http://172.24.69.139:8080/api/v1',
 	'URI':'http://localhost:8080/api/v1',
@@ -132,7 +133,8 @@ app.constant('CONFIG', {
 	// 제한 사이트
 	'STORAGE_BLACK_ELEMENT': 'black_element',
 	// 추적 금지 항목
-	'STORAGE_SETTINGS_RESTRICTIONS': 'restrictions',
+	// var STORAGE_RESTRICTION_LIST = 'restriction_list';
+	'STORAGE_RESTRICTION_LIST': 'restriction_list',
 	// 제한 사이트 접속 기록
 	'STORAGE_RESTRICTION_ACCESS_LIST': 'restriction_access_list',
 	// 알람 목록

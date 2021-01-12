@@ -4,7 +4,7 @@
       <div class="grid-body">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="최근 일주일 데이터를 사용하며, 지난주 같은날 대비 오늘의 사용량을 %로 표시합니다.">
-            <em class="mdi mdi-information-outline text-muted"></em> 사용시간
+            <em class="mdi mdi-information-outline text-muted"></em> 시간
           </span>
           <code class="dottedUnderline small_text text-gray">{{ model.sums.times | secondToFormat }}</code>
         </div>
@@ -20,7 +20,7 @@
       <div class="grid-body">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 데이터량
+            <em class="mdi mdi-information-outline text-muted"></em> 데이터
           </span>
           <code class="dottedUnderline small_text text-gray">{{ model.sums.traffic | dataSizeToUnit }}</code>
         </div>
@@ -36,7 +36,7 @@
       <div class="grid-body">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 접속횟수
+            <em class="mdi mdi-information-outline text-muted"></em> 접속
           </span>
           <code class="dottedUnderline small_text text-gray">{{ model.sums.count | num_comma}}회</code>
         </div>
@@ -52,7 +52,7 @@
       <div class="grid-body">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 추적금지 횟수
+            <em class="mdi mdi-information-outline text-muted"></em> 추적금지
           </span>
           <code class="dottedUnderline small_text text-gray">{{ model.sums.blacklist | num_comma}}회</code>
         </div>
@@ -84,7 +84,7 @@
       <div class="grid-body py-3">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 사용성 측정
+            <em class="mdi mdi-information-outline text-muted"></em> 사용성
           </span>
         </div>
       </div>
@@ -110,8 +110,8 @@
           <thead>
             <tr class="solid-header">
               <th>카테고리</th>
-              <th>사용시간</th>
-              <th>접속횟수</th>
+              <th>사용</th>
+              <th>접속</th>
             </tr>
           </thead>
           <tbody>
@@ -163,9 +163,9 @@
               <th width="80">URL</th>
               <th>
                 <div>
-                  <span class="badge badge-pill badge-primary">접속횟수</span>
+                  <span class="badge badge-pill badge-primary">접속</span>
                   <span class="badge badge-pill badge-success">사용시간</span>
-                  <span class="badge badge-pill badge-danger">데이터수신량</span>
+                  <span class="badge badge-pill badge-danger">데이터</span>
                 </div>
               </th>
             </tr>
@@ -242,9 +242,9 @@
           <thead>
             <tr class="solid-header">
               <th>URL</th>
-              <th>사용시간</th>
-              <th>접속횟수</th>
-              <th>데이터사용량</th>
+              <th>시간</th>
+              <th>접속</th>
+              <th>데이터</th>
             </tr>
           </thead>
           <tbody>

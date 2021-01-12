@@ -42,6 +42,7 @@ angular.module('app.controller.limit', [])
                     .then(_res => {
                         $scope.run.init_modal();
                         $scope.run.getDomain();
+                        chrome.extension.getBackgroundPage().loadRestrictionList();
                     }).catch(console.error);
             },
             modalClose: () => {
@@ -72,6 +73,7 @@ angular.module('app.controller.limit', [])
                         .then(_res => {
                             $scope.run.init_modal();
                             $scope.run.getDomain();
+                            chrome.extension.getBackgroundPage().loadRestrictionList();
                         }).catch(console.error);
                     $('#domainModal').modal("hide");
                 } else {
@@ -107,6 +109,7 @@ angular.module('app.controller.limit', [])
                         .then(_res => {
                             $scope.run.init_modal();
                             $scope.run.getDomain();
+                            chrome.extension.getBackgroundPage().loadRestrictionList();
                         }).catch(console.error);
                     $scope.model.copy_modal = null;
                 }
@@ -146,6 +149,7 @@ angular.module('app.controller.limit', [])
                     .then(_res => {
                         $scope.run.init_modal();
                         $scope.run.getDomain();
+                        chrome.extension.getBackgroundPage().loadRestrictionList();
                     }).catch(err => {
                         console.error(err);
                     });
@@ -171,7 +175,7 @@ angular.module('app.controller.limit', [])
                 }).catch(console.error);
 
                 pounch.getbucket(CONFIG.STORAGE_RESTRICTION_LIST).then(doc => {
-                    // console.log('STORAGE_RESTRICTION_LIST',items);
+                    console.log('STORAGE_RESTRICTION_LIST',doc);
                     $scope.model.domains = doc.sort((a, b) => { return b.epoch - a.epoch });
                 }).catch(console.error);
             }

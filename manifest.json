@@ -18,7 +18,7 @@
     "activeTab",
     "webNavigation",
     "chrome://favicon/*",
-    "webRequest",
+    // "webRequest",
     "*://*/"
   ],
   "content_scripts": [

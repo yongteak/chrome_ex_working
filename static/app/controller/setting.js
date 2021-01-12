@@ -115,7 +115,6 @@ angular.module('app.controller.setting', [])
             blacks: (row) => {
                 pounch.setbucket(CONFIG.STORAGE_BLACK_ELEMENT, row)
                     .then(e => {
-                        console.log(e);
                         chrome.extension.getBackgroundPage().loadBlackList();
                     }).catch(console.error)
                 $scope.model.blacks = row;
@@ -149,7 +148,6 @@ angular.module('app.controller.setting', [])
 
                     pounch.setbucket(CONFIG.STORAGE_BLACK_LIST, $scope.model.blacklist)
                         .then(res => {
-                            console.log('STORAGE_BLACK_LIST > ', res);
                             $scope.run.getblackList();
                             chrome.extension.getBackgroundPage().loadBlackList();
                         }).catch(console.error);;
@@ -185,7 +183,6 @@ angular.module('app.controller.setting', [])
                 });
                 pounch.setbucket(CONFIG.STORAGE_BLACK_LIST, $filter('clean')($scope.model.blacklist))
                     .then(res => {
-                        console.log('STORAGE_BLACK_LIST > ', res);
                         $scope.model.domain = "";
                         $scope.run.getblackList();
                         chrome.extension.getBackgroundPage().loadBlackList();
