@@ -169,7 +169,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
         if (isLimitList) {
             // restriction_access_list
             setBlockPageToCurrent(activeUrl);
-            db.get('bucket_blacklist_access').then(doc => {
+            db.get('restriction_access_list').then(doc => {
                 var index = doc.value.findIndex(e => e.url == domain && e.epoch == epoch);
                 if (index == -1) {
                     doc.value.push({ 'url': domain, 'date': today, 'count': 1, epoch: epoch});
@@ -182,7 +182,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
             }).catch(err => {
                 if (err.name == "not_found") {
                     var new_doc = {
-                        '_id': 'bucket_blacklist_access',
+                        '_id': 'restriction_access_list',
                         'value': [{
                             'url': domain,
                             'date': today,

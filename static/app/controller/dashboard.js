@@ -224,6 +224,7 @@ angular.module('app.controller.dashboard', [])
                         })
                         catSeriesData.push({
                             name: p, type: 'bar', stack: 'total',
+                            itemStyle:{color:$filter('category_code_to_color')(p)},
                             data: fill, hoverAnimation: false
                         });
                     };
@@ -268,7 +269,7 @@ angular.module('app.controller.dashboard', [])
                         }];
                     // console.log(radarSum,a2)
                     $scope.model.charts.radar = { 'option': chart2(radarReduce[1],radarSeries), 'click': null };
-                    // $scope.model.charts.by_category = { 'option': chart(weeks, catSeriesData), 'click': null };
+                    $scope.model.charts.by_category = { 'option': chart(weeks, catSeriesData), 'click': null };
                     // $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
 
                 });

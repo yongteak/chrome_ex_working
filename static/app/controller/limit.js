@@ -168,16 +168,26 @@ angular.module('app.controller.limit', [])
                 }
             },
             getDomain: () => {
-                pounch.getbucket(CONFIG.STORAGE_RESTRICTION_ACCESS_LIST).then(doc => {
-                    // console.log('STORAGE_RESTRICTION_ACCESS_LIST',items);
-                    $scope.model.history = doc.sort((a, b) => { return b.epoch - a.epoch });
-                    $scope.model.setting = [doc];
-                }).catch(console.error);
+                pounch.getbucket(null, 'restriction_access_list')
+                        .then(doc => {
+                            $scope.model.history = doc.value;
+                            console.log(doc.value);
+                        })
+                        .catch(console.error)
+
+                // pounch.getbucket(CONFIG.STORAGE_RESTRICTION_ACCESS_LIST).then(doc => {
+                //     // console.log('STORAGE_RESTRICTION_ACCESS_LIST',items);
+                //     $scope.model.history = doc.sort((a, b) => { return b.epoch - a.epoch });
+                //     $scope.model.setting = [doc];
+                // }).catch(console.error);
 
                 pounch.getbucket(CONFIG.STORAGE_RESTRICTION_LIST).then(doc => {
                     console.log('STORAGE_RESTRICTION_LIST',doc);
                     $scope.model.domains = doc.sort((a, b) => { return b.epoch - a.epoch });
                 }).catch(console.error);
+            },
+            open: row => {
+                console.log(row);
             }
         };
         $scope.run.getDomain();

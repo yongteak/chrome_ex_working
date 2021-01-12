@@ -1,5 +1,5 @@
 angular.module('app.controller.setting', [])
-    .controller('settingController', function ($scope, $filter, pounch, CONFIG) {
+    .controller('settingController', function ($scope, $window, $filter, pounch, CONFIG) {
 
         // 로컬 파일 생성, 해당 내용으로 아이디와 패스워드 구성
         // http://172.24.69.139:5984/114916629141904173371
@@ -19,7 +19,7 @@ angular.module('app.controller.setting', [])
                 { skip_setup: true, revs_limit: 1, auto_compaction: true });
             db.login(id, pw)
                 .then(res => {
-                    console.log('login > ',res);
+                    console.log('login > ', res);
                     sync(db);
                 }).catch(err => {
                     if (err.name == 'unauthorized') {
@@ -58,7 +58,7 @@ angular.module('app.controller.setting', [])
             domain: null,
             setting: [],
             blacks: {
-                loopback:false,
+                loopback: false,
                 ipaddr: false,
                 sub_admin: false,
                 sub_login: false,
@@ -187,6 +187,10 @@ angular.module('app.controller.setting', [])
                         $scope.run.getblackList();
                         chrome.extension.getBackgroundPage().loadBlackList();
                     }).catch(console.error);
+            },
+            open: () => {
+                var url = 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match';
+                $window.open(url, '_blank');
             }
         }
         $scope.run.getSetting();
