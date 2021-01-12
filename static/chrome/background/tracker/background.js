@@ -79,7 +79,7 @@ function backgroundCheck() {
                 // [2021-01-08 15:45:30]
                 // db저장시간이 오래걸릴경우 문제생김
                 if (tab === undefined) {
-                    db.tabs.get(activeUrl).then(doc => {
+                    db.get(activeUrl).then(doc => {
                         // 기존 데이터가 있는경우 push
                         console.log('db데이터 로드')
                         tabs.push(prevTab(doc.value));
@@ -100,15 +100,54 @@ function backgroundCheck() {
     })
 }
 
+/*
+    blacklist에 포함된경우 tab객체를 새로 생성하지 않음
+*/
 function backgroundCheck2(tab, activeUrl, activeTab) {
     var today = formatDate();
-    var isBlockList = activity.isInBlackList(activeUrl);
+    var isBlackList = activity.isInBlackList(activeUrl);
     var isLimitList = activity.isLimitExceeded(activeUrl);
+    var domain = activity.extractHostname(activeUrl);
+    var epoch = Math.round(Date.now() / 1000);
+    // console.log('isBlackList', isBlackList, 'isLimitList', isLimitList);
+
     //  추적 금지
     // [2020-12-08 22:19:34]
     // badge 표현 설정 필요
-    if (isBlockList || isLimitList) {
-        if (isBlockList) {
+    if (isBlackList || isLimitList) {
+        if (isBlackList) {
+            // [2021-01-12 14:50:31]
+            // 1분단위로 마킹한다.
+            db.get('bucket_blacklist_access').then(doc => {
+                var index = doc.value.findIndex(e => e.url == domain && e.date == today);
+                if (index == -1) {
+                    doc.value.push({ 'url': domain, 'date': today, 'count': 1, epoch: epoch});
+                    db.put(doc).then(console.log).catch(console.error);
+                } else {
+                    // 1분이후 등록
+                    if (epoch - doc.value[index].epoch >= 60) {
+                        doc.value[index].count++;
+                        doc.value[index].epoch = epoch;
+                        db.put(doc).then(console.log).catch(console.error);
+                    }
+                }
+            }).catch(err => {
+                if (err.name == "not_found") {
+                    var new_doc = {
+                        '_id': 'bucket_blacklist_access',
+                        'value': [{
+                            'url': domain,
+                            'date': today,
+                            'count': 1,
+                            'epoch': epoch
+                        }]
+                    };
+                    db.put(new_doc).then(console.log).catch(console.error)
+                } else {
+                    // nothing..
+                }
+            });
+
             chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000' })
             chrome.browserAction.setBadgeText({
                 tabId: activeTab.id,
@@ -130,7 +169,6 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
         if (isLimitList) {
             setBlockPageToCurrent(activeUrl);
             // update
-            var domain = activity.extractHostname(tab.url);
             var item = setting_restriction_list.find(e => e.domain === domain);
             if (item !== undefined) {
                 item.count += 1;
@@ -150,6 +188,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
             storage.saveValue(STORAGE_RESTRICTION_ACCESS_LIST, setting_restriction_access_list);
         }
     } else {
+        // var is_ready = tab && tab.hasOwnProperty('url') && currentTab !== tab.url;
         if (tab && tab.hasOwnProperty('url') && currentTab !== tab.url) {
             activity.setCurrentActiveTab(tab.url);
         }
@@ -162,7 +201,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
                             response.isObserved ? response.increasedSize : response.transferSize);
                     }
                 });
-                var day = tab.days.find(s => s.date === today);
+                var day = tab ? tab.days.find(s => s.date === today) : tab//undefined;
                 // tab생성과 summary호출 간격이 짧으면 오류 발생함
                 if (day !== undefined) {
                     var summary = day.summary;
@@ -175,7 +214,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
                         text: String(convertSummaryTimeToBadgeString(summary))
                     });
                 } else {
-                    console.error('day not found!', day);
+                    // console.error('day not found!', day);
                 }
 
             })
@@ -330,24 +369,24 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
 
 function backgroundUpdateStorage() {
     if (!tabs) return;
-    const api = db.tabs;
     const copy = JSON.parse(JSON.stringify(tabs));
     copy.forEach(tab => {
         var variable = tab;
         (function (t) {
             // console.log('tab 저장..',t.url);
-            api.get(t.url).then(doc => {
-                api.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
+            db.get(t.url).then(doc => {
+                db.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
                 }).catch(console.error);
             }).catch(_err => {
-                api.put({ '_id': t.url, 'value': t }).then(res => {
+                db.put({ '_id': t.url, 'value': t }).then(res => {
                 }).catch(console.error);
             });
         })(variable)
     })
     // 사본 생성후 가장 마지막 항목만 남기고 제거
+    // db에서 저장하는 과정에서 시간 딜레이 생김
     tabs = tabs.slice(tabs.length - 1, tabs.length);
-    console.log('tabs 저장완료, size > ', tabs.length)
+    // console.log('tabs 저장완료, size > ', tabs.length)
 }
 
 function setDefaultSettings() {
@@ -380,7 +419,7 @@ function addListener() {
                     if (tabs.find(o => o.url === activeUrl)) {
                         // next
                     } else {
-                        db.tabs.get(activeUrl).then(doc => {
+                        db.get(activeUrl).then(doc => {
                             tabs.push(prevTab(doc.value));
                         }).catch(err => {
                             activity.addTab(tab);
@@ -454,50 +493,10 @@ function addListener() {
     // chrome.runtime.setUninstallURL("https://docs.google.com/forms/d/e/1FAIpQLSdImHtvey6sg5mzsQwWfAQscgZOOV52blSf9HkywSXJhuQQHg/viewform");
 }
 
-function webNavigation(e) {
-    // console.log(e);
-}
-// $$
-// Tab 변경시 해당 Tab의 KB 데이터 표현을 위함,
-function onTabSwitch({ tabId }) {
-    // const tabData = getTabData(tabId);
-    // updateView(tabData);
-    // getCurrentlyViewedTabId()
-    //     .then(({ id, url }) => {
-    //         if (id === tabId) {
-    //             chrome.tabs.get(tabId, tabDetail => {
-    //                 // var timesAlreadyDone = activity.getDataUsaged(tab);
-    //                 // var data = bytesToSize(timesAlreadyDone);
-    //                 // chrome.browserAction.setBadgeText({ text: data.size + "" + data.unit });
-    //                 // console.log(tab);
-    //                 var tab = activity.getTab(tabDetail.url);
-    //                 console.log(1,tab);
-    //                 var today = formatDate();
-    //                 var summary = tab.days.find(s => s.date === today).summary;
-    //                 chrome.browserAction.setBadgeText({
-    //                     tabId: activeTab.id,
-    //                     text: String(convertSummaryTimeToBadgeString(summary))
-    //                 });
-    //             });
-    //         }
-    //     });
-}
-
-
-function onResponseStarted(_info) {
-    // console.log('onResponseStarted');
-}
-
-// 다운로드 진행중
-function onBeforeRequest(info) {//{ tabId }) {
-    try {
-        // chrome.tabs.get(info.tabId, tab => {
-        //     activity.incDataUsaged(tab);
-        // });
-    } catch (error) {
-        // console.error(error);
-    }
-}
+function webNavigation(e) {}
+function onTabSwitch({ tabId }) {}
+function onResponseStarted(_info) {}
+function onBeforeRequest(info) {}
 
 function getCurrentlyViewedTabId() {
     return new Promise(resolve => {
@@ -524,10 +523,36 @@ function prevTab(tab) {
         tab.counter);
 }
 
+// 추적 금지
 function loadBlackList() {
-    storage.getValue(STORAGE_BLACK_LIST, items => {
-        setting_black_list = items;
-    })
+    db.get(STORAGE_BUCKET)
+        .then(rows => {
+            setting_black_list = [];
+            var ele = rows[STORAGE_BLACK_ELEMENT];
+            if (ele) {
+                for(var p in ele) {
+                    if (ele[p]) { // true
+                        setting_black_list.push(MATCHS[p]);
+                    }
+                }
+            } else {
+                for (var p in MATCHS) {
+                    setting_black_list.push(MATCHS[p]);
+                }
+            }
+            rows[STORAGE_BLACK_LIST].forEach(e => {
+                if (e.enabled) {
+                    setting_black_list.push(e.domain)
+                }
+            });
+            console.log(setting_black_list);
+            // rows[STORAGE_BLACK_LIST],
+            // rows[STORAGE_BLACK_ELEMENT]
+        })
+        .catch(console.error);
+    // storage.getValue(STORAGE_BLACK_LIST, items => {
+    //     setting_black_list = items;
+    // })
 }
 
 function loadRestrictionList() {
@@ -620,18 +645,15 @@ function checkPermissionsForNotifications(callback, ...props) {
 var pounch;
 function reload() {
     pounch = new PouchStorage(function (instance) {
-        db = {
-            'tabs': new instance('tabs', { revs_limit: 1, auto_compaction: true }),
-            'status': new instance('status', { revs_limit: 1, auto_compaction: true }),
-            'blocklist': new instance('blocklist', { revs_limit: 1, auto_compaction: true })
-        };
+        db = new instance('tabs', { revs_limit: 10, auto_compaction: true });
         tabs = [];
+
+        loadPermissions();
+        addListener();
+        loadAddDataFromStorage();
+        updateSummaryTime();
+        updateStorage();
     });
 }
 
 reload();
-loadPermissions();
-addListener();
-loadAddDataFromStorage();
-updateSummaryTime();
-updateStorage();

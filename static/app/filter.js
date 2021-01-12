@@ -1,5 +1,14 @@
 angular.module('app.filter', [])
 
+    .filter('', function () {
+        return function (key, value) {
+            var doc = {};
+            doc['_id'] = key;
+            doc['value'] = value;
+            return doc;
+        };
+    })
+
     .filter('prepareDoc', function () {
         return function (key, value) {
             var doc = {};
@@ -11,7 +20,7 @@ angular.module('app.filter', [])
 
     .filter('isEmpty', function () {
         return function (val) {
-            return (val == undefined || val.length === 0 || !val.trim());
+            return (val == undefined || val == null || val.length === 0);// || !val.trim());
         };
     })
 

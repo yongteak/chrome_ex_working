@@ -117,19 +117,22 @@ app.directive('elastic', [
 
 app.constant('CONFIG', {
 	// 'URI': 'http://34.83.116.28:8080/api/v1',
-	'COUCHDB_REMOTE_URI': 'http://34.83.116.28:5984',
-	// 'COUCHDB_REMOTE_URI':'http://34.83.116.28:5984',
+	// 'COUCHDB_REMOTE_URI': 'http://34.83.116.28:5984',
+	'COUCHDB_REMOTE_URI':'http://172.24.69.139:5984',
 	'IDENTITY': 'dentity',
 	// 'URI': 'http://172.24.69.139:8080/api/v1',
 	'URI':'http://localhost:8080/api/v1',
 	'BUCKET': 'bucket_$$$',
+	'BUCKET_PREFIX':"bucket_",
 	'SECOND_OF_DAY': 60 * 60 * 24,
 	'STORAGE_TABS': 'tabs',
 	'STORAGE_SETTINGS_VIEW_TIME_IN_BADGE': 'setting_view_time_in_badge',
 	// 추적 금지
 	'STORAGE_BLACK_LIST': 'black_list',
 	// 제한 사이트
-	'STORAGE_RESTRICTION_LIST': 'restriction_list',
+	'STORAGE_BLACK_ELEMENT': 'black_element',
+	// 추적 금지 항목
+	'STORAGE_SETTINGS_RESTRICTIONS': 'restrictions',
 	// 제한 사이트 접속 기록
 	'STORAGE_RESTRICTION_ACCESS_LIST': 'restriction_access_list',
 	// 알람 목록

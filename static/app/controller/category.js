@@ -41,7 +41,7 @@ angular.module('app.controller.category', [])
                     if (docs.total_rows > 0) {
                         // console.log(docs.rows);
                         docs.rows.forEach((d, index) => {
-                            if (d.id !== CONFIG.BUCKET) {
+                            if (d.id.indexOf(CONFIG.BUCKET_PREFIX) == -1) {
                                 args.push(d.doc.value.url);
                             }
                             if (index == docs.total_rows - 1) {

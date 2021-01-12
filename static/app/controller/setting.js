@@ -34,20 +34,38 @@ angular.module('app.controller.setting', [])
             local.sync(db, {
                 live: true, retry: true
             })
-            .on('change', console.log)
-            .on('paused', console.log)
-            .on('active', console.log)
-            .on('denied', console.log)
-            .on('complete', console.log)
-            .on('error', console.error);
+            // .on('change', console.log)
+            // .on('paused', console.log)
+            // .on('active', console.log)
+            // .on('denied', console.log)
+            // .on('complete', console.log)
+            // .on('error', console.error);
         }
+        // /^(?:(?:^|\.)(?:2(?:5[0-5]|[0-4]\d)|1?\d?\d)){4}$/;
+        // /^admin.*/
+        // /^login.*/
+        // /^session.*/
+        // /^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/
+
+        // var str = 'localhostdfdf';
+        // var regexp = /^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/;
+        // str.match(regexp);
+        // var matches_array = str.match(regexp);
 
         // login();
-
         $scope.model = {
             blacklist: [],
             domain: null,
             setting: [],
+            blacks: {
+                loopback:false,
+                ipaddr: false,
+                sub_admin: false,
+                sub_login: false,
+                sub_session: false,
+                sub_test: false,
+                sub_demo: false
+            },
             // activity_detected, badge_icon_info,
             options: {
                 activity_detected:
@@ -63,6 +81,7 @@ angular.module('app.controller.setting', [])
         $scope.run = {
             getSetting: () => {
                 pounch.getbucket(CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE).then(item => {
+                    item = $filter('clean')(item);
                     $scope.model.setting = items.value;
                     $scope.model['select'] = { activity_detected: items.value[0].value };
                 }).catch(err => {
@@ -77,9 +96,29 @@ angular.module('app.controller.setting', [])
             },
             getblackList: () => {
                 pounch.getbucket(CONFIG.STORAGE_BLACK_LIST).then(e => {
-                    // console.log(CONFIG.STORAGE_BLACK_LIST, ' > ', e);
+                    // console.log(CONFIG.STORAGE_BLACK_LIST, ' > ', $filter('clean')(e));
+                    e = $filter('clean')(e);
                     $scope.model.blacklist = e.sort((a, b) => { return b.epoch - a.epoch });
                 }).catch(console.error);
+            },
+            getBlacks: (row) => {
+                pounch.getbucket(CONFIG.STORAGE_BLACK_ELEMENT).then(e => {
+                    if ($filter('isEmpty')(e)) {
+                        for (let p in $scope.model.blacks) {
+                            $scope.model.blacks[p] = true;
+                        }
+                    } else {
+                        $scope.model.blacks = e;
+                    }
+                }).catch(console.error);
+            },
+            blacks: (row) => {
+                pounch.setbucket(CONFIG.STORAGE_BLACK_ELEMENT, row)
+                    .then(e => {
+                        console.log(e);
+                        chrome.extension.getBackgroundPage().loadBlackList();
+                    }).catch(console.error)
+                $scope.model.blacks = row;
             },
             selected: (field, _item) => {
                 var items = $scope.model.setting;
@@ -119,14 +158,12 @@ angular.module('app.controller.setting', [])
                 }
             },
             enabledChange: row => {
-                var list = $scope.model.blacklist;
-                const index = list.findIndex(function (item) {
-                    return item.epoch === row.epoch;
-                });
+                var list = $filter('clean')($scope.model.blacklist);
+                const index = list.findIndex(item => item.epoch === row.epoch);
                 list[index].enabled = row.enabled;
                 list[index].updated = $filter('formatDate')();
                 pounch.setbucket(CONFIG.STORAGE_BLACK_LIST, $scope.model.blacklist)
-                    .then(res => {
+                    .then(_res => {
                         $scope.run.getblackList();
                         chrome.extension.getBackgroundPage().loadBlackList();
                     }).catch(console.error);
@@ -146,14 +183,16 @@ angular.module('app.controller.setting', [])
                     epoch: isNewDomain ? moment().valueOf() : find_domain.epoch,
                     enabled: true
                 });
-                pounch.setbucket(CONFIG.STORAGE_BLACK_LIST, $scope.model.blacklist)
+                pounch.setbucket(CONFIG.STORAGE_BLACK_LIST, $filter('clean')($scope.model.blacklist))
                     .then(res => {
                         console.log('STORAGE_BLACK_LIST > ', res);
+                        $scope.model.domain = "";
                         $scope.run.getblackList();
                         chrome.extension.getBackgroundPage().loadBlackList();
                     }).catch(console.error);
             }
         }
         $scope.run.getSetting();
+        $scope.run.getBlacks();
         $scope.run.getblackList();
     })

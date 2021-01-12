@@ -26,10 +26,11 @@ var TypeListEnum = {
     All: 2,
     ByDays: 3,
 };
-
+var STORAGE_BUCKET = 'bucket_$$$';
 var STORAGE_SETTINGS_VIEW_TIME_IN_BADGE = 'setting_view_time_in_badge';
 var STORAGE_TABS = 'tabs';
 var STORAGE_BLACK_LIST = 'black_list';
+var STORAGE_BLACK_ELEMENT = 'black_element';
 // 추적 금지 도메인
 var STORAGE_RESTRICTION_LIST = 'restriction_list';
 // domain, day, count
@@ -62,7 +63,17 @@ var EVENT_GENERATE_REPORT = 'performance_report';
 var EVENT_SIMILARWEB_REPORT = 'similarweb_report';
 
 // JS
-var POUNCHDB_JS  = '/static/vendor/pouchdb/dist/pouchdb.min.js';
+var POUNCHDB_JS = '/static/vendor/pouchdb/dist/pouchdb.min.js';
+
+var MATCHS = {
+    loopback: /^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/,
+    ipaddr: /^(?:(?:^|\.)(?:2(?:5[0-5]|[0-4]\d)|1?\d?\d)){4}$/,
+    sub_test: /^test\./,
+    sub_demo: /^demo\./,
+    sub_admin: /^admin\./,
+    sub_login: /^login\./,
+    sub_session: /^session\./
+}
 
 function isEmpty(obj) {
     for (var prop in obj) {

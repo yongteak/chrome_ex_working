@@ -123,7 +123,8 @@ angular.module('app.controller.sync', [])
                             var source = [];
                             var source_kv = {};
                             docs.rows.forEach((row, index) => {
-                                if (row.id !== CONFIG.BUCKET) {
+                                // if (row.id !== CONFIG.BUCKET) {
+                                if (d.id.indexOf(CONFIG.BUCKET_PREFIX) == -1) {
                                     var epoch = row.doc.value.hasOwnProperty('category_epoch')
                                         ? row.doc.value.category_epoch : true;
                                     // console.log(epoch);

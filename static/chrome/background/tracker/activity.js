@@ -61,14 +61,18 @@ class Activity {
 
     // 추적 금지
     isInBlackList(domain) {
-        var find = undefined;
+        var find = false;
         if (setting_black_list !== undefined && setting_black_list.length > 0) {
-            // 도메인 검색
-            find = setting_black_list.find(o =>
-                o.enabled && isDomainEquals(this.extractHostname(o.domain), this.extractHostname(domain))
-            );
+            // console.log('isInBlackList', domain, setting_black_list);
+            // match == null : black대상 아님
+            setting_black_list.forEach(e => {
+                if (!find) {
+                    find = this.extractHostname(domain).match(e) != null;
+                }
+            });
         }
-        return find !== undefined;
+        // console.log('FIND > isInBlackList',find);
+        return find;
     }
     // 접근 제한
     isLimitExceeded(domain) {

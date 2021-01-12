@@ -52,11 +52,12 @@
       <div class="grid-body">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> ...
+            <em class="mdi mdi-information-outline text-muted"></em> 추적금지 횟수
           </span>
+          <code class="dottedUnderline small_text text-gray">{{ model.sums.blacklist | num_comma}}회</code>
         </div>
         <div class="wrapper">
-          <mw-chart style="width:100%;height:80%;top:0px;bottom:0px;left:0px;" ng-model="model.charts.limit">
+          <mw-chart style="width:100%;height:80%;top:0px;bottom:0px;left:0px;" ng-model="model.charts.blacklist">
           </mw-chart>
         </div>
       </div>

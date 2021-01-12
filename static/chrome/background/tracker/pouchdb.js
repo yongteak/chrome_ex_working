@@ -23,22 +23,20 @@ class PouchStorage {
     check() {
         ['similarweb', 'sync_history', 'alarm_list', 'restriction_access_list',
             'setting ', 'tabs', 'black_list', 'restriction_list']
-        .forEach(d => {
-            new PouchDB(d).info().then(res => {
-                console.log('check > ',res);
-            }).catch(err => {
-                console.log('check > ',err);
+            .forEach(d => {
+                new PouchDB(d).info().then(res => {
+                    console.log('check > ', res);
+                }).catch(err => {
+                    console.log('check > ', err);
+                });
             });
-        });
     }
 
     getdoc(db, id) {
         var deferred = $q.defer();
-        db.get(id).then(doc => {
-            deferred.resolve(res);
-        }).catch(err => {
-            deferred.resolve(err);
-        });
+        db.get(id)
+            .then(deferred.resolve)
+            .catch(deferred.resolve);
         return deferred.promise;
     }
 
