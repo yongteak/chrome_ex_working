@@ -10,7 +10,7 @@
         </div>
       </div>
       <div>
-        <mw-chart style="width:100%;height:60px;top:0px;bottom:0px;left:0px;" ng-model="model.chart">
+        <mw-chart style="width:100%;height:80px;top:0px;bottom:0px;left:0px;" ng-model="model.chart">
         </mw-chart>
       </div>
       <div class="table-responsive">
@@ -27,7 +27,7 @@
             <tr ng-repeat="row in model.cumulative_usage">
               <td>
                 <small class="text-black font-weight-medium d-block">{{ row.url }}</small>
-                <span class="text-gray">
+                <span class="small_text text-gray">
                   <span style="background-color: {{row.categroy_code | category_code_to_color }}"
                     class="status-indicator rounded-indicator small"></span>{{row.categroy_code | category_code_to_name
                   }}</span>

@@ -69,7 +69,6 @@ function updateStorage() {
 }
 
 function backgroundCheck() {
-    const today = formatDate();
     chrome.windows.getLastFocused({ populate: true }, function (currentWindow) {
         if (currentWindow && currentWindow.focused) {
             var activeTab = currentWindow.tabs.find(t => t.active === true);
@@ -214,7 +213,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
                 // tab생성과 summary호출 간격이 짧으면 오류 발생함
                 if (day !== undefined) {
                     var summary = day.summary;
-                    console.log('summary >', summary);
+                    // console.log('summary >', summary);
                     // var data = bytesToSize(activity.getDataUsaged(tab));
                     chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
                     chrome.browserAction.setBadgeText({
@@ -383,7 +382,7 @@ function backgroundUpdateStorage() {
     copy.forEach(tab => {
         var variable = tab;
         (function (t) {
-            // console.log('tab 저장..',t.url);
+            // console.log('tab 저장..',t.url,t);
             db.get(t.url).then(doc => {
                 db.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
                 }).catch(console.error);
@@ -428,10 +427,13 @@ function addListener() {
                 if (tabs !== undefined) {
                     if (tabs.find(o => o.url === activeUrl)) {
                         // next
+                        console.log('11 onActivated');
                     } else {
+                        console.log('22 onActivated');
                         db.get(activeUrl).then(doc => {
                             tabs.push(prevTab(doc.value));
                         }).catch(err => {
+                            console.error(err);
                             activity.addTab(tab);
                             backgroundUpdateStorage();
                         });
@@ -522,9 +524,9 @@ function getCurrentlyViewedTabId() {
     });
 }
 
-// db에서 과거 데이터를 로드하면 그 뒤에 새로운 데이터를 추가함
+// db에서 과거 데이터를 로드하면 그 뒤에 새로운 데이터를 추가함, 접속횟수 증가
 function prevTab(tab) {
-    return new Tab(tab.url,
+    var tab1 = new Tab(tab.url,
         tab.category,
         tab.category_top,
         tab.category_sub,
@@ -533,6 +535,8 @@ function prevTab(tab) {
         tab.dataUsage,
         tab.summaryTime,
         tab.counter);
+    tab1.incCounter();
+    return tab1;
 }
 
 // 추적 금지

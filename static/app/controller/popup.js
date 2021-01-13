@@ -46,6 +46,8 @@ angular.module('app.controller.popup', [])
                                                 counter: h.counter,
                                                 dataUsage: h.dataUsage
                                             })
+                                            if (doc.id == 'www.clien.net')
+                                                console.log('h.counter',e.date,doc.id,index,h.counter);
                                         } else {
                                             hdata[daytime_index].second += h.second;
                                             hdata[daytime_index].counter += h.counter;
