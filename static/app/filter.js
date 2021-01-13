@@ -45,11 +45,19 @@ angular.module('app.filter', [])
         }
     })
 
+
+    .filter('fromDateFormat', function () {
+        return function (date,from,format) {
+            return moment(date,from).format(format);
+            // return moment('2021011405', 'YYYYMMDDhh').format('YYYYMMDD');
+        }
+    })
+
     // 'YYYY-MM-DD HH:mm:ss'
     .filter('secondToFormat', function () {
         return function (sec, format) {
             // format = format || 'H시간mm분ss'//'DD일hh시간mm분ss초';
-            format = (sec < 60) ? 'ss초' : (sec < 60*60) ? 'mm분ss초': 'H시간mm분';
+            format = (sec < 60) ? 'ss초' : (sec < 60 * 60) ? 'mm분ss초' : 'H시간mm분';
             return moment().startOf('day').seconds(sec).format(format);
             // moment().startOf('day').seconds(sec).format(format)
             // return moment.utc(sec * 1000).format(format);
@@ -228,6 +236,13 @@ angular.module('app.filter', [])
         }
     })
 
+    .filter('zeroAppend', () => {
+        return time => {
+            if (time > 0 && time < 10)
+                return '0' + time;
+            else return time;
+        }
+    })
 
     .filter('yyyymmdd_to_format_kr', function () {
         return function (yyyymmdd) {
@@ -297,7 +312,7 @@ angular.module('app.filter', [])
         }
     })
     .filter('category_code_to_name', function ($rootScope) {
-        return function (code,lang) {
+        return function (code, lang) {
             lang = lang || 'ko';
             code = code || '000';
             return $rootScope['category_kv'][code][lang];

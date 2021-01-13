@@ -1,62 +1,54 @@
 <!doctype html>
-<html ng-app="app" ng-csp>
+<html ng-app="popup" ng-csp>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>설정</title>
+  <!-- <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="vendor/clockpicker/dist/bootstrap-clockpicker.min.css">
+  <link rel="stylesheet" href="vendor/mdi/css/materialdesignicons.min.css">
 
-    <title>Web Screen Time MiniViewer</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="vendor/clockpicker/dist/bootstrap-clockpicker.min.css">
-    <link rel="stylesheet" href="vendor/mdi/css/materialdesignicons.min.css">
+  <script src="vendor/echarts/dist/echarts.min.js"></script>
+  <script src="vendor/moment/min/moment-with-locales.min.js"></script>
+  <script src="vendor/jquery/dist/jquery.min.js"></script>
+  <script src="vendor/pouchdb/dist/pouchdb.min.js"></script>
 
-    <script src="vendor/echarts/dist/echarts.min.js"></script>
-    <script src="vendor/moment/min/moment-with-locales.min.js"></script>
-    <script src="vendor/jquery/dist/jquery.min.js"></script>
+  <script src="vendor/angular/angular.min.js"></script>
+  <script src="vendor/angular-route/angular-route.min.js"></script>
+  <script src="vendor/angular-moment/angular-moment.min.js"></script>
 
-    <script src="vendor/angular/angular.min.js"></script>
-    <script src="vendor/angular-moment/angular-moment.min.js"></script>
-    <script src="vendor/angular-echarts3/src/app/angular-echarts3.js"></script>
+  <script src="vendor/angular-echarts3/src/app/angular-echarts3.js"></script>
+  <script src="vendor/angular-pouchdb/angular-pouchdb.min.js"></script>
 
-    <script src="js/app.js"></script>
-    <script src="js/controllers.js"></script>
-    <script src="app/filter.js"></script>
-    <script src="js/services.js"></script>
+  <script src="vendor/clockpicker/dist/bootstrap-clockpicker.min.js"></script>
+
+  <script src="assets/vendors/ui-bootstrap/ui-bootstrap-custom-2.5.0.min.js"></script>
+  <script src="assets/vendors/ui-bootstrap/ui-bootstrap-custom-tpls-2.5.0.min.js"></script>
+
+  <script src="app/app_popup.js"></script>
+  <script src="app/controller/controllers.js"></script>
+  <script src="app/controller/popup.js"></script>
+  <script src="app/filter.js"></script>
+  <script src="app/service/services.js"></script>
+  <script src="app/service/pounch.js"></script>
+  <script src="app/service/indexer.js"></script>
+  <script src="assets/vendors/js/pouchdb.authentication.min.js"></script>
 </head>
 
 <body>
-    <!-- <div class="split-view" ng-controller="view" ng-init="init()">
-        <script type="text/ng-template" id="alert.html">
-            <div ng-transclude></div>
-  </script>
-        <div uib-alert ng-repeat="alert in alerts" ng-class="'alert-' + (alert.type || 'warning')"
-            close="closeAlert($index)">{{alert.msg}}</div>
-        <div uib-alert template-url="alert.html" style="background-color:#fa39c3;color:white">A happy alert!</div>
-        <button type="button" class='btn btn-default' ng-click="addAlert()">Add Alert @ {{ retryMessage }}</button>
-    </div> -->
-    <div class="row" style="width: 350px;" ng-controller="app">
-        <div class="col-lg-12">
-            <div class="grid">
-                <p class="grid-header">주간 통계</p>
-                <div class="item-wrapper">
-                    <div>
-                        <!-- <p style="padding-left: 30px;font-size: 16px;color:#969696">{{ model.charts.day.title }}</p>
-                        <p style="padding-left: 30px;font-size: 20px;color:#3d3c3c;font-weight:bolder">{{ model.totals.times
-                            | convertSummaryTimeToString }}</p> -->
-                    </div>
-                    <mw-chart style="width:300px;height:180px;top:-80px;bottom:20px;left:30px;" ng-model="param">
-                    </mw-chart>
-                </div>
-            </div>
-            <div class="grid">
-                <!-- <p class="grid-header">{{ model.day_title }} - {{ model.total_times | convertSummaryTimeToString}}</p> -->
-                <!-- <div class="item-wrapper">
-                    <mw-chart style="width:100%;height:200px;left:30px;" ng-model="param1">
-                    </mw-chart>
-                </div> -->
-            </div>
+  <div style="padding:0px 10px 0px 10px">
+    <!-- <div class="page-content-wrapper"> -->
+      <!-- <div class="page-content-wrapper-inner"> -->
+        <div class="content-viewport">
+          <div ng-view></div>
         </div>
-    </div>
+      <!-- </div> -->
+    <!-- </div> -->
+    <script src="assets/vendors/js/core.js"></script>
+    <script src="assets/vendors/js/vendor.addons.js"></script>
+    <script src="app/js/template.js"></script>
 </body>
 
 </html>

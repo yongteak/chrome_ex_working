@@ -342,7 +342,7 @@
     .sidebar .navigation-menu > li:not(.nav-category-divider) > a[data-toggle="collapse"] {
       position: relative; }
       .sidebar .navigation-menu > li:not(.nav-category-divider) > a[data-toggle="collapse"]:after {
-        content: "\f142";
+        content: "\f315";
         font-family: "Material Design Icons";
         font-size: 15px;
         text-rendering: auto;

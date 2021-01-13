@@ -1,0 +1,64 @@
+<div class="row">
+    <div class="grid">
+      <div class="grid-body py-3">
+        <div class="d-flex justify-content-between">
+          <!-- <span data-toggle="tooltip" data-placement="left" title=""> -->
+            <!-- <em class="mdi mdi-information-outline text-muted"></em>  -->
+            Web Screen Time Tracker : 설정
+          <!-- </span> -->
+          <!-- <code class="text-danger">집계기간:1월1일 ~ 1월30일</code> -->
+        </div>
+      </div>
+      <div>
+        <mw-chart style="width:100%;height:60px;top:0px;bottom:0px;left:0px;" ng-model="model.chart">
+        </mw-chart>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr class="solid-header">
+              <th>URL</th>
+              <th>시간</th>
+              <th>접속</th>
+              <th>데이터</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="row in model.cumulative_usage">
+              <td>
+                <small class="text-black font-weight-medium d-block">{{ row.url }}</small>
+                <span class="text-gray">
+                  <span style="background-color: {{row.categroy_code | category_code_to_color }}"
+                    class="status-indicator rounded-indicator small"></span>{{row.categroy_code | category_code_to_name
+                  }}</span>
+              </td>
+              <td>
+                <div class="progress">
+                  <div class="progress-bar bg-primary progress-bar-striped" role="progressbar"
+                    style="width: {{ (row.summary/model.cumulative_sum.summary)*100 }}%" aria-valuemin="0"
+                    aria-valuemax="100">{{ row.summary | secondToFormat }}</div>
+                </div>
+              </td>
+              <td>
+                <div class="progress">
+                  <div class="progress-bar bg-success progress-bar-striped" role="progressbar"
+                    style="width: {{ (row.count/model.cumulative_sum.count)*100 }}%" aria-valuemin="0"
+                    aria-valuemax="100">{{ row.count | num_comma }}회</div>
+                </div>
+              </td>
+              <td>
+                <div class="progress">
+                  <div class="progress-bar bg-danger progress-bar-striped" role="progressbar"
+                    style="width: {{ (row.dataUsage/model.cumulative_sum.dataUsage)*100 }}%" aria-valuemin="0"
+                    aria-valuemax="100">{{ row.dataUsage | dataSizeToUnit }}</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <a class="border-top px-3 py-2 d-block text-gray" href="#">
+        <small class="font-weight-medium"><i class="mdi mdi-chevron-down mr-2"></i>더 많은 데이터 보기</small>
+      </a>
+    </div>
+  </div>

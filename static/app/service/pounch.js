@@ -121,9 +121,10 @@ angular.module('app.pounch', [])
                     .catch(deferred.reject)
                 return deferred.promise;
             },
-            getdoc: (key) => {
+            getdoc: (key,name) => {
+                name = name || 'tabs';
                 var deferred = $q.defer();
-                new PouchDB('tabs', { revs_limit: 10, auto_compaction: true }).get(key)
+                new PouchDB(name, { revs_limit: 10, auto_compaction: true }).get(key)
                     .then(deferred.resolve)
                     .catch(deferred.reject);
                 return deferred.promise;

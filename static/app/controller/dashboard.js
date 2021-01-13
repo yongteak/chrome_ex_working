@@ -15,11 +15,17 @@ angular.module('app.controller.dashboard', [])
                 by_category: {},
                 radar: {}
             },
-            sums: { times: 0, traffic: 0, count: 0, blacklist: 0},
+            reduce:[],
+            daytime_of_usaged:[],
+            series: {
+
+            },
+            sums: { times: 0, traffic: 0, count: 0, blacklist: 0 },
             top_rank: {
                 category: [],
                 url: []
             },
+            weeks:[],
             week_of_days: [],
             domain_by_day: [],
             usabilitys: [],
@@ -30,15 +36,44 @@ angular.module('app.controller.dashboard', [])
         };
         $scope.run = {
             init: () => {
-                indexer.domain_by_day(build => {
-                    var args = build.sort((a, b) => { return b.day - a.day })
-                    pounch.getbucket(null, 'bucket_blacklist_access')
-                        .then(res => $scope.run.start(args, res.value))
-                        .catch(_err => $scope.run.start(args, []) )
-                });
+                indexer.dashboard(res => {
+                    console.log('db...',res);
+                    if (res == 'not_found') {
+                        indexer.domain_by_day(build => {
+                            var args = build.sort((a, b) => { return b.day - a.day })
+                            pounch.getbucket(null, 'bucket_blacklist_access')
+                                .then(res1 => $scope.run.start(args, res1.value))
+                                .catch(_err => $scope.run.start(args, []))
+                        });
+                    } else {
+                        $scope.run.bindind(res)
+                    }
+                })
             },
-            start: (args,baccess) => {
-                console.log(baccess,args);
+            bindind: args => {
+                console.log('bindind',args);
+                $scope.model = args;
+                $scope.run.draw();
+            },
+            draw: () => {
+                [['times', 'secondToFormat'],
+                ['traffic', 'dataSizeToUnit'],
+                ['count', 'num_comma'],
+                ['blacklist', 'num_comma']
+                ].forEach((e, idx) => {
+                    var series = [{
+                        data: $scope.model.reduce[idx], type: 'line', symbolSize: 0, smooth: true,
+                        lineStyle: { width: 3, color: '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6) }
+                    }];
+                    // $scope.model.charts[e[0]] = { 'option': chart($scope.model.weeks, series, e[1]), 'click': null };
+                });
+                // $scope.model.charts.radar = { 'option': chart2($scope.model.radarReduce, $scope.model.series['radarSeries']), 'click': null };
+                $scope.model.charts.by_category = { 'option': chart($scope.model.weeks, $scope.model.series['catSeries']), 'click': null };
+                // $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
+            },
+            start: (args, baccess) => {
+                console.log('start!!');
+                console.log(baccess, args);
                 // 30일 데이터만 수집?
                 // console.log(args);
                 $scope.model.days =
@@ -46,7 +81,8 @@ angular.module('app.controller.dashboard', [])
                         a.push(moment('' + args[0].day).add(-b, 'day').format("YYYYMMDD"));
                         return a;
                     }, []);
-                var weeks = $scope.model.days.slice(0, 7).reverse()
+                $scope.model.weeks = $scope.model.days.slice(0, 7).reverse();
+                var weeks = $scope.model.weeks;
                 // 날짜 기간 고민필요
                 var monthly = weeks;//$scope.model.days.reverse(); //Usability
 
@@ -66,8 +102,8 @@ angular.module('app.controller.dashboard', [])
                     }
                     return a;
                 }, [new Array(wsize).fill(0), // times
-                    new Array(wsize).fill(0), // traffic
-                    new Array(wsize).fill(0)]); // count
+                new Array(wsize).fill(0), // traffic
+                new Array(wsize).fill(0)]); // count
 
                 var baccess1 = baccess
                     .reduce((a, b) => {
@@ -75,20 +111,21 @@ angular.module('app.controller.dashboard', [])
                         if (index != -1) {
                             a[index].count += b.count;
                         } else {
-                            a.push({date:b.date,count:b.count})
+                            a.push({ date: b.date, count: b.count })
                         }
                         return a;
-                    },[])
-                    .reduce( (a,b) => {
+                    }, [])
+                    .reduce((a, b) => {
                         var idx = weeks.indexOf('' + b.date);
                         if (idx != -1) {
                             a.splice(idx, 1, b.count);
                         }
                         return a;
-                    },new Array(wsize).fill(0));
-                    $scope.model.sums.blacklist = baccess1.reduce( (a,b) => a + b,0);
+                    }, new Array(wsize).fill(0));
+                $scope.model.sums.blacklist = baccess1.reduce((a, b) => a + b, 0);
                 // black list access append reduces
                 reduce.push(baccess1);
+                $scope.model.reduce = reduce;
 
                 // 30일간 사용된 도메인 목록
                 var domains = args
@@ -99,7 +136,10 @@ angular.module('app.controller.dashboard', [])
                     }, []);
                 domains = Array.from(new Set(domains));
                 var dotu = $scope.model.distribution_of_time_use;
+                var daytime_of_usaged = $scope.model.daytime_of_usaged;
+                // 날짜 시간(24) 사용시간
                 pounch.getdocs(domains).then(docs => {
+                    // console.log(docs);
                     var reduce1 = docs.results.reduce(([acc, day_by_cat], doc) => {
                         var code = doc.docs[0]['ok'].value.category_code;
                         code = code || '000';
@@ -107,8 +147,25 @@ angular.module('app.controller.dashboard', [])
                         doc.docs[0]['ok'].value.days
                             .filter(a => '' + a.date >= monthly[0] && a.date <= monthly[monthly.length - 1])
                             .forEach(e => {
+                                // 도메인갯수 x 날짜
                                 e.hours.forEach((h, index) => {
-                                    if (h.second > 0) dotu.push([index, h.second])
+                                    if (h.second > 0) {
+                                        dotu.push([index, h.second]);
+                                    }
+                                    var daytime = '' + e.date + $filter('zeroAppend')(index);
+                                    var daytime_index = daytime_of_usaged.map(m => m.daytime).indexOf(daytime);
+                                    if (daytime_index == -1) {
+                                        daytime_of_usaged.push({
+                                            daytime: daytime,
+                                            second: h.second,
+                                            counter: h.counter,
+                                            dataUsage: h.dataUsage
+                                        })
+                                    } else {
+                                        daytime_of_usaged[daytime_index].second += h.second;
+                                        daytime_of_usaged[daytime_index].counter += h.counter;
+                                        daytime_of_usaged[daytime_index].dataUsage += h.dataUsage;
+                                    }
                                 })
                                 sum['dataUsage'] += e.dataUsage;
                                 sum['summary'] += e.summary;
@@ -138,7 +195,7 @@ angular.module('app.controller.dashboard', [])
                         acc.push(sum);
                         return [acc, day_by_cat];
                     }, [[], {}]);
-
+                    console.log('daytime_of_usaged', daytime_of_usaged);
                     const usability = reduce1[0];
                     // cache..
                     $scope.model.usabilitys = usability;
@@ -200,39 +257,17 @@ angular.module('app.controller.dashboard', [])
                     // yAxisFormat = secondToFormat,dataSizeToUnit,num_comma
                     console.log('reduce', reduce);
 
-                    [['times', 'secondToFormat'],
-                    ['traffic', 'dataSizeToUnit'],
-                    ['count', 'num_comma'],
-                    ['blacklist', 'num_comma']
-                ].forEach((e, idx) => {
-                        var seriesData = [{
-                            data: reduce[idx], type: 'line', symbolSize: 0, smooth: true,
-                            lineStyle: { width: 3, color: '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6) }
-                        }];
-                        // $scope.model.charts[e[0]] = { 'option': chart(weeks, seriesData,e[1]), 'click': null };
-                    });
                     // console.log(usability);
                     // 일자별 카테고리별 사용시간
                     // console.log(weeks,'reduce1', reduce1[1]);
                     // 주간 사용량
-                    var catSeriesData = [];
-                    for (var p in reduce1[1]) {
-                        var fill = new Array(wsize).fill(0);
-                        reduce1[1][p].filter(s => weeks.includes('' + s.date)).forEach(e => {
-                            var idx = weeks.indexOf('' + e.date);
-                            if (idx != -1) fill.splice(idx, 1, e.summary);
-                        })
-                        catSeriesData.push({
-                            name: p, type: 'bar', stack: 'total',
-                            itemStyle:{color:$filter('category_code_to_color')(p)},
-                            data: fill, hoverAnimation: false
-                        });
-                    };
+
 
                     // ### RADAR
                     // max = 300, 3개의 값을 대조했으니 100% * 3
                     // 전체 카테고리 목록중 비율을 계산하여 사용시간 x 접속횟수 통계 잡기
                     // [2021-01-11 21:56:34] 기준값을 잡고 다시 계산하자
+
                     var radarReduce = cat_url_rank[0]
                         .sort((a, b) => { return b.dataUsage - a.dataUsage })
                         .slice(0, 5)
@@ -257,21 +292,34 @@ angular.module('app.controller.dashboard', [])
                             acc[0].push(rate);
                             acc[1].push({ name: cur.categroy_code, max: 0 });
                             if (acc[0].length == 5) {
-                                var max = acc[0].reduce( (a,b) => a+b,0);
+                                var max = acc[0].reduce((a, b) => a + b, 0);
                                 acc[1].map(x => x.max = max);
                             }
                             return acc;
                         }, [[], []]);
+                        $scope.model.radarReduce = radarReduce[1];
 
-                    var radarSeries = [{
-                            type: 'radar',
-                            data: [ { value: radarReduce[0] }]
-                        }];
-                    // console.log(radarSum,a2)
-                    $scope.model.charts.radar = { 'option': chart2(radarReduce[1],radarSeries), 'click': null };
-                    $scope.model.charts.by_category = { 'option': chart(weeks, catSeriesData), 'click': null };
-                    // $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
+                    // Series Data
+                    $scope.model.series['catSeries'] = [];
+                    // var catSeriesData = [];
+                    for (var p in reduce1[1]) {
+                        var fill = new Array(wsize).fill(0);
+                        reduce1[1][p].filter(s => weeks.includes('' + s.date)).forEach(e => {
+                            var idx = weeks.indexOf('' + e.date);
+                            if (idx != -1) fill.splice(idx, 1, e.summary);
+                        })
+                        $scope.model.series['catSeries'].push({
+                            name: p, type: 'bar', stack: 'total',
+                            itemStyle: { color: $filter('category_code_to_color')(p) },
+                            data: fill, hoverAnimation: false
+                        });
+                    };
 
+                    // save model
+                    console.log(JSON.parse(JSON.stringify($scope.model)));
+                    indexer.dashboard(res => {
+                        $scope.run.draw();
+                    }, JSON.parse(JSON.stringify($scope.model)));
                 });
             }
         }
