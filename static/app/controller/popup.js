@@ -45,9 +45,7 @@ angular.module('app.controller.popup', [])
                                                 second: h.second,
                                                 counter: h.counter,
                                                 dataUsage: h.dataUsage
-                                            })
-                                            if (doc.id == 'www.clien.net')
-                                                console.log('h.counter',e.date,doc.id,index,h.counter);
+                                            });
                                         } else {
                                             hdata[daytime_index].second += h.second;
                                             hdata[daytime_index].counter += h.counter;
@@ -80,7 +78,10 @@ angular.module('app.controller.popup', [])
                         // console.log(find);
                         if (find == undefined) {
                             var record = Array(24).fill(0);
-                            acc[0].concat(record.reduce((a, b) => a.push(x + $filter('zeroAppend')(b), [])));
+                            acc[0].concat(record.reduce((a, b) => {
+                                    a.push(x + $filter('zeroAppend')(b))
+                                    return a;
+                                }, []));
                             acc[1].concat(record);
                         } else {
                             acc[0] = acc[0].concat(find.hdata.map(m => m.daytime));
@@ -108,6 +109,13 @@ angular.module('app.controller.popup', [])
 
                     $scope.model.chart = { 'option': chart(arr[0], arr[1]), 'click': null };
                 });
+            },
+            openOptionsPage: () => {
+                if (chrome.runtime.openOptionsPage) {
+                    chrome.runtime.openOptionsPage();
+                } else {
+                    window.open(chrome.runtime.getURL('static/index.html'));
+                }
             }
         }
         $scope.run.init();

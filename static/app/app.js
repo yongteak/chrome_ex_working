@@ -117,9 +117,9 @@ app.directive('elastic', [
 
 app.constant('CONFIG', {
 	// 'URI': 'http://34.83.116.28:8080/api/v1',
-	// 'COUCHDB_REMOTE_URI': 'http://34.83.116.28:5984',
+	'COUCHDB_REMOTE_URI': 'http://34.83.116.28:5984',
 	// 'COUCHDB_REMOTE_URI':'http://172.24.69.139:5984',
-	'COUCHDB_REMOTE_URI':'http://127.0.0.1:5984',
+	// 'COUCHDB_REMOTE_URI': 'http://172.23.156.129:5984/',
 	'IDENTITY': 'dentity',
 	// 'URI': 'http://172.24.69.139:8080/api/v1',
 	'URI':'http://localhost:8080/api/v1',

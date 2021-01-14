@@ -14,5 +14,16 @@
     {"url":"*.live.com","code":"020"},
     {"url":"*.gmail.com","code":"020"},
     {"url":"*.outlook.com","code":"020"},
-    {"url":"mail.*","code":"020"}
+    {"url":"mail.*","code":"020"},
+    {
+        "url": "*.clien.net","code": "029"
+    },
+    {
+        "url": "*.dcinside.com",
+        "code": "029"
+    },
+    {
+        "url": "*.inven.co.kr",
+        "code": "029"
+    }
 ]

@@ -1,0 +1,40 @@
+<div class="grid">
+    <p class="grid-header"><a href ng-click="open()">도메인별 카테고리 분류</a></p>
+    <div class="item-wrapper">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th width="25">#</th>
+                        <th width="200">URL</th>
+                        <th>분류(서버)</th>
+                        <th width="200">분류(로컬)</th>
+                        <th>투표인원</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in model.newRows">
+                        <td>{{ row.index }}</td>
+                        <td><a href ng-click="run.open(row.url)">{{ row.url }}</a></td>
+                        <td>{{ run.code_to_name(row.code) }}</td>
+                        <td>
+                            <select class="custom-select" ng-change="run.selected(row,model.select[row.index])"
+                                ng-model='model.select[row.index]'
+                                ng-options="item.code as item.ko for item in model.options.category"></select>
+                        </td>
+                        <td>{{ row.voters | num_comma }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <ul uib-pagination
+                ng-if="model.newRows.length > 0"
+                ng-model="$parent.model.paginate.currentPage"
+                total-items="model.paginate.total" max-size="model.paginate.pageSize"
+                items-per-page='model.paginate.numPerPage'
+                boundary-links="true" ng-change="pageChanged()" previous-text="이전"
+                next-text="다음" first-text="처음" last-text="마지막">
+            </ul>
+        </div>
+    </div>
+</div>

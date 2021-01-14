@@ -4,7 +4,7 @@
         <div class="d-flex justify-content-between">
           <!-- <span data-toggle="tooltip" data-placement="left" title=""> -->
             <!-- <em class="mdi mdi-information-outline text-muted"></em>  -->
-            Web Screen Time Tracker : 설정
+            Web Screen Time Tracker : <a href ng-click="run.openOptionsPage()">설정</a>
           <!-- </span> -->
           <!-- <code class="text-danger">집계기간:1월1일 ~ 1월30일</code> -->
         </div>
@@ -58,7 +58,9 @@
         </table>
       </div>
       <a class="border-top px-3 py-2 d-block text-gray" href="#">
-        <small class="font-weight-medium"><i class="mdi mdi-chevron-down mr-2"></i>더 많은 데이터 보기</small>
+        <small class="font-weight-medium"><i class="mdi mdi-chevron-down mr-2"></i>
+          <a href ng-click="run.openOptionsPage()">더 많은 데이터 보기</a>
+          </small>
       </a>
     </div>
   </div>

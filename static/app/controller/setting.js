@@ -15,8 +15,8 @@ angular.module('app.controller.setting', [])
                 }).catch(console.error);
         }
         function login() {
-            db = new PouchDB(CONFIG.COUCHDB_REMOTE_URI + '/114916629141904173371',
-                { skip_setup: true, revs_limit: 1, auto_compaction: true });
+            db = new PouchDB(CONFIG.COUCHDB_REMOTE_URI + '/g114916629141904173371',
+                { skip_setup: true, revs_limit: 5, auto_compaction: true });
             db.login(id, pw)
                 .then(res => {
                     console.log('login > ', res);
@@ -29,17 +29,17 @@ angular.module('app.controller.setting', [])
         }
 
         function sync(db) {
-            console.log('start sync!')
-            var local = new PouchDB(CONFIG.STORAGE_TABS);
-            local.sync(db, {
-                live: true, retry: true
-            })
-            // .on('change', console.log)
-            // .on('paused', console.log)
-            // .on('active', console.log)
-            // .on('denied', console.log)
-            // .on('complete', console.log)
-            // .on('error', console.error);
+            var db = new PouchDB(CONFIG.STORAGE_TABS,{revs_limit: 5, auto_compaction: true });
+            var url = CONFIG.COUCHDB_REMOTE_URI +'/g114916629141904173371';
+            console.log('start sync!',url);
+            var opts = { live: false, retry: true };
+            db.replicate.from(url).on('complete', info => {
+                console.log('from sync ok',info);
+                db.sync(url, opts)
+                    .on('change', onSyncChange)
+                    .on('paused', onSyncPaused)
+                    .on('error', onSyncError);
+            }).on('error', onSyncError);
         }
         // /^(?:(?:^|\.)(?:2(?:5[0-5]|[0-4]\d)|1?\d?\d)){4}$/;
         // /^admin.*/
@@ -52,7 +52,7 @@ angular.module('app.controller.setting', [])
         // str.match(regexp);
         // var matches_array = str.match(regexp);
 
-        // login();
+        login();
         $scope.model = {
             blacklist: [],
             domain: null,

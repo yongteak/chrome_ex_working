@@ -382,7 +382,7 @@ function backgroundUpdateStorage() {
     copy.forEach(tab => {
         var variable = tab;
         (function (t) {
-            // console.log('tab 저장..',t.url,t);
+            console.log('tab 저장..',t.url,t);
             db.get(t.url).then(doc => {
                 db.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
                 }).catch(console.error);
@@ -427,9 +427,7 @@ function addListener() {
                 if (tabs !== undefined) {
                     if (tabs.find(o => o.url === activeUrl)) {
                         // next
-                        console.log('11 onActivated');
                     } else {
-                        console.log('22 onActivated');
                         db.get(activeUrl).then(doc => {
                             tabs.push(prevTab(doc.value));
                         }).catch(err => {

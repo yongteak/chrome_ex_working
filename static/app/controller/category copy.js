@@ -20,6 +20,7 @@ angular.module('app.controller.category', [])
         };
 
         $scope.pageChanged = function () {
+            // console.log('currentPage', $scope.currentPage);
             $scope.paginate($scope.model.rows,$scope.model.paginate.currentPage)
         };
 

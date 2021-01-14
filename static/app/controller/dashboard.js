@@ -37,7 +37,6 @@ angular.module('app.controller.dashboard', [])
         $scope.run = {
             init: () => {
                 indexer.dashboard(res => {
-                    console.log('db...',res);
                     if (res == 'not_found') {
                         indexer.domain_by_day(build => {
                             var args = build.sort((a, b) => { return b.day - a.day })
@@ -51,9 +50,9 @@ angular.module('app.controller.dashboard', [])
                 })
             },
             bindind: args => {
-                console.log('bindind',args);
-                $scope.model = args;
-                $scope.run.draw();
+                // console.log('bindind',args);
+                // $scope.model = args;
+                // $scope.run.draw();
             },
             draw: () => {
                 [['times', 'secondToFormat'],
@@ -68,7 +67,7 @@ angular.module('app.controller.dashboard', [])
                     // $scope.model.charts[e[0]] = { 'option': chart($scope.model.weeks, series, e[1]), 'click': null };
                 });
                 // $scope.model.charts.radar = { 'option': chart2($scope.model.radarReduce, $scope.model.series['radarSeries']), 'click': null };
-                $scope.model.charts.by_category = { 'option': chart($scope.model.weeks, $scope.model.series['catSeries']), 'click': null };
+                // $scope.model.charts.by_category = { 'option': chart($scope.model.weeks, $scope.model.series['catSeries']), 'click': null };
                 // $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
             },
             start: (args, baccess) => {
