@@ -42,6 +42,7 @@ var STORAGE_NOTIFICATION_MESSAGE = 'notification_message';
 var STORAGE_TIMERANGE_LIST = 'time_range';
 // 시간당 소비 페이지 정보 5초이상 머물렀던 URL 페이지 목록 관리, daily관리
 var STORAGE_TIME_TO_URL = 'time_to_url';
+var SETTINGS_INTERVAL_SYNC_DEFAULT = 1000 * 5;
 var SETTINGS_INTERVAL_INACTIVITY_DEFAULT = InactivityInterval.second30;
 var SETTINGS_INTERVAL_CHECK_DEFAULT = 1000;
 var SETTINGS_INTERVAL_SAVE_STORAGE_DEFAULT = 1000 * 2; // 2초
@@ -51,6 +52,7 @@ var SETTINGS_VIEW_TIME_IN_BADGE_DEFAULT = 'time_today';
 var SETTINGS_SHOW_HINT_DEFAULT = true;
 var STORAGE_NOTIFICATION_MESSAGE_DEFAULT = 'You have spent a lot of time on this site';
 
+var SETTINGS_INTERVAL_SYNC = 'settings_interval_sync';
 var SETTINGS_INTERVAL_INACTIVITY = 'inactivity_interval';
 var SETTINGS_INTERVAL_SAVE_STORAGE = 'interval_save_in_storage';
 var SETTINGS_INTERVAL_RANGE = 'range_days';
@@ -257,4 +259,22 @@ function formatDate() {
     var day = date.getDate();
     day = day >= 10 ? day : '0' + day;
     return parseInt(year + '' + month + '' + day);
+}
+
+function browser() {
+    var isOpera = (!!window.opr && !!opr.addons) || !!window.opera
+		|| navigator.userAgent.indexOf(' OPR/') >= 0;
+	var isFirefox = typeof InstallTrigger !== 'undefined';
+	var isIE = /*@cc_on!@*/false || !!document.documentMode;
+	var isEdge = !isIE && !!window.StyleMedia;
+	var isChrome = !isOpera && !isFirefox && !isIE && !isEdge;
+	var isBlink = (isChrome || isOpera) && !!window.CSS;
+	var find = [{key:'Chrome',value:isChrome},
+                {key:'Edge',value:isEdge},
+                {key:'Firefox',value:isFirefox},
+                {key:'IE',value:isIE},
+                {key:'Opera',value:isOpera},
+                {key:'Blink',value:isBlink}]
+            .find(x => x.value == true);
+    return find ? find.key : 'Chrome';
 }

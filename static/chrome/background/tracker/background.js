@@ -35,6 +35,8 @@ function get_reports(callback) {
     });
 }
 
+var browser = browser();
+
 // pounchdb
 var db;
 var tabs;
@@ -66,6 +68,10 @@ function updateSummaryTime() {
 
 function updateStorage() {
     setInterval(backgroundUpdateStorage, SETTINGS_INTERVAL_SAVE_STORAGE_DEFAULT);
+}
+
+function updateSync() {
+    setInterval(backgroundUpdateStorage, SETTINGS_INTERVAL_SYNC_DEFAULT);
 }
 
 function backgroundCheck() {
@@ -319,6 +325,7 @@ function notificationAction(activeUrl, tab) {
 }
 
 function setBlockPageToCurrent(activeUrl) {
+    updateEvent('go_block_page',activeUrl);
     // static/app/tmpl/block.html
     var blockUrl = chrome.runtime.getURL("static/html/block.html") + '?url=' + activeUrl;
     chrome.tabs.query({ currentWindow: true, active: true }, tab => {
@@ -376,29 +383,66 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
     });
 }
 
+function updateSync() {
+
+}
+
+function runSync() {
+
+}
+// tab사용시간 관리, browser용
+var diff_second;
+// save
 function backgroundUpdateStorage() {
     if (!tabs) return;
+    // const diff = Math.round(Date.now() / 1000) - diff_second;
     const copy = JSON.parse(JSON.stringify(tabs));
     copy.forEach(tab => {
         var variable = tab;
         (function (t) {
-            console.log('tab 저장..',t.url,t);
-            db.get(t.url).then(doc => {
-                db.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
+            // 1초단위로 저장할경우 diff는 항상 0
+            // if (t.browsers) {
+            //     var index = t.browsers.map(m => m.browsers).indexOf(browser);
+            //     if (index == -1) {
+            //         t.browsers.push({'browser':browser, summary:diff});
+            //     } else {
+            //         t.browsers[index].summary += diff;
+            //     }
+            // } else {
+            //     t.browsers = [{'browser':browser, count:1, summary:diff}]
+            // }
+            // console.log('tab 저장..',t.url,t);
+            // db.get(t.url).then(doc => {
+            //     db.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
+            //     }).catch(console.error);
+            // }).catch(_err => {
+            //     db.put({ '_id': t.url, 'value': t }).then(res => {
+            //     }).catch(console.error);
+            // });
+
+            // 변경분 저장
+            diff_tabs.get(t.url).then(doc => {
+                diff_tabs.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
                 }).catch(console.error);
             }).catch(_err => {
-                db.put({ '_id': t.url, 'value': t }).then(res => {
+                diff_tabs.put({ '_id': t.url, 'value': t }).then(res => {
                 }).catch(console.error);
             });
+
+
         })(variable)
     })
     // 사본 생성후 가장 마지막 항목만 남기고 제거
     // db에서 저장하는 과정에서 시간 딜레이 생김
+    diff_second = Math.round(Date.now() / 1000);
     tabs = tabs.slice(tabs.length - 1, tabs.length);
     // console.log('tabs 저장완료, size > ', tabs.length)
 }
 
 function setDefaultSettings() {
+    console.log('[setDefaultSettings]');
+    console.log('this browser', browser);
+    storage.saveValue(SETTINGS_INTERVAL_SYNC, SETTINGS_INTERVAL_SYNC_DEFAULT);
     storage.saveValue(SETTINGS_INTERVAL_INACTIVITY, SETTINGS_INTERVAL_INACTIVITY_DEFAULT);
     storage.saveValue(SETTINGS_INTERVAL_RANGE, SETTINGS_INTERVAL_RANGE_DEFAULT);
     storage.saveValue(SETTINGS_VIEW_TIME_IN_BADGE, SETTINGS_VIEW_TIME_IN_BADGE_DEFAULT);
@@ -407,15 +451,31 @@ function setDefaultSettings() {
 }
 
 function checkSettingsImEmpty() {
-    chrome.storage.local.getBytesInUse(['inactivity_interval'], item => {
-        if (item == 0) {
+    // chrome.storage.local.getBytesInUse(['inactivity_interval'], item => {
+    //     if (item == 0) {
             setDefaultSettings();
-        }
-    });
+        // }
+    // });
 }
 
 function setDefaultValueForNewSettings() {
     loadNotificationMessage();
+}
+
+function updateEvent(key,value) {
+    key = (''+key).toUpperCase();
+    const kv = {'key':key,'value':value,'epoch':Date.now(),'browser':browser};
+    const bucket = 'bucket_event';
+    const put = {'_id':bucket,'value':[kv]};
+    db.get(bucket).then(doc => {
+        doc.value.push(kv);
+        db.put(doc, { force: true });
+    }).catch(_err => db.put(put) );
+
+    diff_tabs.get(bucket).then(doc => {
+        doc.value.push(kv);
+        diff_tabs.put(doc, { force: true });
+    }).catch(_err => diff_tabs.put(put) );
 }
 
 function addListener() {
@@ -448,16 +508,17 @@ function addListener() {
     });
     chrome.runtime.onInstalled.addListener(details => {
         console.log('onInstalled > ', details);
-        if (details.reason == 'install') {
-            storage.saveValue(SETTINGS_SHOW_HINT, SETTINGS_SHOW_HINT_DEFAULT);
-            setDefaultSettings();
-        }
-        if (details.reason == 'update') {
-            storage.saveValue(SETTINGS_SHOW_HINT, SETTINGS_SHOW_HINT_DEFAULT);
-            checkSettingsImEmpty();
-            setDefaultValueForNewSettings();
-            // isNeedDeleteTimeIntervalFromTabs = true;
-        }
+        updateEvent(details.reason,details);
+        // if (details.reason == 'install') {
+        //     storage.saveValue(SETTINGS_SHOW_HINT, SETTINGS_SHOW_HINT_DEFAULT);
+        //     setDefaultSettings();
+        // }
+        // if (details.reason == 'update') {
+        //     storage.saveValue(SETTINGS_SHOW_HINT, SETTINGS_SHOW_HINT_DEFAULT);
+        //     checkSettingsImEmpty();
+        //     setDefaultValueForNewSettings();
+        //     // isNeedDeleteTimeIntervalFromTabs = true;
+        // }
     });
     // [2021-01-13 00:44:20]
     // 비활성 시간 계측 코드 필요
@@ -538,7 +599,8 @@ function prevTab(tab) {
 }
 
 // 추적 금지
-function loadBlackList() {
+function loadBlackList(isReload) {
+    if (isReload) updateEvent('update_black_list','update_black_list');
     db.get(STORAGE_BUCKET)
         .then(rows => {
             setting_black_list = [];
@@ -564,7 +626,8 @@ function loadBlackList() {
         .catch(console.error);
 }
 
-function loadRestrictionList() {
+function loadRestrictionList(isReload) {
+    if (isReload) updateEvent('update_restriction_list','update_restriction_list');
     db.get(STORAGE_BUCKET)
         .then(rows => {
             setting_restriction_list = rows['restriction_list'] || [];
@@ -666,9 +729,11 @@ function checkPermissionsForNotifications(callback, ...props) {
 
 // 시작!
 var pounch;
+var diff_tabs;
 function reload() {
     pounch = new PouchStorage(function (instance) {
-        db = new instance('tabs', { revs_limit: 10, auto_compaction: true });
+        db = new instance('tabs', { revs_limit: 10, sauto_compaction: true });
+        diff_tabs = new instance('diff_tabs', { revs_limit: 10, sauto_compaction: true });
         tabs = [];
 
         loadPermissions();
@@ -678,5 +743,7 @@ function reload() {
         updateStorage();
     });
 }
-
+// sync이벤트 완료후 flag
 reload();
+// start!
+updateEvent('start_application',browser);

@@ -47,6 +47,12 @@ https://gyuyeon.tistory.com/6
  - 일정시간마다 누적된 데이터 merge코드 필요
 
 [TODO]
+[2021-01-15 04:26:03]
+ - 양방향 동기화 잘하는 방법
+  * 로컬 db 2중화, new_db 다운로드후 old_db와 시간단위로 merge처리
+  * 마지막 checkpoint기록후 merge진행
+   => 1. background에서 push이후 변경분을 따로 관리 (new_tabs)
+   => 2. pull이후 변경분을 merge후 다시 push한다.
 [2021-01-12 15:11:52]
  - blacklist 상세 설명필요
   * naver.com => vive.naver.com 포함됨

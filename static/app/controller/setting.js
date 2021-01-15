@@ -5,7 +5,6 @@ angular.module('app.controller.setting', [])
         // http://172.24.69.139:5984/114916629141904173371
         var id = '114916629141904173371';
         var pw = '114916629141904173371'.split("").reverse().join("");
-        var db;
         function join() {
             db.signUp(id, pw)
                 .then(res => {
@@ -15,12 +14,12 @@ angular.module('app.controller.setting', [])
                 }).catch(console.error);
         }
         function login() {
-            db = new PouchDB(CONFIG.COUCHDB_REMOTE_URI + '/g114916629141904173371',
+            var db = new PouchDB(CONFIG.COUCHDB_REMOTE_URI + '/g114916629141904173371',
                 { skip_setup: true, revs_limit: 5, auto_compaction: true });
             db.login(id, pw)
                 .then(res => {
                     console.log('login > ', res);
-                    sync(db);
+                    sync();
                 }).catch(err => {
                     if (err.name == 'unauthorized') {
                         join()
@@ -28,13 +27,85 @@ angular.module('app.controller.setting', [])
                 })
         }
 
-        function sync(db) {
-            var db = new PouchDB(CONFIG.STORAGE_TABS,{revs_limit: 5, auto_compaction: true });
-            var url = CONFIG.COUCHDB_REMOTE_URI +'/g114916629141904173371';
-            console.log('start sync!',url);
+        function merge() {
+            // pull, merge, push, purge
+            new PouchDB('diff_tabs').allDocs({
+                include_docs: true
+            }).then(local_docs => {
+                var diff = {};
+                var bulkdocs = [];
+                if (local_docs.total_rows > 0) {
+                    local_docs.rows.forEach(e => {
+                        bulkdocs.push({id:e.doc._id});
+                        diff[[e.id]] = e.doc.value;
+                    });
+                    new PouchDB('tabs').bulkGet({ docs: bulkdocs })
+                        .then(docs => {
+                            // console.log(docs);
+                            docs.results.forEach(res => {
+                                var odoc = res.docs[0]['ok'].value;
+                                // console.log(odoc);
+                                var ddoc = diff[res.id];
+                                // console.log(ddoc);
+                                if (res.id.match(/^bucket\_/) == null) {
+                                    if (odoc.summaryTime !== ddoc.summaryTime) {
+                                        ddoc.days.forEach((day, index) => {
+                                            // console.log(odoc.days[index])
+                                            odoc.days[index].counter = Math.abs(day.counter - odoc.days[index].counter);
+                                            odoc.days[index].dataUsage = Math.abs(day.dataUsage - odoc.days[index].dataUsage);
+                                            odoc.days[index].summary = Math.abs(day.summary - odoc.days[index].summary);
+                                            day.hours.forEach((h,idx) => {
+                                                odoc.days[index].hours[idx] =
+                                                    Math.abs(h.counter - odoc.days[index].counter);
+                                            })
+                                        })
+                                    }
+                                } else if (doc.id == 'bucket_event') {
+
+                                }
+                            })
+                                // console.log(odoc)
+                                // if (doc.id == 'bucket_event') {
+                                    // row.value.map(m => m.epoch).indexOf(daytime);
+
+
+                                //     if (daytime_index == -1) {
+                                //     const kv = { 'key': key, 'value': value, 'epoch': Date.now(), 'browser': browser };
+                                //     const bucket = 'bucket_event';
+                                //     const put = { '_id': bucket, 'value': [kv] };
+                                //     doc.value.push(kv);
+
+                                // } else if (tab.id == 'bucket_event') {
+                                // } else if (tab.id == 'bucket_event') {
+                                // } else {
+
+                                // }
+
+                                // tab.part = tab.days.filter(x => x.date == day)[0];
+                                // tabs.push(tab);
+                                // $scope.model.totals.times += tab.part.summary;
+                                // $scope.model.totals.dataUsage += tab.part.dataUsage;
+                                // $scope.model.totals.counter += tab.part.counter;
+                            // });
+                        })
+                        .catch(err => console.error(err));
+                }
+            });
+        }
+        merge();
+
+
+
+
+
+        function sync() {
+            // diff_tabs
+            var db = new PouchDB(CONFIG.STORAGE_TABS, { revs_limit: 5, auto_compaction: true });
+            var url = CONFIG.COUCHDB_REMOTE_URI + '/g114916629141904173371';
+            console.log('start sync!', url);
             var opts = { live: false, retry: true };
             db.replicate.from(url).on('complete', info => {
-                console.log('from sync ok',info);
+                console.log('from sync ok', info);
                 db.sync(url, opts)
                     .on('change', onSyncChange)
                     .on('paused', onSyncPaused)
@@ -52,7 +123,7 @@ angular.module('app.controller.setting', [])
         // str.match(regexp);
         // var matches_array = str.match(regexp);
 
-        login();
+        // login();
         $scope.model = {
             blacklist: [],
             domain: null,

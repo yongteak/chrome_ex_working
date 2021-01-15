@@ -61,41 +61,21 @@ app.run(function ($rootScope, identity, pounch, storage, CONFIG) {
 			storage.saveValue(CONFIG.IDENTITY, userInfo);
 		}
 	});
-	// Opera 8.0+ (tested on Opera 42.0)
-	var isOpera = (!!window.opr && !!opr.addons) || !!window.opera
-		|| navigator.userAgent.indexOf(' OPR/') >= 0;
-
-	// Firefox 1.0+ (tested on Firefox 45 - 53)
-	var isFirefox = typeof InstallTrigger !== 'undefined';
-
-	// Internet Explorer 6-11
-	//   Untested on IE (of course). Here because it shows some logic for isEdge.
-	var isIE = /*@cc_on!@*/false || !!document.documentMode;
-
-	// Edge 20+ (tested on Edge 38.14393.0.0)
-	var isEdge = !isIE && !!window.StyleMedia;
-
-	// Chrome 1+ (tested on Chrome 55.0.2883.87)
-	// This does not work in an extension:
-	//var isChrome = !!window.chrome && !!window.chrome.webstore;
-	// The other browsers are trying to be more like Chrome, so picking
-	// capabilities which are in Chrome, but not in others is a moving
-	// target.  Just default to Chrome if none of the others is detected.
-	var isChrome = !isOpera && !isFirefox && !isIE && !isEdge;
-
-	// Blink engine detection (tested on Chrome 55.0.2883.87 and Opera 42.0)
-	var isBlink = (isChrome || isOpera) && !!window.CSS;
-
-	/* The above code is based on code from: https://stackoverflow.com/a/9851769/3773011 */
-	//Verification:
-	var log = console.log;
-	if (isEdge) log = alert; //Edge console.log() does not work, but alert() does.
-	log('isChrome: ' + isChrome);
-	log('isEdge: ' + isEdge);
-	log('isFirefox: ' + isFirefox);
-	log('isIE: ' + isIE);
-	log('isOpera: ' + isOpera);
-	log('isBlink: ' + isBlink);
+	// var isOpera = (!!window.opr && !!opr.addons) || !!window.opera
+	// 	|| navigator.userAgent.indexOf(' OPR/') >= 0;
+	// var isFirefox = typeof InstallTrigger !== 'undefined';
+	// var isIE = /*@cc_on!@*/false || !!document.documentMode;
+	// var isEdge = !isIE && !!window.StyleMedia;
+	// var isChrome = !isOpera && !isFirefox && !isIE && !isEdge;
+	// var isBlink = (isChrome || isOpera) && !!window.CSS;
+	// var log = console.log;
+	// if (isEdge) log = alert; //Edge console.log() does not work, but alert() does.
+	// log('isChrome: ' + isChrome);
+	// log('isEdge: ' + isEdge);
+	// log('isFirefox: ' + isFirefox);
+	// log('isIE: ' + isIE);
+	// log('isOpera: ' + isOpera);
+	// log('isBlink: ' + isBlink);
 });
 
 app.directive('elastic', [
