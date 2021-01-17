@@ -29,15 +29,19 @@ angular.module('app.indexer', [])
             domain_by_day: callback => {
                 return pounch.getdoc('domain_by_day', 'indexer')
                     .then(doc => {
-                        var ready = doc.value && doc.value.hasOwnProperty('rows');
-                        ready = moment().valueOf() - doc.value.last > 10000;// * 60 * 60;
-                        if (ready) {
+                        // 1610885721375
+                        // 1610885722920
+                        var hasRows = doc.value && doc.value.hasOwnProperty('rows');
+                        var checkTime = moment().valueOf() - doc.value.last > 1000 * 60;// * 60 * 60;
+                        // console.log('ready,hasRows',checkTime,hasRows,moment().valueOf() - doc.value.last);
+                        if (hasRows && !checkTime) {
                             callback(doc.value.rows);
                         } else {
                             build(callback);
                         }
                     })
                     .catch(err => {
+                        console.log(err)
                         if (err.name == "not_found") {
                             build(callback);
                         } else {
@@ -45,6 +49,7 @@ angular.module('app.indexer', [])
                         }
                     });
                 function build(callback) {
+                    console.log('start build..');
                     pounch.alldocs('tabs').then(docs => {
                         // check bucket rows
                         if (docs.total_rows > 0) {

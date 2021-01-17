@@ -36,19 +36,21 @@ angular.module('app.controller.status', [])
                     }
                 });
             },
-            init: (domain_by_day) => {
+            init: (args) => {
                 console.log('^init');
-                console.log(domain_by_day);
+                // console.log(args);
                 var week_of_start = moment().startOf('week').format("YYYYMMDD");
                 var week_of_end = moment(week_of_start).endOf('week').format("YYYYMMDD");
                 var diff = moment(week_of_end).diff(moment(week_of_start), 'days') + 1;
                 for (var i = 0; i < diff; i++) {
                     $scope.model.times.weeks.push(moment(week_of_start).add(i, 'day').format("YYYYMMDD"));
-                };
-                var domains = domain_by_day
+                }
+
+                var domains = args
                     .filter(s => $scope.model.times.weeks.includes('' + s.day))
                     .reduce((acc, cur) => acc.concat(cur.url), []);
                 // 과거 날짜에도 도메인이 포함되어 있으므로 날짜 필터링 추가 필요
+                console.log(domains);
                 pounch.getdocs(domains).then(items => {
                     items.results.forEach((tab, i, a) => {
                         tab = tab.docs[0]['ok'].value;
