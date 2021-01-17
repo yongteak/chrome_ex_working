@@ -38,7 +38,7 @@ angular.module('app.controller.popup', [])
                                 e.hours.forEach((h, index) => {
                                     var daytime = '' + e.date + $filter('zeroAppend')(index);
                                     var daytime_index = hdata.map(m => m.daytime).indexOf(daytime);
-                                    if (daytime < moment().format('YYYYMMDDhh00')) {
+                                    if (daytime < moment().format('YYYYMMDDH00')) {
                                         if (daytime_index == -1) {
                                             hdata.push({
                                                 daytime: daytime,
@@ -106,6 +106,8 @@ angular.module('app.controller.popup', [])
                         acc.summary += cur.summary;
                         return acc;
                     }, { count: 0, dataUsage: 0, summary: 0 });
+
+                    console.log(arr);
 
                     $scope.model.chart = { 'option': chart(arr[0], arr[1]), 'click': null };
                 });
