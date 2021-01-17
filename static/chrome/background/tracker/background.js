@@ -71,7 +71,7 @@ function updateStorage() {
 }
 
 function updateSync() {
-    setInterval(backgroundUpdateStorage, SETTINGS_INTERVAL_SYNC_DEFAULT);
+    setInterval(startSync, SETTINGS_INTERVAL_SYNC_DEFAULT);
 }
 
 function backgroundCheck() {
@@ -86,13 +86,13 @@ function backgroundCheck() {
                 if (tab === undefined) {
                     db.get(activeUrl).then(doc => {
                         // 기존 데이터가 있는경우 push
-                        console.log('db데이터 로드')
+                        console.log('tab null, db데이터 로드')
                         tabs.push(prevTab(doc.value));
                         tab = activity.getTab(activeUrl);
                         backgroundCheck2(tab, activeUrl, activeTab);
                     }).catch(err => {
                         // if (error.status == '404') {}
-                        console.log('신규 tab 객체 생성');
+                        console.log('tab null, 신규 tab 객체 생성');
                         activity.addTab(activeTab);
                         tab = activity.getTab(activeUrl);
                         backgroundCheck2(tab, activeUrl, activeTab);
@@ -206,6 +206,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
         if (tab && tab.hasOwnProperty('url') && currentTab !== tab.url) {
             activity.setCurrentActiveTab(tab.url);
         }
+
         getCurrentlyViewedTabId()
             .then(({ id, _url }) => {
                 chrome.tabs.sendMessage(id, { req: EVENT_GENERATE_REPORT }, response => {
@@ -219,8 +220,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
                 // tab생성과 summary호출 간격이 짧으면 오류 발생함
                 if (day !== undefined) {
                     var summary = day.summary;
-                    // console.log('summary >', summary);
-                    // var data = bytesToSize(activity.getDataUsaged(tab));
+                    // console.log('summary view > ',summary,day);
                     chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
                     chrome.browserAction.setBadgeText({
                         tabId: activeTab.id,
@@ -230,14 +230,21 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
                 } else {
                     // console.error('day not found!', day);
                 }
-
             })
 
-        chrome.idle.queryState(parseInt(setting_interval_inactivity), state => {
-            if (state === 'active') {
-                mainTRacker(activeUrl, tab, activeTab);
-            } else checkDOM(state, activeUrl, tab, activeTab);
-        });
+            // idel time 계측 구간, 자꾸 에러남.. 수정필요
+            // try {
+            //     chrome.idle.queryState(parseInt(setting_interval_inactivity), state => {
+            //         if (state === 'active') {
+            //             mainTRacker(activeUrl, tab, activeTab);
+            //         } else checkDOM(state, activeUrl, tab, activeTab);
+            //     });
+            // } catch (error) {
+            //     // nothing
+            //     console.error(error);
+            // }
+            mainTRacker(activeUrl, tab, activeTab);
+
     } // end if
 }
 
@@ -383,20 +390,24 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
     });
 }
 
-function updateSync() {
-
+var synchronizing = false;
+function startSync() {
+    synchronizing = true;
+    // console.log('start Sync, synchronizing > ',synchronizing);
+    pounch.sync( res => {
+        synchronizing = false;
+        // console.log('end Sync, synchronizing > ',synchronizing,res);
+    })
 }
 
-function runSync() {
-
-}
 // tab사용시간 관리, browser용
 var diff_second;
 // save
 function backgroundUpdateStorage() {
-    if (!tabs) return;
+    if (synchronizing || !tabs) return;
     // const diff = Math.round(Date.now() / 1000) - diff_second;
     const copy = JSON.parse(JSON.stringify(tabs));
+    // console.log('put ',copy);
     copy.forEach(tab => {
         var variable = tab;
         (function (t) {
@@ -411,23 +422,29 @@ function backgroundUpdateStorage() {
             // } else {
             //     t.browsers = [{'browser':browser, count:1, summary:diff}]
             // }
-            // console.log('tab 저장..',t.url,t);
-            // db.get(t.url).then(doc => {
-            //     db.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
-            //     }).catch(console.error);
-            // }).catch(_err => {
-            //     db.put({ '_id': t.url, 'value': t }).then(res => {
-            //     }).catch(console.error);
-            // });
-
-            // 변경분 저장
-            diff_tabs.get(t.url).then(doc => {
-                diff_tabs.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
+            // console.log('save > ',t.url,t.summaryTime);
+            db.get(t.url).then(doc => {
+                db.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
                 }).catch(console.error);
             }).catch(_err => {
-                diff_tabs.put({ '_id': t.url, 'value': t }).then(res => {
+                db.put({ '_id': t.url, 'value': t }).then(res => {
                 }).catch(console.error);
             });
+
+            // 변경분 저장
+            // console.log(t)
+            // diff_tabs.get(t.url).then(doc => {
+            //     diff_tabs.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
+            //         // console.log('update',res);
+            //     }).catch(e => console.error(e));
+            // }).catch(_err => {
+            //     diff_tabs.put({ '_id': t.url, 'value': t }).then(res => {
+            //         // console.log('res',res);
+            //     }).catch(e => {
+            //         // console.error(e)
+            //         reload();
+            //     });
+            // });
 
 
         })(variable)
@@ -463,14 +480,18 @@ function setDefaultValueForNewSettings() {
 }
 
 function updateEvent(key,value) {
+    if (synchronizing) {
+        setTimeout(() => updateEvent(key,value), 3000);
+        return;
+    }
     key = (''+key).toUpperCase();
     const kv = {'key':key,'value':value,'epoch':Date.now(),'browser':browser};
     const bucket = 'bucket_event';
     const put = {'_id':bucket,'value':[kv]};
-    db.get(bucket).then(doc => {
-        doc.value.push(kv);
-        db.put(doc, { force: true });
-    }).catch(_err => db.put(put) );
+    // db.get(bucket).then(doc => {
+    //     doc.value.push(kv);
+    //     db.put(doc, { force: true });
+    // }).catch(_err => db.put(put) );
 
     diff_tabs.get(bucket).then(doc => {
         doc.value.push(kv);
@@ -493,7 +514,7 @@ function addListener() {
                         }).catch(err => {
                             console.error(err);
                             activity.addTab(tab);
-                            backgroundUpdateStorage();
+                            // backgroundUpdateStorage();
                         });
                     }
                 }
@@ -600,6 +621,10 @@ function prevTab(tab) {
 
 // 추적 금지
 function loadBlackList(isReload) {
+    if (synchronizing) {
+        setTimeout(() => loadBlackList(isReload), 3000);
+        return;
+    }
     if (isReload) updateEvent('update_black_list','update_black_list');
     db.get(STORAGE_BUCKET)
         .then(rows => {
@@ -627,6 +652,10 @@ function loadBlackList(isReload) {
 }
 
 function loadRestrictionList(isReload) {
+    if (synchronizing) {
+        setTimeout(() => loadRestrictionList(isReload), 3000);
+        return;
+    }
     if (isReload) updateEvent('update_restriction_list','update_restriction_list');
     db.get(STORAGE_BUCKET)
         .then(rows => {
@@ -675,6 +704,10 @@ function loadSettings() {
 }
 
 function loadAddDataFromStorage() {
+    if (synchronizing) {
+        setTimeout(loadAddDataFromStorage, 3000);
+        return;
+    }
     // loadTabs();
     // loadTimeIntervals();
     loadBlackList();
@@ -686,6 +719,10 @@ function loadAddDataFromStorage() {
 }
 
 function loadPermissions() {
+    if (synchronizing) {
+        setTimeout(loadPermissions, 3000);
+        return;
+    }
     checkPermissionsForYT();
     checkPermissionsForNetflix();
     checkPermissionsForNotifications();
@@ -730,7 +767,7 @@ function checkPermissionsForNotifications(callback, ...props) {
 // 시작!
 var pounch;
 var diff_tabs;
-function reload() {
+function reload(runSync) {
     pounch = new PouchStorage(function (instance) {
         db = new instance('tabs', { revs_limit: 10, sauto_compaction: true });
         diff_tabs = new instance('diff_tabs', { revs_limit: 10, sauto_compaction: true });
@@ -741,9 +778,11 @@ function reload() {
         loadAddDataFromStorage();
         updateSummaryTime();
         updateStorage();
+        if (runSync) updateSync();
     });
 }
 // sync이벤트 완료후 flag
-reload();
+reload(true);
+// startSync();
 // start!
 updateEvent('start_application',browser);
