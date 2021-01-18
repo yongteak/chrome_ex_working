@@ -315,13 +315,15 @@ angular.module('app.filter', [])
         return function (code, lang) {
             lang = lang || 'ko';
             code = code || '000';
-            return $rootScope['category_kv'][code][lang];
+            var kv = $rootScope['category_kv'][code];
+            return kv ? kv[lang] : $rootScope['category_kv']['000']['ko'];
         };
     })
     .filter('category_code_to_color', function ($rootScope) {
         return function (code) {
             code = code || '000';
-            return $rootScope['category_kv'][code]['color'];
+            var kv = $rootScope['category_kv'][code];
+            return kv ? kv['color'] : $rootScope['category_kv']['000']['color'];
         };
     })
     .filter('country_to_name', function ($rootScope) {

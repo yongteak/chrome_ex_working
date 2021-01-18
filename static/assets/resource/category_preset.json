@@ -1,29 +1,21 @@
-[
-    {"url":"*.facebook.com","code":"023"},
-
-    {"url":"*.github.com","code":"003"},
-    {"url":"*.stackoverflow.com","code":"003"},
-    {"url":"*.apache.com","code":"003"},
-
-    {"url":"*.youtube.com","code":"005"},
-    {"url":"*.netflix.com","code":"005"},
-
-    {"url":"blog.naver.com","code":"031"},
-    {"url":"blog.daum.net","code":"031"},
-
-    {"url":"*.live.com","code":"020"},
-    {"url":"*.gmail.com","code":"020"},
-    {"url":"*.outlook.com","code":"020"},
-    {"url":"mail.*","code":"020"},
-    {
-        "url": "*.clien.net","code": "029"
+{
+    "domain": {
+        "aliexpress.com": "022",
+        "facebook.com": "023",
+        "github.com": "003",
+        "stackoverflow.com": "003",
+        "apache.com": "003",
+        "youtube.com": "005",
+        "netflix.com": "005",
+        "live.com": "020",
+        "gmail.com": "020",
+        "outlook.com": "020",
+        "clien.net": "029",
+        "dcinside.com": "029",
+        "inven.com": "029"
     },
-    {
-        "url": "*.dcinside.com",
-        "code": "029"
-    },
-    {
-        "url": "*.inven.co.kr",
-        "code": "029"
+    "pattern_start_to_dot": {
+        "blog": "031",
+        "mail": "020"
     }
-]
+}

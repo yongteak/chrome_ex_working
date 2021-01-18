@@ -101,7 +101,7 @@
       <div class="grid-body py-3">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 카테고리별 통계
+            <em class="mdi mdi-information-outline text-muted"></em> 카테고리 통계
           </span>
         </div>
       </div>
@@ -119,10 +119,10 @@
               <td>
 
                 <span class="mb-n1 font-weight-medium">
-                  <span style="background-color: {{row.categroy_code | category_code_to_color }}"
-                    class="status-indicator rounded-indicator small"></span>{{row.categroy_code |
+                  <span style="background-color: {{row.category | category_code_to_color }}"
+                    class="status-indicator rounded-indicator small"></span>{{row.category |
                   category_code_to_name}}</span>
-                <!-- <p class="mb-n1 font-weight-medium">{{ row.categroy_code | category_code_to_name }}</p> -->
+                <!-- <p class="mb-n1 font-weight-medium">{{ row.category | category_code_to_name }}</p> -->
                 <code class="small_text text-gray">사이트:{{ row.urls | num_comma }}개</code>
               </td>
               <td class="font-weight-medium text-center">
@@ -175,8 +175,8 @@
               <td>
                 <small class="text-black font-weight-medium d-block">{{row.url}}</small>
                 <span class="text-gray">
-                  <span style="background-color: {{row.categroy_code | category_code_to_color }}"
-                    class="status-indicator rounded-indicator small"></span>{{row.categroy_code |
+                  <span style="background-color: {{row.category | category_code_to_color }}"
+                    class="status-indicator rounded-indicator small"></span>{{row.category |
                   category_code_to_name}}</span>
               </td>
               <td>
@@ -231,7 +231,7 @@
       <div class="grid-body py-3">
         <div class="d-flex justify-content-between">
           <span data-toggle="tooltip" data-placement="left" title="">
-            <em class="mdi mdi-information-outline text-muted"></em> 도메인별 통계
+            <em class="mdi mdi-information-outline text-muted"></em> 도메인 통계
           </span>
           <!-- <code class="text-danger">집계기간:1월1일 ~ 1월30일</code> -->
         </div>
@@ -252,8 +252,8 @@
               <td>
                 <small class="text-black font-weight-medium d-block">{{ row.url }}</small>
                 <span class="text-gray">
-                  <span style="background-color: {{row.categroy_code | category_code_to_color }}"
-                    class="status-indicator rounded-indicator small"></span>{{row.categroy_code | category_code_to_name
+                  <span style="background-color: {{row.category | category_code_to_color }}"
+                    class="status-indicator rounded-indicator small"></span>{{row.category | category_code_to_name
                   }}</span>
               </td>
               <td>

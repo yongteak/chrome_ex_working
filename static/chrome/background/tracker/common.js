@@ -78,6 +78,25 @@ var MATCHS = {
     sub_session: /^session\./
 }
 
+var classification = {
+    "aliexpress.com": "022",
+    "facebook.com": "023",
+    "github.com": "003",
+    "stackoverflow.com": "003",
+    "apache.com": "003",
+    "youtube.com": "005",
+    "netflix.com": "005",
+    "live.com": "020",
+    "gmail.com": "020",
+    "outlook.com": "020",
+    "clien.net": "029",
+    "dcinside.com": "029",
+    "inven.com": "029",
+    "tistory.com": "031",
+    "blog.": "031",
+    "mail.": "020"
+}
+
 function isEmpty(obj) {
     for (var prop in obj) {
         if (obj.hasOwnProperty(prop))
@@ -264,18 +283,18 @@ function formatDate() {
 
 function browser() {
     var isOpera = (!!window.opr && !!opr.addons) || !!window.opera
-		|| navigator.userAgent.indexOf(' OPR/') >= 0;
-	var isFirefox = typeof InstallTrigger !== 'undefined';
-	var isIE = /*@cc_on!@*/false || !!document.documentMode;
-	var isEdge = !isIE && !!window.StyleMedia;
-	var isChrome = !isOpera && !isFirefox && !isIE && !isEdge;
-	var isBlink = (isChrome || isOpera) && !!window.CSS;
-	var find = [{key:'Chrome',value:isChrome},
-                {key:'Edge',value:isEdge},
-                {key:'Firefox',value:isFirefox},
-                {key:'IE',value:isIE},
-                {key:'Opera',value:isOpera},
-                {key:'Blink',value:isBlink}]
-            .find(x => x.value == true);
+        || navigator.userAgent.indexOf(' OPR/') >= 0;
+    var isFirefox = typeof InstallTrigger !== 'undefined';
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    var isEdge = !isIE && !!window.StyleMedia;
+    var isChrome = !isOpera && !isFirefox && !isIE && !isEdge;
+    var isBlink = (isChrome || isOpera) && !!window.CSS;
+    var find = [{ key: 'Chrome', value: isChrome },
+    { key: 'Edge', value: isEdge },
+    { key: 'Firefox', value: isFirefox },
+    { key: 'IE', value: isIE },
+    { key: 'Opera', value: isOpera },
+    { key: 'Blink', value: isBlink }]
+        .find(x => x.value == true);
     return find ? find.key : 'Chrome';
 }

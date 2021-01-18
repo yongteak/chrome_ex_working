@@ -64,11 +64,11 @@ angular.module('app.controller.dashboard', [])
                         data: $scope.model.reduce[idx], type: 'line', symbolSize: 0, smooth: true,
                         lineStyle: { width: 3, color: '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6) }
                     }];
-                    // $scope.model.charts[e[0]] = { 'option': chart($scope.model.weeks, series, e[1]), 'click': null };
+                    $scope.model.charts[e[0]] = { 'option': chart($scope.model.weeks, series, e[1]), 'click': null };
                 });
-                // $scope.model.charts.radar = { 'option': chart2($scope.model.radarReduce, $scope.model.series['radarSeries']), 'click': null };
-                // $scope.model.charts.by_category = { 'option': chart($scope.model.weeks, $scope.model.series['catSeries']), 'click': null };
-                // $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
+                $scope.model.charts.radar = { 'option': chart2($scope.model.radarReduce, $scope.model.series['radarSeries']), 'click': null };
+                $scope.model.charts.by_category = { 'option': chart($scope.model.weeks, $scope.model.series['catSeries']), 'click': null };
+                $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
             },
             start: (args, baccess) => {
                 console.log('start!!');
@@ -140,9 +140,9 @@ angular.module('app.controller.dashboard', [])
                 pounch.getdocs(domains).then(docs => {
                     // console.log(docs);
                     var reduce1 = docs.results.reduce(([acc, day_by_cat], doc) => {
-                        var code = doc.docs[0]['ok'].value.category_code;
+                        var code = doc.docs[0]['ok'].value.category;
                         code = code || '000';
-                        var sum = { url: doc.id, categroy_code: code, count: 0, summary: 0, dataUsage: 0, rate: [0, 0, 0] };
+                        var sum = { url: doc.id, category: code, count: 0, summary: 0, dataUsage: 0, rate: [0, 0, 0] };
                         doc.docs[0]['ok'].value.days
                             .filter(a => '' + a.date >= monthly[0] && a.date <= monthly[monthly.length - 1])
                             .forEach(e => {
@@ -177,14 +177,14 @@ angular.module('app.controller.dashboard', [])
                                         day_by_cat[code][idx].summary += e.summary;
                                     } else {
                                         day_by_cat[code].push({
-                                            category_code: code,
+                                            category: code,
                                             date: e.date,
                                             summary: e.summary
                                         })
                                     }
                                 } else {
                                     day_by_cat[[code]] = [{
-                                        category_code: code,
+                                        category: code,
                                         date: e.date,
                                         summary: e.summary
                                     }];
@@ -218,9 +218,9 @@ angular.module('app.controller.dashboard', [])
                     // 주간 카테고리 Top 5
                     // 카테고리 / 시간 / 데이터 <=> 과거 1주일전 데이터 비교
                     var cat_url_rank = usability.reduce(([acc1, acc2], cur) => {
-                        var code = cur.categroy_code || '000';
+                        var code = cur.category || '000';
                         var index = {
-                            cat: acc1.map(m => m.categroy_code).indexOf(code),
+                            cat: acc1.map(m => m.category).indexOf(code),
                             url: acc2.map(m => m.url).indexOf(cur.url),
                         };
                         if (index.cat >= 0) {
@@ -229,7 +229,7 @@ angular.module('app.controller.dashboard', [])
                             acc1[index.cat].summary += cur.summary;
                             acc1[index.cat].urls++;
                         } else {
-                            acc1.push({ categroy_code: code, urls: 1, summary: cur.summary, count: cur.count, dataUsage: cur.dataUsage })
+                            acc1.push({ category: code, urls: 1, summary: cur.summary, count: cur.count, dataUsage: cur.dataUsage })
                         }
 
                         if (index.url >= 0) {
@@ -237,7 +237,7 @@ angular.module('app.controller.dashboard', [])
                             acc2[index.url].dataUsage += cur.dataUsage;
                             acc2[index.url].summary += cur.summary;
                         } else {
-                            acc2.push({ url: cur.url, categroy_code: code, summary: cur.summary, count: cur.count, dataUsage: cur.dataUsage })
+                            acc2.push({ url: cur.url, category: code, summary: cur.summary, count: cur.count, dataUsage: cur.dataUsage })
                         }
                         return [acc1, acc2];
                     }, [[], []]);
@@ -289,7 +289,7 @@ angular.module('app.controller.dashboard', [])
                                 + parseInt(((cur.summary / cur.sum[1]) * 100).toFixed(0))
                                 + parseInt(((cur.count / cur.sum[2]) * 100).toFixed(0));
                             acc[0].push(rate);
-                            acc[1].push({ name: cur.categroy_code, max: 0 });
+                            acc[1].push({ name: cur.category, max: 0 });
                             if (acc[0].length == 5) {
                                 var max = acc[0].reduce((a, b) => a + b, 0);
                                 acc[1].map(x => x.max = max);

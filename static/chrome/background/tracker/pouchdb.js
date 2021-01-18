@@ -56,6 +56,7 @@ class PouchStorage {
             })
     }
     sync(callback) {
+        console.log('sync..classification > ', classification);
         // diff_tabs
         var db = new PouchDB('tabs');
         var url = 'http://34.83.116.28:5984' + '/g114916629141904173371';
@@ -91,8 +92,8 @@ class PouchStorage {
                     bulkdocs.push({ id: e.doc._id });
                     diff[[e.id]] = e.doc.value;
                     diff_db.remove(e.doc)
-                        .then(res => console.log('remove doc!',res) )
-                        .catch(err => console.err('remove doc!',err) )
+                        .then(res => console.log('remove doc!', res))
+                        .catch(err => console.err('remove doc!', err))
                 });
                 db.bulkGet({ docs: bulkdocs })
                     .then(docs => {
@@ -101,10 +102,23 @@ class PouchStorage {
                                 var odoc = res.docs[0]['ok'].value;
                                 var rev = res.docs[0]['ok']._rev;
                                 var ddoc = diff[res.id];
+
                                 if (res.id.match(/^bucket\_/) == null) {
+                                    // check migraion
+                                    // var migraion = false;
+                                    if (odoc.hasOwnProperty('category') && (odoc.category.length != 3 || odoc.category == '000')) {
+                                        var arr = odoc.url.split('.');
+                                        var split_name = arr.slice(arr.length - 2, arr.length).join('.');
+                                        var split_dot_name = arr[0] + '.';
+                                        if (classification[split_name]) {
+                                            odoc.category = classification[split_name];
+                                        } else if (classification[split_dot_name]) {
+                                            odoc.category = classification[split_dot_name];
+                                        }
+                                        console.log('update classification', odoc.url, '>', odoc.category );
+                                    }
 
                                     if (odoc.summaryTime != ddoc.summaryTime) {
-                                        // console.log(res.id,odoc.summaryTime,ddoc.summaryTime)
                                         odoc.summaryTime += Math.abs(odoc.summaryTime - ddoc.summaryTime);
                                         ddoc.days.forEach((day, index) => {
                                             if (odoc.days[index]) {

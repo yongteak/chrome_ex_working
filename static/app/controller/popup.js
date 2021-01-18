@@ -16,6 +16,7 @@ angular.module('app.controller.popup', [])
                 });
             },
             start: args => {
+                // console.log(args);
                 $scope.model.days =
                     Array(3).fill(0).map((_e, idx) => idx).reduce((a, b) => {
                         a.push(moment().add(-b, 'day').format("YYYYMMDD"));
@@ -28,9 +29,9 @@ angular.module('app.controller.popup', [])
                 domains = Array.from(new Set(domains));
                 pounch.getdocs(domains).then(docs => {
                     var reduce1 = docs.results.reduce((acc, doc) => {
-                        var code = doc.docs[0]['ok'].value.category_code;
+                        var code = doc.docs[0]['ok'].value.category;
                         code = code || '000';
-                        var sum = { url: doc.id, categroy_code: code, count: 0, summary: 0, dataUsage: 0, rate: [0, 0, 0] };
+                        var sum = { url: doc.id, category: code, count: 0, summary: 0, dataUsage: 0, rate: [0, 0, 0] };
                         doc.docs[0]['ok'].value.days
                             .filter(a => '' + a.date >= days[0] && a.date <= days[days.length - 1])
                             .forEach(e => {
@@ -106,9 +107,6 @@ angular.module('app.controller.popup', [])
                         acc.summary += cur.summary;
                         return acc;
                     }, { count: 0, dataUsage: 0, summary: 0 });
-
-                    console.log(arr);
-
                     $scope.model.chart = { 'option': chart(arr[0], arr[1]), 'click': null };
                 });
             },

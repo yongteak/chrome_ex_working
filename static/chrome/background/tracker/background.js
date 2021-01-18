@@ -431,20 +431,20 @@ function backgroundUpdateStorage() {
                 }).catch(console.error);
             });
 
-            // 변경분 저장
-            // console.log(t)
-            // diff_tabs.get(t.url).then(doc => {
-            //     diff_tabs.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
-            //         // console.log('update',res);
-            //     }).catch(e => console.error(e));
-            // }).catch(_err => {
-            //     diff_tabs.put({ '_id': t.url, 'value': t }).then(res => {
-            //         // console.log('res',res);
-            //     }).catch(e => {
-            //         // console.error(e)
-            //         reload();
-            //     });
-            // });
+            // // 변경분 저장
+            // // console.log(t)
+            diff_tabs.get(t.url).then(doc => {
+                diff_tabs.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
+                    // console.log('update',res);
+                }).catch(e => console.error(e));
+            }).catch(_err => {
+                diff_tabs.put({ '_id': t.url, 'value': t }).then(res => {
+                    // console.log('res',res);
+                }).catch(e => {
+                    // console.error(e)
+                    reload();
+                });
+            });
 
 
         })(variable)
