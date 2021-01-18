@@ -67,7 +67,7 @@ class PouchStorage {
             this.merge(() => {
                 db.sync(url, opts)
                     .on('complete', info1 => {
-                        console.log('sync complete!', info1);
+                        // console.log('sync complete!', info1);
                         callback('complete');
                     }).on('error', err => {
                         console.error(err);
@@ -92,8 +92,8 @@ class PouchStorage {
                     bulkdocs.push({ id: e.doc._id });
                     diff[[e.id]] = e.doc.value;
                     diff_db.remove(e.doc)
-                        .then(res => console.log('remove doc!', res))
-                        .catch(err => console.err('remove doc!', err))
+                        // .then(res => console.log('remove doc!', res))
+                        .catch(err => console.error('remove doc!', err))
                 });
                 db.bulkGet({ docs: bulkdocs })
                     .then(docs => {
@@ -177,7 +177,7 @@ class PouchStorage {
                     })
                     .catch(err => console.error(err));
             } else {
-                console.log('diff nothing..');
+                // console.log('diff nothing..');
                 callback();
             }
         });
