@@ -480,7 +480,7 @@ function setDefaultValueForNewSettings() {
 }
 
 function updateEvent(key,value) {
-    if (synchronizing) {
+    if (synchronizing || diff_tabs == undefined || db == undefined) {
         setTimeout(() => updateEvent(key,value), 3000);
         return;
     }
@@ -488,10 +488,10 @@ function updateEvent(key,value) {
     const kv = {'key':key,'value':value,'epoch':Date.now(),'browser':browser};
     const bucket = 'bucket_event';
     const put = {'_id':bucket,'value':[kv]};
-    // db.get(bucket).then(doc => {
-    //     doc.value.push(kv);
-    //     db.put(doc, { force: true });
-    // }).catch(_err => db.put(put) );
+    db.get(bucket).then(doc => {
+        doc.value.push(kv);
+        db.put(doc, { force: true });
+    }).catch(_err => db.put(put) );
 
     diff_tabs.get(bucket).then(doc => {
         doc.value.push(kv);
@@ -778,7 +778,10 @@ function reload(runSync) {
         loadAddDataFromStorage();
         updateSummaryTime();
         updateStorage();
-        if (runSync) updateSync();
+        if (runSync) {
+            startSync();
+            updateSync();
+        }
     });
 }
 // sync이벤트 완료후 flag
