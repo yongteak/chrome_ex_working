@@ -40,6 +40,7 @@
   <script src="app/controller/alarm.js"></script>
   <script src="app/controller/data.js"></script>
   <script src="app/controller/category.js"></script>
+  <script src="app/controller/summary.js"></script>
   <script src="app/filter.js"></script>
   <script src="app/service/services.js"></script>
   <script src="app/service/pounch.js"></script>
@@ -143,6 +144,12 @@
         <li ng-class="{tablink, active : isCurrentPath('/v1/status')}">
           <a href="#/v1/status">
             <span class="link-title">통계</span>
+            <em class="mdi mdi-chart-bubble link-icon"></em>
+          </a>
+        </li>
+        <li ng-class="{tablink, active : isCurrentPath('/v1/summary')}">
+          <a href="#/v1/summary">
+            <span class="link-title">집계</span>
             <em class="mdi mdi-chart-bubble link-icon"></em>
           </a>
         </li>

@@ -16,6 +16,8 @@ angular.module('app.controllers', [])
                 $scope.title = '설정';
             } else if (path == 'dashboard') {
                 $scope.title = '대시보드';
+            } else if (path == 'summary') {
+                $scope.title = '집계';
             } else if (path == 'limit') {
                 $scope.title = '제한';
             } else if (path == 'alarm') {

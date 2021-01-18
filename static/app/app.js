@@ -2,6 +2,7 @@ var app = angular.module('app', [
 	'ui.bootstrap',
 	"ngRoute", "angular-echarts3", "angularMoment", "pouchdb",
 	'app.controllers', 'app.controller.sync', 'app.controller.setting',
+	'app.controller.summary',
 	'app.controller.status', 'app.controller.limit', 'app.controller.alarm',
 	'app.controller.data', 'app.controller.dashboard', 'app.controller.category',
 	'app.services', 'app.pounch', 'app.indexer', 'app.filter'
@@ -163,6 +164,10 @@ app.config(["$routeProvider", "$locationProvider", /*"$compileProvider", */
 			when("/v1/category", {
 				templateUrl: "app/partial/category.html",
 				controller: 'categoryController'
+			}).
+			when("/v1/summary", {
+				templateUrl: "app/partial/summary.html",
+				controller: 'summaryController'
 			}).
 			when("/v1/dashboard", {
 				templateUrl: "app/partial/dashboard.html",

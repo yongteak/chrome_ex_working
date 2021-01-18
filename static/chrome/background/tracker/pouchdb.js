@@ -47,7 +47,7 @@ class PouchStorage {
             { skip_setup: true, revs_limit: 5, auto_compaction: true });
         db.login(id, pw)
             .then(res => {
-                console.log('login > ', res);
+                // console.log('login > ', res);
                 this.sync();
             }).catch(err => {
                 if (err.name == 'unauthorized') {
@@ -56,7 +56,7 @@ class PouchStorage {
             })
     }
     sync(callback) {
-        console.log('sync..classification > ', classification);
+        // console.log('sync..classification > ', classification);
         // diff_tabs
         var db = new PouchDB('tabs');
         var url = 'http://34.83.116.28:5984' + '/g114916629141904173371';
@@ -152,7 +152,7 @@ class PouchStorage {
                                 if (new_push_docs.length > 0) {
                                     db.bulkDocs(new_push_docs)
                                         .then(bulk => {
-                                            console.log('bulk update completed!', bulk);
+                                            // console.log('bulk update completed!', bulk);
                                             callback();
                                             // diff_db.destroy()
                                             //     .then(response => {
@@ -165,10 +165,10 @@ class PouchStorage {
                                             //     });
                                         }).catch(err => {
                                             callback();
-                                            console.err('bulk update error', err);
+                                            // console.err('bulk update error', err);
                                         });
                                 } else {
-                                    console.log('no update..');
+                                    // console.log('no update..');
                                     callback();
                                 }
                                 return;

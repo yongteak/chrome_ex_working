@@ -1,11 +1,10 @@
 angular.module('app.filter', [])
 
-    .filter('', function () {
-        return function (key, value) {
-            var doc = {};
-            doc['_id'] = key;
-            doc['value'] = value;
-            return doc;
+// https://swtpumpkin.github.io/backend/node/momentWeekOfMonth/
+    .filter('weekOfMonth', function () {
+        return (day) => { // YYYYYMMDD
+            var m = moment(''+day).utc(true);
+            return m.week() - moment(m).startOf('month').week() + 1;
         };
     })
 
