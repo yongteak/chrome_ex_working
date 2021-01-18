@@ -70,7 +70,7 @@ function updateReport(entries) {
 }
 
 (() => {
-    
+
     if (window.location.href.indexOf("data.similarweb.com/api/v1") > 0) {
         similarweb = document.querySelector('body').innerText;
     } else {
@@ -104,5 +104,8 @@ chrome.runtime.onMessage.addListener(
             sendResponse(similarweb);
             return true;
         }
-    } 
+        if (!window.chrome.runtime.lastError) {
+            // do you work, that's it. No more unchecked error
+        }
+    }
 );
