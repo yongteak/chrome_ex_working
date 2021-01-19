@@ -65,22 +65,37 @@ class PouchStorage {
         db.replicate.from(url).on('complete', info => {
             console.log('from sync ok', info);
             this.merge(() => {
-                db.sync(url, opts)
-                    .on('complete', info1 => {
-                        // console.log('sync complete!', info1);
-                        callback('complete');
-                    }).on('error', err => {
-                        console.error(err);
-                        callback('error');
-                    });
+                callback('complete');
+                // db.sync(url, opts)
+                //     .on('complete', info1 => {
+                //         // console.log('sync complete!', info1);
+                //         callback('complete');
+                //     }).on('error', err => {
+                //         console.error(err);
+                //         callback('error');
+                //     });
             })
         }).on('error', callback);
     }
 
     merge(callback) {
         // pull, merge, push, purge
-        const diff_db = new PouchDB('diff_tabs');
+        // pull -> diff_tabs 병합 -> push
+        const diff_db = new PouchDB('diff_tabs', { revs_limit: 1, auto_compaction: true });
+        // new PouchDB('tabs', { revs_limit: 1, auto_compaction: true }).allDocs({
         const db = new PouchDB('tabs');
+
+        var clear = function(doc) {
+            console.log('remove id',doc._id);
+            diff_db.remove(doc)
+                .then(_r => {
+                    db.get(doc.id)
+                        .then(_res1 => this.clear(doc))
+                        .catch(_err1 => 'end_of_rmeove');
+                })
+                .catch(_err2 => 'end_of_remove');
+            }
+
         diff_db.allDocs({
             include_docs: true
         }).then(local_docs => {
@@ -91,9 +106,13 @@ class PouchStorage {
                 local_docs.rows.forEach(e => {
                     bulkdocs.push({ id: e.doc._id });
                     diff[[e.id]] = e.doc.value;
-                    diff_db.remove(e.doc)
-                        // .then(res => console.log('remove doc!', res))
-                        .catch(err => console.error('remove doc!', err))
+                    // diff_db.destroy().then(() => new PouchDB('diff_tabs') );
+                    // e.doc._deleted = true;
+                    // // diff_db.compact()
+                    //     // .then(_res => {
+                    clear(e.doc);
+                    //     // })
+
                 });
                 db.bulkGet({ docs: bulkdocs })
                     .then(docs => {
@@ -115,7 +134,7 @@ class PouchStorage {
                                         } else if (classification[split_dot_name]) {
                                             odoc.category = classification[split_dot_name];
                                         }
-                                        console.log('update classification', odoc.url, '>', odoc.category );
+                                        console.log('update classification', odoc.url, '>', odoc.category);
                                     }
 
                                     if (odoc.summaryTime != ddoc.summaryTime) {
@@ -150,23 +169,57 @@ class PouchStorage {
                             }
                             if (loop == docs.results.length - 1) {
                                 if (new_push_docs.length > 0) {
-                                    db.bulkDocs(new_push_docs)
-                                        .then(bulk => {
-                                            // console.log('bulk update completed!', bulk);
+                                    fetch("http://localhost:8080/api/v1/push/114916629141904173371",
+                                        {
+                                            method: "PUT",
+                                            headers: {
+                                                'Accept': 'application/json, text/plain, */*',
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({ payload: new_push_docs })
+                                        })
+                                        .then(res1 => res1.json())
+                                        .then(res2 => {
+                                            console.log(res2);
                                             callback();
-                                            // diff_db.destroy()
-                                            //     .then(response => {
-                                            //         console.log('clear diff_db completed!', response);
-                                            //         // chrome.extension.getBackgroundPage().reload();
-                                            //         callback();
-                                            //     }).catch(err => {
-                                            //         callback();
-                                            //         console.err('diff_db error', err);
-                                            //     });
-                                        }).catch(err => {
+                                        })
+                                        .catch(err => {
                                             callback();
-                                            // console.err('bulk update error', err);
+                                            console.err('push error', err);
                                         });
+                                    // 서버 push
+                                    // 완료후 pull, 충돌시?
+                                    // [
+                                    //     {
+                                    //         "ok": true,
+                                    //         "id": "gist.github.com",
+                                    //         "rev": "3472-ee847d86935aa748579fe32ecd02f528"
+                                    //     },
+                                    //     {
+                                    //         "id": "www.clien.net",
+                                    //         "error": "conflict",
+                                    //         "reason": "Document update conflict."
+                                    //     }
+                                    // ]
+                                    // console.log(JSON.stringify(details)new_push_docs));
+
+                                    // db.bulkDocs(new_push_docs)
+                                    //     .then(bulk => {
+                                    //         // console.log('bulk update completed!', bulk);
+                                    //         callback();
+                                    //         // diff_db.destroy()
+                                    //         //     .then(response => {
+                                    //         //         console.log('clear diff_db completed!', response);
+                                    //         //         // chrome.extension.getBackgroundPage().reload();
+                                    //         //         callback();
+                                    //         //     }).catch(err => {
+                                    //         //         callback();
+                                    //         //         console.err('diff_db error', err);
+                                    //         //     });
+                                    //     }).catch(err => {
+                                    //         callback();
+                                    //         // console.err('bulk update error', err);
+                                    //     });
                                 } else {
                                     // console.log('no update..');
                                     callback();
