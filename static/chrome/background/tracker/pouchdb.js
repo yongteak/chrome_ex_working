@@ -180,12 +180,11 @@ class PouchStorage {
                                             removeDocs.forEach(target => {
                                                 clearDiffDocs(target);
                                             });
-
                                             callback();
                                         })
                                         .catch(err => {
                                             callback();
-                                            console.err('push error', err);
+                                            // console.error('push error', err);
                                         });
                                     // 서버 push
                                     // 완료후 pull, 충돌시?
