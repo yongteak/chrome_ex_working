@@ -61,9 +61,9 @@ class PouchStorage {
         var db = new PouchDB('tabs');
         var url = 'http://34.83.116.28:5984' + '/g114916629141904173371';
         // console.log('start sync!', url);
-        var opts = { live: false, retry: true };
+        // var opts = { live: false, retry: true };
         db.replicate.from(url).on('complete', info => {
-            console.log('from sync ok', info);
+            // console.log('from sync ok', info);
             this.merge(() => {
                 callback('complete');
                 // db.sync(url, opts)
@@ -82,19 +82,19 @@ class PouchStorage {
         // pull, merge, push, purge
         // pull -> diff_tabs 병합 -> push
         const diff_db = new PouchDB('diff_tabs', { revs_limit: 1, auto_compaction: true });
-        // new PouchDB('tabs', { revs_limit: 1, auto_compaction: true }).allDocs({
         const db = new PouchDB('tabs');
 
-        var clear = function(doc) {
-            console.log('remove id',doc._id);
+        const clearDiffDocs = function (doc) {
+            // console.log('remove id', doc._id);
             diff_db.remove(doc)
                 .then(_r => {
-                    db.get(doc.id)
-                        .then(_res1 => this.clear(doc))
+                    console.log('[pouchdb] removed doc id =>',doc._id);
+                    db.get(doc._id)
+                        .then(_res1 => this.clearDiffDocs(doc))
                         .catch(_err1 => 'end_of_rmeove');
                 })
                 .catch(_err2 => 'end_of_remove');
-            }
+        }
 
         diff_db.allDocs({
             include_docs: true
@@ -102,17 +102,12 @@ class PouchStorage {
             var diff = {};
             var bulkdocs = [];
             var new_push_docs = [];
+            var removeDocs = [];
             if (local_docs.total_rows > 0) {
                 local_docs.rows.forEach(e => {
                     bulkdocs.push({ id: e.doc._id });
                     diff[[e.id]] = e.doc.value;
-                    // diff_db.destroy().then(() => new PouchDB('diff_tabs') );
-                    // e.doc._deleted = true;
-                    // // diff_db.compact()
-                    //     // .then(_res => {
-                    clear(e.doc);
-                    //     // })
-
+                    removeDocs.push(e.doc);
                 });
                 db.bulkGet({ docs: bulkdocs })
                     .then(docs => {
@@ -134,7 +129,7 @@ class PouchStorage {
                                         } else if (classification[split_dot_name]) {
                                             odoc.category = classification[split_dot_name];
                                         }
-                                        console.log('update classification', odoc.url, '>', odoc.category);
+                                        // console.log('update classification', odoc.url, '>', odoc.category);
                                     }
 
                                     if (odoc.summaryTime != ddoc.summaryTime) {
@@ -180,7 +175,12 @@ class PouchStorage {
                                         })
                                         .then(res1 => res1.json())
                                         .then(res2 => {
-                                            console.log(res2);
+                                            // console.log(res2);
+                                            // 정상적으로 통신됐을때만 diff내용을 삭제한다.
+                                            removeDocs.forEach(target => {
+                                                clearDiffDocs(target);
+                                            });
+
                                             callback();
                                         })
                                         .catch(err => {
