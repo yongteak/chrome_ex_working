@@ -8,7 +8,7 @@
     "mdi": "^5.8.55",
     "angular-route": "^1.8.2",
     "angular-echarts3": "https://github.com/yongteak/angular-echarts5.git#master",
-    "echarts": "^5.0.0",
+    "echarts": "^5.0.1",
     "clockpicker": "^0.0.7",
     "pouchdb": "^7.2.2",
     "angular-pouchdb": "^5.0.1"
