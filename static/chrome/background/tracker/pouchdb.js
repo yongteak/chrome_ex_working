@@ -85,15 +85,18 @@ class PouchStorage {
         const db = new PouchDB('tabs');
 
         const clearDiffDocs = function (doc) {
-            // console.log('remove id', doc._id);
+            // console.log('[clearDiffDocs] > ', doc._id, doc._rev);
             diff_db.remove(doc)
                 .then(_r => {
-                    console.log('[pouchdb] removed doc id =>',doc._id);
-                    db.get(doc._id)
-                        .then(_res1 => this.clearDiffDocs(doc))
-                        .catch(_err1 => 'end_of_rmeove');
+                    // console.log('[pouchdb] removed doc id =>', doc._id, doc._rev);
+                    diff_db.get(doc._id)
+                        .then(doc1 => {
+                            // console.log('get',doc1._id, doc1._rev);
+                            return clearDiffDocs(doc1);
+                        })
+                        .catch(err1 => 1 );
                 })
-                .catch(_err2 => 'end_of_remove');
+                .catch(err2 => 1);
         }
 
         diff_db.allDocs({
@@ -164,7 +167,7 @@ class PouchStorage {
                             }
                             if (loop == docs.results.length - 1) {
                                 if (new_push_docs.length > 0) {
-                                    fetch("http://localhost:8080/api/v1/push/114916629141904173371",
+                                    fetch("http://172.23.146.71:8080/api/v1/push/114916629141904173371",
                                         {
                                             method: "PUT",
                                             headers: {
