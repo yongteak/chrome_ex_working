@@ -167,7 +167,8 @@ app.config(["$routeProvider", "$locationProvider", /*"$compileProvider", */
 			}).
 			when("/v1/summary", {
 				templateUrl: "app/partial/summary.html",
-				controller: 'summaryController'
+				controller: 'summaryController',
+				reloadOnSearch: false
 			}).
 			when("/v1/dashboard", {
 				templateUrl: "app/partial/dashboard.html",

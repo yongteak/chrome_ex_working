@@ -1,9 +1,9 @@
 angular.module('app.filter', [])
 
-// https://swtpumpkin.github.io/backend/node/momentWeekOfMonth/
+    // https://swtpumpkin.github.io/backend/node/momentWeekOfMonth/
     .filter('weekOfMonth', function () {
         return (day) => { // YYYYYMMDD
-            var m = moment(''+day).utc(true);
+            var m = moment('' + day).utc(true);
             return m.week() - moment(m).startOf('month').week() + 1;
         };
     })
@@ -46,8 +46,8 @@ angular.module('app.filter', [])
 
 
     .filter('fromDateFormat', function () {
-        return function (date,from,format) {
-            return moment(date,from).format(format);
+        return function (date, from, format) {
+            return moment(date, from).format(format);
             // return moment('2021011405', 'YYYYMMDDhh').format('YYYYMMDD');
         }
     })
