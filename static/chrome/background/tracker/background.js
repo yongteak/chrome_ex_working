@@ -425,24 +425,33 @@ function backgroundUpdateStorage() {
             // console.log('save > ',t.url,t.summaryTime);
             db.get(t.url).then(doc => {
                 db.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
-                }).catch(console.error);
+                }).catch(err => {
+                    console.log(err);
+                });
             }).catch(_err => {
                 db.put({ '_id': t.url, 'value': t }).then(res => {
-                }).catch(console.error);
+                }).catch(err => {
+                    console.log(err);
+                });
             });
 
             // // 변경분 저장
             // // console.log(t)
             diff_tabs.get(t.url).then(doc => {
-                diff_tabs.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
-                    // console.log('update',res);
-                }).catch(e => console.error(e));
+                doc.value = t;
+                return diff_tabs.put(doc, { force: true });
             }).catch(_err => {
                 diff_tabs.put({ '_id': t.url, 'value': t }).then(res => {
                     // console.log('res',res);
-                }).catch(e => {
-                    // console.error(e)
-                    reload();
+                }).catch(err => {
+                    // docId: "www.oschina.net"
+                    // error: true
+                    // id: "www.oschina.net"
+                    // message: "Document update conflict"
+                    // name: "conflict"
+                    // status: 409
+                    console.error(err)
+                    // reload();
                 });
             });
 
@@ -503,28 +512,38 @@ function addListener() {
     chrome.tabs.onActivated.addListener(info => {
         // activity.addTab(tab);
         chrome.tabs.get(info.tabId, tab => {
-            var activeUrl = activity.extractHostname(tab.url);
-            if (activity.isValidPage(tab)) {
-                if (tabs !== undefined) {
-                    if (tabs.find(o => o.url === activeUrl)) {
-                        // next
-                    } else {
-                        db.get(activeUrl).then(doc => {
-                            tabs.push(prevTab(doc.value));
-                        }).catch(err => {
-                            console.error(err);
-                            activity.addTab(tab);
-                            // backgroundUpdateStorage();
-                        });
+            // console.log(tab.status,tab);
+            // tab.url = tab.url ? tab.url : tab.pendingUrl;
+            if (tab && tab.hasOwnProperty('url') && !isEmpty2(tab.url)) {
+                var activeUrl = activity.extractHostname(tab.url);
+                if (activity.isValidPage(tab)) {
+                    if (tabs !== undefined) {
+                        if (tabs.find(o => o.url === activeUrl)) {
+                            // next
+                        } else {
+                            db.get(activeUrl).then(doc => {
+                                tabs.push(prevTab(doc.value));
+                            }).catch(err => {
+                                console.error(err);
+                                activity.addTab(tab);
+                                // backgroundUpdateStorage();
+                            });
+                        }
                     }
                 }
+            } else {
+                // nothing..
             }
         });
     });
 
     chrome.webNavigation.onCompleted.addListener(details => {
         chrome.tabs.get(details.tabId, tab => {
-            activity.updateFavicon(tab);
+            if (tab && tab.hasOwnProperty('url') && !isEmpty2(tab.url)) {
+                activity.updateFavicon(tab);
+            } else {
+                console.error('2222 tab url 없어? 오류 케이스 수집필요!!',tab);
+            }
         });
     });
     chrome.runtime.onInstalled.addListener(details => {
@@ -567,23 +586,6 @@ function addListener() {
     //         }
     //     }
     // });
-    // [2020-12-01 13:31:41] 네트워크 리소스 사용량 계측
-    const filter = { urls: ["<all_urls>"] };
-    // tab 활성
-    // chrome.tabs.onActivated.addListener(onTabSwitch);
-    // 요청이 발생하려고 할 때 발생, 이 이벤트는 TCP 연결이 이루어지기 전에 전송되며 요청을 취소하거나 리디렉션하는 데 사용가능
-    // chrome.webRequest.onBeforeRequest.addListener(onBeforeRequest, filter);
-    // chrome.webRequest.onResponseStarted.addListener(onResponseStarted, filter);
-
-    // 요청이 성공적으로 처리
-    // chrome.webRequest.onCompleted.addListener(onRequestCompletedOrErrored, filter);
-    // 요청을 성공적으로 처리 할 수 ​​없을 때
-    // chrome.webRequest.onErrorOccurred.addListener(onRequestCompletedOrErrored, filter);
-    // onBeforeNavigate -> onCommitted -> onDOMContentLoaded -> onCompleted
-    // 화면 수신중
-    // chrome.webNavigation.onCommitted.addListener(resetTabState, filter);
-    // chrome.webNavigation.onBeforeNavigate.addListener(webNavigation, filter);
-
     // chrome.runtime.setUninstallURL("https://docs.google.com/forms/d/e/1FAIpQLSdImHtvey6sg5mzsQwWfAQscgZOOV52blSf9HkywSXJhuQQHg/viewform");
 }
 
@@ -768,6 +770,7 @@ function checkPermissionsForNotifications(callback, ...props) {
 var pounch;
 var diff_tabs;
 function reload(runSync) {
+    console.log('reload > ',runSync);
     pounch = new PouchStorage(function (instance) {
         db = new instance('tabs', { revs_limit: 10, sauto_compaction: true });
         diff_tabs = new instance('diff_tabs', { revs_limit: 10, sauto_compaction: true });
