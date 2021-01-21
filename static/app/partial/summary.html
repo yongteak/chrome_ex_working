@@ -1,84 +1,13 @@
 <div class="content-viewport">
     <div class="email-wrapper grid">
       <div class="email-aside-list">
-        <div class="email-list-item">
-          <a href="#" class="email-list-item-inner">
+        <!-- $scope.model -->
+        <div class="email-list-item" ng-repeat="row in model.rows">
+          <a href ng-click='run.view(row)' class="email-list-item-inner">
             <img class="profile-img" src="../../../assets/images/profile/male/image_1.png" alt="profile image">
             <div class="date">4일전</div>
-            <p class="user_name">1월 1주 집계</p>
-            <p class="mail-text">지난주 대비 사용시간 12%증가, 데이터 50%감소, 접속횟수 99%증가</p>
-          </a>
-        </div>
-        <div class="email-list-item">
-          <a href="#" class="email-list-item-inner">
-            <img class="profile-img" src="../../../assets/images/profile/male/image_2.png" alt="profile image">
-            <div class="date">15/6/2018</div>
-            <p class="user_name">'20년 12월 집계</p>
-            <p class="mail-text">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-          </a>
-        </div>
-        <div class="email-list-item">
-          <a href="#" class="email-list-item-inner">
-            <img class="profile-img" src="../../../assets/images/profile/female/image_3.png" alt="profile image">
-            <div class="date">15/6/2018</div>
-            <p class="user_name">Ruby Elliott</p>
-            <p class="mail-text">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-          </a>
-        </div>
-        <div class="email-list-item">
-          <a href="#" class="email-list-item-inner">
-            <img class="profile-img" src="../../../assets/images/profile/female/image_4.png" alt="profile image">
-            <div class="date">23/04/2018</div>
-            <p class="user_name">Edna Bryan</p>
-            <p class="mail-text">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-          </a>
-        </div>
-        <div class="email-list-item">
-          <a href="#" class="email-list-item-inner">
-            <img class="profile-img" src="../../../assets/images/profile/male/image_5.png" alt="profile image">
-            <div class="date">19/4/2018</div>
-            <p class="user_name">Daniel Lane</p>
-            <p class="mail-text">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-          </a>
-        </div>
-        <div class="email-list-item">
-          <a href="#" class="email-list-item-inner">
-            <img class="profile-img" src="../../../assets/images/profile/female/image_6.png" alt="profile image">
-            <div class="date">07/4/2018</div>
-            <p class="user_name">Lena Santiago</p>
-            <p class="mail-text">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-          </a>
-        </div>
-        <div class="email-list-item">
-          <a href="#" class="email-list-item-inner">
-            <img class="profile-img" src="../../../assets/images/profile/male/image_7.png" alt="profile image">
-            <div class="date">16/3/2018</div>
-            <p class="user_name">Max Phelps</p>
-            <p class="mail-text">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-          </a>
-        </div>
-        <div class="email-list-item">
-          <a href="#" class="email-list-item-inner">
-            <img class="profile-img" src="../../../assets/images/profile/male/image_8.png" alt="profile image">
-            <div class="date">12/3/2018</div>
-            <p class="user_name">Matthew Moody</p>
-            <p class="mail-text">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-          </a>
-        </div>
-        <div class="email-list-item">
-          <a href="#" class="email-list-item-inner">
-            <img class="profile-img" src="../../../assets/images/profile/male/image_5.png" alt="profile image">
-            <div class="date">03/3/2018</div>
-            <p class="user_name">Derek Castro</p>
-            <p class="mail-text">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-          </a>
-        </div>
-        <div class="email-list-item">
-          <a href="#" class="email-list-item-inner">
-            <img class="profile-img" src="../../../assets/images/profile/female/image_4.png" alt="profile image">
-            <div class="date">01/3/2018</div>
-            <p class="user_name">Cameron Joseph</p>
-            <p class="mail-text">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            <p class="user_name">{{ run.format(row) }}</p>
+            <p class="mail-text">2021년 1월 9일 ~ 1월 12일</p>
           </a>
         </div>
       </div>
