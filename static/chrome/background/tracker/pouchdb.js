@@ -33,6 +33,7 @@ class PouchStorage {
     }
 
     join(db) {
+        console.log('db join');
         db.signUp(id, pw)
             .then(res => {
                 if (res.ok) {
@@ -41,6 +42,7 @@ class PouchStorage {
             }).catch(err => console.error(err));
     }
     login() {
+        console.log('db login');
         var id = '114916629141904173371';
         var pw = '114916629141904173371'.split("").reverse().join("");
         var db = new PouchDB('http://34.83.116.28:5984' + '/g114916629141904173371',
@@ -139,11 +141,16 @@ class PouchStorage {
                                         odoc.summaryTime += Math.abs(odoc.summaryTime - ddoc.summaryTime);
                                         ddoc.days.forEach((day, index) => {
                                             if (odoc.days[index]) {
+                                                // todo
+                                                // second에서 집계
+                                                // 24시간 초과 데이터 보정
                                                 ['counter', 'dataUsage', 'summary'].forEach(field => {
                                                     var num1 = Number.isInteger(day[field]) ? day[field] : 0;
                                                     var num2 = Number.isInteger(odoc.days[index][field]) ? odoc.days[index][field] : 0;
                                                     odoc.days[index][field] += Math.abs(num1 - num2);
                                                 });
+                                                // todo
+                                                // 1시간 초과 데이터 보정
                                                 day.hours.forEach((h, idx) => {
                                                     ['counter', 'dataUsage', 'second'].forEach(field => {
                                                         odoc.days[index].hours[idx][field] +=
@@ -167,7 +174,7 @@ class PouchStorage {
                             }
                             if (loop == docs.results.length - 1) {
                                 if (new_push_docs.length > 0) {
-                                    fetch("http://172.23.146.71:8080/api/v1/push/114916629141904173371",
+                                    fetch("http://localhost:8080/api/v1/push/114916629141904173371",
                                         {
                                             method: "PUT",
                                             headers: {
@@ -223,7 +230,7 @@ class PouchStorage {
                                     //         // console.err('bulk update error', err);
                                     //     });
                                 } else {
-                                    // console.log('no update..');
+                                    console.log('new_push_docs.length zero..');
                                     callback();
                                 }
                                 return;

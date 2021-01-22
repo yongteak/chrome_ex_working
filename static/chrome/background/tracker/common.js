@@ -43,7 +43,7 @@ var STORAGE_NOTIFICATION_MESSAGE = 'notification_message';
 var STORAGE_TIMERANGE_LIST = 'time_range';
 // 시간당 소비 페이지 정보 5초이상 머물렀던 URL 페이지 목록 관리, daily관리
 var STORAGE_TIME_TO_URL = 'time_to_url';
-var SETTINGS_INTERVAL_SYNC_DEFAULT = 1000 * 60; // 1min
+var SETTINGS_INTERVAL_SYNC_DEFAULT = 1000 * 30//60; // 1min
 var SETTINGS_INTERVAL_INACTIVITY_DEFAULT = InactivityInterval.second30;
 var SETTINGS_INTERVAL_CHECK_DEFAULT = 1000;
 var SETTINGS_INTERVAL_SAVE_STORAGE_DEFAULT = 1000 * 2; // 2초

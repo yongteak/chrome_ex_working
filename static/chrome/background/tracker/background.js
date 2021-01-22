@@ -444,14 +444,20 @@ function backgroundUpdateStorage() {
                 diff_tabs.put({ '_id': t.url, 'value': t }).then(res => {
                     // console.log('res',res);
                 }).catch(err => {
+                    console.error(err)
+                    if (err.message == "Document update conflict") {
+
+                    } else {
+                        reload();
+                    }
                     // docId: "www.oschina.net"
                     // error: true
                     // id: "www.oschina.net"
                     // message: "Document update conflict"
                     // name: "conflict"
                     // status: 409
-                    console.error(err)
-                    // reload();
+
+                    //
                 });
             });
 
