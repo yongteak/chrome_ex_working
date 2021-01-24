@@ -66,7 +66,8 @@ var EVENT_GENERATE_REPORT = 'performance_report';
 var EVENT_SIMILARWEB_REPORT = 'similarweb_report';
 
 // JS
-var POUNCHDB_JS = '/static/vendor/pouchdb/dist/pouchdb.min.js';
+var POUCHDB_JS = '/static/vendor/pouchdb/dist/pouchdb.min.js';
+var POUCH_AUTH_DB_JS = '/static/assets/vendors/js/pouchdb.authentication.min.js';
 
 var MATCHS = {
     loopback: /^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/,

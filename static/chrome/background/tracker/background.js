@@ -75,6 +75,8 @@ function updateSync() {
 }
 
 function backgroundCheck() {
+    // console.log('backgroundCheck isBackgroundUpdateStorage > ',isBackgroundUpdateStorage);
+    if (isBackgroundUpdateStorage) return;
     chrome.windows.getLastFocused({ populate: true }, function (currentWindow) {
         if (currentWindow && currentWindow.focused) {
             var activeTab = currentWindow.tabs.find(t => t.active === true);
@@ -126,7 +128,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
             db.get('bucket_blacklist_access').then(doc => {
                 var index = doc.value.findIndex(e => e.url == domain && e.date == today);
                 if (index == -1) {
-                    doc.value.push({ 'url': domain, 'date': today, 'count': 1, epoch: epoch});
+                    doc.value.push({ 'url': domain, 'date': today, 'count': 1, epoch: epoch });
                     db.put(doc).then(console.log).catch(console.error);
                 } else {
                     // 1분이후 등록
@@ -177,7 +179,7 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
             db.get('restriction_access_list').then(doc => {
                 var index = doc.value.findIndex(e => e.url == domain && e.epoch == epoch);
                 if (index == -1) {
-                    doc.value.push({ 'url': domain, 'date': today, 'count': 1, epoch: epoch});
+                    doc.value.push({ 'url': domain, 'date': today, 'count': 1, epoch: epoch });
                     db.put(doc).then(console.log).catch(console.error);
                 } else {
                     doc.value[index].count++;
@@ -232,18 +234,18 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
                 }
             })
 
-            // idel time 계측 구간, 자꾸 에러남.. 수정필요
-            // try {
-            //     chrome.idle.queryState(parseInt(setting_interval_inactivity), state => {
-            //         if (state === 'active') {
-            //             mainTRacker(activeUrl, tab, activeTab);
-            //         } else checkDOM(state, activeUrl, tab, activeTab);
-            //     });
-            // } catch (error) {
-            //     // nothing
-            //     console.error(error);
-            // }
-            mainTRacker(activeUrl, tab, activeTab);
+        // idel time 계측 구간, 자꾸 에러남.. 수정필요
+        // try {
+        //     chrome.idle.queryState(parseInt(setting_interval_inactivity), state => {
+        //         if (state === 'active') {
+        //             mainTRacker(activeUrl, tab, activeTab);
+        //         } else checkDOM(state, activeUrl, tab, activeTab);
+        //     });
+        // } catch (error) {
+        //     // nothing
+        //     console.error(error);
+        // }
+        mainTRacker(activeUrl, tab, activeTab);
 
     } // end if
 }
@@ -332,7 +334,7 @@ function notificationAction(activeUrl, tab) {
 }
 
 function setBlockPageToCurrent(activeUrl) {
-    updateEvent('go_block_page',activeUrl);
+    updateEvent('go_block_page', activeUrl);
     // static/app/tmpl/block.html
     var blockUrl = chrome.runtime.getURL("static/html/block.html") + '?url=' + activeUrl;
     chrome.tabs.query({ currentWindow: true, active: true }, tab => {
@@ -392,51 +394,75 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
 
 var synchronizing = false;
 function startSync() {
+    if (synchronizing) return;
     synchronizing = true;
-    // console.log('start Sync, synchronizing > ',synchronizing);
-    pounch.sync( res => {
+    console.log('start of synchronizing');
+    pounch.login(res => {
+        if (res == 'err') {
+            console.error('sync Error!!');
+        }
         synchronizing = false;
-        // console.log('end Sync, synchronizing > ',synchronizing,res);
+        console.log('end of synchronizing', res);
     })
 }
 
 // tab사용시간 관리, browser용
 var diff_second;
+// clear진행중 lock
+var isBackgroundUpdateStorage = false;
+
 // save
 function backgroundUpdateStorage() {
+    console.log('backgroundUpdateStorage', isBackgroundUpdateStorage);
+    if (isBackgroundUpdateStorage) return;
     if (synchronizing || !tabs) return;
     // const diff = Math.round(Date.now() / 1000) - diff_second;
     const copy = JSON.parse(JSON.stringify(tabs));
-    // console.log('put ',copy);
+    isBackgroundUpdateStorage = copy.length > 0;
+    const clearDiffDocs = function (doc, new_doc) {
+        // console.log('[clearDiffDocs] > ', doc._id, doc._rev);
+        const conflict = "Document update conflict|missing";
+        db.remove(doc)
+            .then(_r => {
+                db.get(doc._id)
+                    .then(doc1 => {
+                        return clearDiffDocs(doc1, new_doc);
+                    })
+                    .catch(err1 => {
+                        db.put({ '_id': new_doc.url, 'value': new_doc }).then(res => {
+                            isBackgroundUpdateStorage = false;
+                        }).catch(err => {
+                            isBackgroundUpdateStorage = err.message.indexOf(conflict) != -1;
+                            console.log(111, err);
+                        });
+                    });
+            })
+            .catch(err2 => {
+                db.put({ '_id': new_doc.url, 'value': new_doc }).then(res => {
+                    console.log('22 saved..', res);
+                    isBackgroundUpdateStorage = false;
+                }).catch(err => {
+                    isBackgroundUpdateStorage = err.message.indexOf(conflict) != -1;
+                    console.log(222, err);
+                });
+            });
+    }
+    // console.log('put ', copy);
     copy.forEach(tab => {
         var variable = tab;
         (function (t) {
-            // 1초단위로 저장할경우 diff는 항상 0
-            // if (t.browsers) {
-            //     var index = t.browsers.map(m => m.browsers).indexOf(browser);
-            //     if (index == -1) {
-            //         t.browsers.push({'browser':browser, summary:diff});
-            //     } else {
-            //         t.browsers[index].summary += diff;
-            //     }
-            // } else {
-            //     t.browsers = [{'browser':browser, count:1, summary:diff}]
-            // }
-            // console.log('save > ',t.url,t.summaryTime);
             db.get(t.url).then(doc => {
-                db.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true }).then(res => {
-                }).catch(err => {
-                    console.log(err);
-                });
-            }).catch(_err => {
+                clearDiffDocs(doc, t);
+            }).catch(err => {
+                isBackgroundUpdateStorage = false;
+                console.log(err);
                 db.put({ '_id': t.url, 'value': t }).then(res => {
-                }).catch(err => {
-                    console.log(err);
+                }).catch(err1 => {
+                    console.log(err1);
                 });
             });
 
-            // // 변경분 저장
-            // // console.log(t)
+            // 변경분 저장
             diff_tabs.get(t.url).then(doc => {
                 doc.value = t;
                 return diff_tabs.put(doc, { force: true });
@@ -485,8 +511,8 @@ function setDefaultSettings() {
 function checkSettingsImEmpty() {
     // chrome.storage.local.getBytesInUse(['inactivity_interval'], item => {
     //     if (item == 0) {
-            setDefaultSettings();
-        // }
+    setDefaultSettings();
+    // }
     // });
 }
 
@@ -494,24 +520,24 @@ function setDefaultValueForNewSettings() {
     loadNotificationMessage();
 }
 
-function updateEvent(key,value) {
+function updateEvent(key, value) {
     if (synchronizing || diff_tabs == undefined || db == undefined) {
-        setTimeout(() => updateEvent(key,value), 3000);
+        setTimeout(() => updateEvent(key, value), 3000);
         return;
     }
-    key = (''+key).toUpperCase();
-    const kv = {'key':key,'value':value,'epoch':Date.now(),'browser':browser};
+    key = ('' + key).toUpperCase();
+    const kv = { 'key': key, 'value': value, 'epoch': Date.now(), 'browser': browser };
     const bucket = 'bucket_event';
-    const put = {'_id':bucket,'value':[kv]};
+    const put = { '_id': bucket, 'value': [kv] };
     db.get(bucket).then(doc => {
         doc.value.push(kv);
         db.put(doc, { force: true });
-    }).catch(_err => db.put(put) );
+    }).catch(_err => db.put(put));
 
     diff_tabs.get(bucket).then(doc => {
         doc.value.push(kv);
         diff_tabs.put(doc, { force: true });
-    }).catch(_err => diff_tabs.put(put) );
+    }).catch(_err => diff_tabs.put(put));
 }
 
 function addListener() {
@@ -548,13 +574,13 @@ function addListener() {
             if (tab && tab.hasOwnProperty('url') && !isEmpty2(tab.url)) {
                 activity.updateFavicon(tab);
             } else {
-                console.error('2222 tab url 없어? 오류 케이스 수집필요!!',tab);
+                console.error('2222 tab url 없어? 오류 케이스 수집필요!!', tab);
             }
         });
     });
     chrome.runtime.onInstalled.addListener(details => {
         console.log('onInstalled > ', details);
-        updateEvent(details.reason,details);
+        updateEvent(details.reason, details);
         // if (details.reason == 'install') {
         //     storage.saveValue(SETTINGS_SHOW_HINT, SETTINGS_SHOW_HINT_DEFAULT);
         //     setDefaultSettings();
@@ -633,13 +659,13 @@ function loadBlackList(isReload) {
         setTimeout(() => loadBlackList(isReload), 3000);
         return;
     }
-    if (isReload) updateEvent('update_black_list','update_black_list');
+    if (isReload) updateEvent('update_black_list', 'update_black_list');
     db.get(STORAGE_BUCKET)
         .then(rows => {
             setting_black_list = [];
             var ele = rows[STORAGE_BLACK_ELEMENT];
             if (ele) {
-                for(var p in ele) {
+                for (var p in ele) {
                     if (ele[p]) { // true
                         setting_black_list.push(MATCHS[p]);
                     }
@@ -654,7 +680,7 @@ function loadBlackList(isReload) {
                     setting_black_list.push(e.domain)
                 }
             });
-            console.log('blacklist',setting_black_list);
+            console.log('blacklist', setting_black_list);
         })
         .catch(console.error);
 }
@@ -664,11 +690,11 @@ function loadRestrictionList(isReload) {
         setTimeout(() => loadRestrictionList(isReload), 3000);
         return;
     }
-    if (isReload) updateEvent('update_restriction_list','update_restriction_list');
+    if (isReload) updateEvent('update_restriction_list', 'update_restriction_list');
     db.get(STORAGE_BUCKET)
         .then(rows => {
             setting_restriction_list = rows['restriction_list'] || [];
-            console.log('setting_restriction_list',setting_restriction_list);
+            console.log('setting_restriction_list', setting_restriction_list);
             // var ele = rows['setting_restriction_list'];
             // if (ele) {
             //     ele.forEach(e => {
@@ -776,7 +802,7 @@ function checkPermissionsForNotifications(callback, ...props) {
 var pounch;
 var diff_tabs;
 function reload(runSync) {
-    console.log('reload > ',runSync);
+    console.log('reload > ', runSync);
     pounch = new PouchStorage(function (instance) {
         db = new instance('tabs', { revs_limit: 10, sauto_compaction: true });
         diff_tabs = new instance('diff_tabs', { revs_limit: 10, sauto_compaction: true });
@@ -797,4 +823,4 @@ function reload(runSync) {
 reload(true);
 // startSync();
 // start!
-updateEvent('start_application',browser);
+updateEvent('start_application', browser);

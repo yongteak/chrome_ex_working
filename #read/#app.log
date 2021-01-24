@@ -1,6 +1,14 @@
 # couchdb 설치
 https://techexpert.tips/ko/%EC%95%84%ED%8C%8C%EC%B9%98-%EC%B9%B4%EC%9A%B0%EC%B9%98db/couchdb-%EC%9A%B0%EB%B6%84%ED%88%AC-%EB%A6%AC%EB%88%85%EC%8A%A4%EC%97%90-%EC%84%A4%EC%B9%98/
 
+# reversion 정보가 chrome의 mem/cpu리소스에 영향을 많이 준다.
+ - rev를 최신버전만 남기고 삭제할경우 mem/cpu 사용량 감소
+ - 클라이언트에서 rev를 지운다고해도 push의경우 diff를 전달하므로 서버에는 rev가 계속 누적됨
+ - pull할때 서버에서 rev를 모두 다운로드 하므로 문제 발생, 해결방안 필요
+ - _compact,_revs_limit 는 기존 데이터에 영향을 주지 않음
+ - _purge는 모든 doc_id에 개별적인 처리가 필요하므로 해당 사항 없음
+  => 또는 클라이언트에서 remote로 연결하여 처리할수 있음, 테스트 필요
+
 
 # pounchdb
 https://pouchdb.com/guides/setup-couchdb.html

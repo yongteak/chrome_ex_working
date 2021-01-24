@@ -11,13 +11,30 @@
 
 class PouchStorage {
     constructor(cb) {
-        var scriptEl = document.createElement('script');
-        scriptEl.src = chrome.extension.getURL(POUNCHDB_JS);
-        scriptEl.addEventListener('load', function () {
-            cb(PouchDB);
-            // this.is_ready = true;
-        }, false);
-        document.head.appendChild(scriptEl);
+        // var auth_loaded = false;
+        // var pouch_loaded = false;
+        // [POUCHDB_JS,POUCH_AUTH_DB_JS].forEach(js => {
+            var scriptEl = document.createElement('script');
+            scriptEl.src = chrome.extension.getURL(POUCHDB_JS);
+            scriptEl.addEventListener('load', () => {
+                var scriptEl1 = document.createElement('script');
+                scriptEl1.src = chrome.extension.getURL(POUCH_AUTH_DB_JS);
+                scriptEl1.addEventListener('load', () => {
+                    cb(PouchDB);
+                })
+                document.head.appendChild(scriptEl1);
+            },false);
+            document.head.appendChild(scriptEl);
+        // });
+        // var interval = setInterval(() => {
+        //     if (this.ready && this.auth_loaded && this.pouch_loaded) {
+        //         clearInterval(interval);
+        //         cb(PouchDB);
+        //     } else {
+        //         console.log('wait.. pouch module..');
+        //     }
+        //     this.ready = true;
+        // }, 1000);
     }
 
     getdoc(db, id) {
@@ -32,41 +49,49 @@ class PouchStorage {
         return new PouchDB(name);
     }
 
-    join(db) {
+    purge() {
+
+    }
+
+    join(remote, callback) {
         console.log('db join');
-        db.signUp(id, pw)
+        remote.signUp(id, pw)
             .then(res => {
                 if (res.ok) {
-                    this.login();
+                    this.login(callback);
                 }
-            }).catch(err => console.error(err));
+            }).catch(err => {
+                console.error(err);
+                callback('err');
+            });
     }
-    login() {
+    login(callback) {
+        var url = 'http://34.83.116.28:5984' + '/g114916629141904173371';
+        var remote = new PouchDB(url);
         console.log('db login');
         var id = '114916629141904173371';
         var pw = '114916629141904173371'.split("").reverse().join("");
-        var db = new PouchDB('http://34.83.116.28:5984' + '/g114916629141904173371',
-            { skip_setup: true, revs_limit: 5, auto_compaction: true });
-        db.login(id, pw)
+        remote.login(id, pw)
             .then(res => {
-                // console.log('login > ', res);
-                this.sync();
+                console.log('login > ', res);
+                this.sync(callback);
             }).catch(err => {
+                console.error(err);
                 if (err.name == 'unauthorized') {
-                    this.join(db)
+                    this.join(remote, callback)
                 }
             })
     }
     sync(callback) {
         // console.log('sync..classification > ', classification);
         // diff_tabs
-        var db = new PouchDB('tabs');
+        var db = new PouchDB('tabs',{ revs_limit: 5, auto_compaction: true });
         var url = 'http://34.83.116.28:5984' + '/g114916629141904173371';
-        // console.log('start sync!', url);
+        console.log('start sync!', url);
         // var opts = { live: false, retry: true };
         db.replicate.from(url).on('complete', info => {
-            // console.log('from sync ok', info);
-            this.merge(() => {
+            console.log('from sync ok', info);
+            this.merge(db,() => {
                 callback('complete');
                 // db.sync(url, opts)
                 //     .on('complete', info1 => {
@@ -79,12 +104,11 @@ class PouchStorage {
             })
         }).on('error', callback);
     }
-
-    merge(callback) {
+    // new PouchDB('tabs').destroy();
+    merge(db,callback) {
         // pull, merge, push, purge
         // pull -> diff_tabs 병합 -> push
-        const diff_db = new PouchDB('diff_tabs', { revs_limit: 1, auto_compaction: true });
-        const db = new PouchDB('tabs');
+        const diff_db = new PouchDB('diff_tabs', { revs_limit: 5, auto_compaction: true });
 
         const clearDiffDocs = function (doc) {
             // console.log('[clearDiffDocs] > ', doc._id, doc._rev);
@@ -96,7 +120,7 @@ class PouchStorage {
                             // console.log('get',doc1._id, doc1._rev);
                             return clearDiffDocs(doc1);
                         })
-                        .catch(err1 => 1 );
+                        .catch(err1 => 1);
                 })
                 .catch(err2 => 1);
         }
@@ -190,10 +214,11 @@ class PouchStorage {
                                             removeDocs.forEach(target => {
                                                 clearDiffDocs(target);
                                             });
-                                            callback();
+                                            callback('ok');
                                         })
                                         .catch(err => {
-                                            callback();
+                                            console.log(err);
+                                            callback(err);
                                             // console.error('push error', err);
                                         });
                                     // 서버 push
@@ -231,7 +256,7 @@ class PouchStorage {
                                     //     });
                                 } else {
                                     console.log('new_push_docs.length zero..');
-                                    callback();
+                                    callback('ok');
                                 }
                                 return;
                             }
