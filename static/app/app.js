@@ -3,6 +3,7 @@ var app = angular.module('app', [
 	"ngRoute", "angular-echarts3", "angularMoment", "pouchdb",
 	'app.controllers', 'app.controller.sync', 'app.controller.setting',
 	'app.controller.summary',
+	'app.controller.about',
 	'app.controller.status', 'app.controller.limit', 'app.controller.alarm',
 	'app.controller.data', 'app.controller.dashboard', 'app.controller.category',
 	'app.services', 'app.pounch', 'app.indexer', 'app.filter'

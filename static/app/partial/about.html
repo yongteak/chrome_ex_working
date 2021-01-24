@@ -2,7 +2,7 @@
     * 지난주 대비 데이터 표기
 -->
 <div class="row">
-    <div class="col-lg-8 col-md-8 equel-grid">
+    <div class="col-lg-9 col-md-9 equel-grid">
       <div class="grid">
         <div class="grid-body py-3">
           <div class="d-flex justify-content-between">
@@ -33,7 +33,7 @@
         </div>
       </div>
     </div>
-    <div class="col-lg-4 col-md-4 equel-grid">
+    <div class="col-lg-3 col-md-3 equel-grid">
       <!-- <div class="grid">
         <div class="grid-body py-3">
           <div class="d-flex justify-content-between">
@@ -46,33 +46,23 @@
           <table class="table table-hover table-sm">
             <thead>
               <tr class="solid-header">
-                <th>카테고리</th>
-                <th>사용</th>
-                <th>접속</th>
+                <th>분류</th>
+                <th>사용량</th>
+                <!-- <th>접속</th> -->
               </tr>
             </thead>
             <tbody>
               <tr ng-repeat="row in model.top_rank.category">
                 <td>
-
                   <span class="mb-n1 font-weight-medium">
                     <span style="background-color: {{row.category | category_code_to_color }}"
-                      class="status-indicator rounded-indicator small"></span>{{row.category |
-                    category_code_to_name}}</span>
-                  <!-- <p class="mb-n1 font-weight-medium">{{ row.category | category_code_to_name }}</p> -->
+                      class="status-indicator rounded-indicator small"></span>
+                      {{row.category |category_code_to_name}}</span>
                   <code class="small_text text-gray">사이트:{{ row.urls | num_comma }}개</code>
                 </td>
-                <td class="font-weight-medium text-center">
-                  {{ row.summary | secondToFormat }}
-                  <!-- <div>
-                    <code class="small_text text-danger">15.47%<em class="mdi mdi-arrow-up"></em></code>
-                  </div> -->
-                </td>
-                <td class="font-weight-medium text-center">
-                  {{ row.count | num_comma }}회
-                  <!-- <div>
-                    <code class="small_text text-info">15.47%<em class="mdi mdi-arrow-down"></em></code>
-                  </div> -->
+                <td>
+                  <span class="mb-n1 font-weight-medium">{{ row.summary | secondToFormat }}</span>
+                  <code class="small_text text-gray">접속:{{ row.count | num_comma }}회</code>
                 </td>
               </tr>
             </tbody>

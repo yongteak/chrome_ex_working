@@ -1,5 +1,14 @@
 angular.module('app.filter', [])
 
+    .filter('percent', function () {
+        return function (count, times, usaged) {
+            var sum = count + times + usaged;
+            return [((count / sum) * 100).toFixed(0),
+            ((times / sum) * 100).toFixed(0),
+            ((usaged / sum) * 100).toFixed(0)]
+        };
+    })
+
     // https://swtpumpkin.github.io/backend/node/momentWeekOfMonth/
     .filter('weekOfMonth', function () {
         return (day) => { // YYYYYMMDD
@@ -316,6 +325,14 @@ angular.module('app.filter', [])
             code = code || '000';
             var kv = $rootScope['category_kv'][code];
             return kv ? kv[lang] : $rootScope['category_kv']['000']['ko'];
+        };
+    })
+    // 카테고리외 데이터 기본값 설정
+    .filter('category_code_to_default', function ($rootScope) {
+        return function (code,) {
+            code = code || '000';
+            var kv = $rootScope['category_kv'][code];
+            return kv ? code : '000';
         };
     })
     .filter('category_code_to_color', function ($rootScope) {
