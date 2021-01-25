@@ -14,17 +14,17 @@ class PouchStorage {
         // var auth_loaded = false;
         // var pouch_loaded = false;
         // [POUCHDB_JS,POUCH_AUTH_DB_JS].forEach(js => {
-            var scriptEl = document.createElement('script');
-            scriptEl.src = chrome.extension.getURL(POUCHDB_JS);
-            scriptEl.addEventListener('load', () => {
-                var scriptEl1 = document.createElement('script');
-                scriptEl1.src = chrome.extension.getURL(POUCH_AUTH_DB_JS);
-                scriptEl1.addEventListener('load', () => {
-                    cb(PouchDB);
-                })
-                document.head.appendChild(scriptEl1);
-            },false);
-            document.head.appendChild(scriptEl);
+        var scriptEl = document.createElement('script');
+        scriptEl.src = chrome.extension.getURL(POUCHDB_JS);
+        scriptEl.addEventListener('load', () => {
+            var scriptEl1 = document.createElement('script');
+            scriptEl1.src = chrome.extension.getURL(POUCH_AUTH_DB_JS);
+            scriptEl1.addEventListener('load', () => {
+                cb(PouchDB);
+            })
+            document.head.appendChild(scriptEl1);
+        }, false);
+        document.head.appendChild(scriptEl);
         // });
         // var interval = setInterval(() => {
         //     if (this.ready && this.auth_loaded && this.pouch_loaded) {
@@ -82,10 +82,26 @@ class PouchStorage {
                 }
             })
     }
-    sync(callback) {
+    async sync(callback) {
+        if (performance.measureMemory) {
+            try {
+                const result = await performance.measureMemory();
+                console.log('measureMemory', result);
+            } catch (err) {
+                console.error('measureMemory', err);
+            }
+        }
+
+        if (typeof process != 'undefined') {
+            console.log(`Node: ${process.memoryUsage().heapUsed / Math.pow(1000, 2)} MB`);
+        } else if (performance) {
+            console.log(`Browser: ${performance.memory.usedJSHeapSize / Math.pow(1000, 2)} MB`);
+        } else {
+            throw ('Where d-heck are you trying to run me?');
+        }
         // console.log('sync..classification > ', classification);
         // diff_tabs
-        console.log('1', new Date().valueOf());
+        console.log('1111', new Date().valueOf());
         var db = new PouchDB('tabs');
         var url = 'http://34.83.116.28:5984' + '/g114916629141904173371';
         console.log('start sync!', url);
@@ -108,7 +124,7 @@ class PouchStorage {
         }).on('error', callback);
     }
     // new PouchDB('tabs').destroy();
-    merge(db,callback) {
+    merge(db, callback) {
         // pull, merge, push, purge
         // pull -> diff_tabs 병합 -> push
         const diff_db = new PouchDB('diff_tabs', { revs_limit: 5, auto_compaction: true });
@@ -231,6 +247,7 @@ class PouchStorage {
                             }
                             if (loop == docs.results.length - 1) {
                                 if (new_push_docs.length > 0) {
+                                    /\s*/g.exec(''); // clear regex cache to prevent memory leak
                                     fetch("http://localhost:8080/api/v1/push/114916629141904173371",
                                         {
                                             method: "PUT",
@@ -252,8 +269,9 @@ class PouchStorage {
                                                     console.log('clear diff_db completed!', response);
                                                     callback({ instnace: new PouchDB('diff_tabs'), error: false, message: null });
                                                 }).catch(err => {
-                                                    callback({ error: true, message: err });
-                                                    console.err('diff_db error', err);
+                                                    // callback({ error: true, message: err });
+                                                    callback({ instnace: new PouchDB('diff_tabs'), error: false, message: null });
+                                                    console.error('diff_db error', err);
                                                 });
                                         })
                                         .catch(err => {

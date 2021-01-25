@@ -424,7 +424,7 @@ function backgroundUpdateStorage() {
     const copy = JSON.parse(JSON.stringify(tabs));
     isBackgroundUpdateStorage = copy.length > 0;
     const clearDiffDocs = function (doc, new_doc) {
-        // console.log('[clearDiffDocs] > ', doc._id, doc._rev);
+        console.log('[clearDiffDocs] > ', doc._id, doc._rev);
         const conflict = "Document update conflict|missing";
         db.remove(doc)
             .then(_r => {
@@ -455,16 +455,16 @@ function backgroundUpdateStorage() {
     copy.forEach(tab => {
         var variable = tab;
         (function (t) {
-            db.get(t.url).then(doc => {
-                clearDiffDocs(doc, t);
-            }).catch(err => {
-                isBackgroundUpdateStorage = false;
-                console.log(err);
-                db.put({ '_id': t.url, 'value': t }).then(res => {
-                }).catch(err1 => {
-                    console.log(err1);
-                });
-            });
+            // db.get(t.url).then(doc => {
+            //     clearDiffDocs(doc, t);
+            // }).catch(err => {
+            //     isBackgroundUpdateStorage = false;
+            //     console.log(err);
+            //     db.put({ '_id': t.url, 'value': t }).then(res => {
+            //     }).catch(err1 => {
+            //         console.log(err1);
+            //     });
+            // });
 
             // 변경분 저장
             diff_tabs.get(t.url).then(doc => {
