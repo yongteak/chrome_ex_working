@@ -85,14 +85,17 @@ class PouchStorage {
     sync(callback) {
         // console.log('sync..classification > ', classification);
         // diff_tabs
-        var db = new PouchDB('tabs',{ revs_limit: 5, auto_compaction: true });
+        console.log('1', new Date().valueOf());
+        var db = new PouchDB('tabs');
         var url = 'http://34.83.116.28:5984' + '/g114916629141904173371';
         console.log('start sync!', url);
         // var opts = { live: false, retry: true };
         db.replicate.from(url).on('complete', info => {
             console.log('from sync ok', info);
-            this.merge(db,() => {
-                callback('complete');
+            console.log('2', new Date().valueOf());
+            this.merge(db, res => {
+                callback(res);
+                // callback(res);
                 // db.sync(url, opts)
                 //     .on('complete', info1 => {
                 //         // console.log('sync complete!', info1);
@@ -111,18 +114,48 @@ class PouchStorage {
         const diff_db = new PouchDB('diff_tabs', { revs_limit: 5, auto_compaction: true });
 
         const clearDiffDocs = function (doc) {
-            // console.log('[clearDiffDocs] > ', doc._id, doc._rev);
-            diff_db.remove(doc)
-                .then(_r => {
-                    // console.log('[pouchdb] removed doc id =>', doc._id, doc._rev);
-                    diff_db.get(doc._id)
-                        .then(doc1 => {
-                            // console.log('get',doc1._id, doc1._rev);
-                            return clearDiffDocs(doc1);
+            diff_db.get(doc._id)
+                .then(doc1 => {
+                    //     doc._deleted = true;
+                    //     return db.put(doc);
+                    // }).then(function (result) {
+                    doc1._deleted = true;
+                    diff_db.put(doc1)
+                        .then(res => {
+                            console.log('remove put >', res, doc._id);
+                            // doc._delete = true;
+                            // return diff_db.put(doc);
+
+                            // remove이후 _delete 는 아래와 같은 오류 발생함, 하나만 선택할것
+                            // docId: "www.google.com"
+                            // error: true
+                            // message: "Bad special document member: _delete"
+                            // name: "doc_validation"
+                            // reason: "_delete"
+                            // status: 500
                         })
-                        .catch(err1 => 1);
+                        // .then(res => {
+                        //     console.log('delete doc >', res, doc);
+                        // })
+                        .catch(err => console.error(err))
                 })
-                .catch(err2 => 1);
+                .catch(err1 => 1);
+
+
+            // 왜 무한 loop에 빠지는가?
+            // var db1 = new PouchDB('diff_tabs');
+            // console.log('[clearDiffDocs] > ', doc._id, doc._rev);
+            // db1.remove(doc)
+            //     .then(_r => {
+            //         // console.log('[pouchdb] removed doc id =>', doc._id, doc._rev);
+            //         db1.get(doc._id)
+            //             .then(doc1 => {
+            //                 // console.log('get',doc1._id, doc1._rev);
+            //                 return clearDiffDocs(doc1);
+            //             })
+            //             .catch(err1 => 1);
+            //     })
+            //     .catch(err2 => 1);
         }
 
         diff_db.allDocs({
@@ -211,15 +244,21 @@ class PouchStorage {
                                         .then(res2 => {
                                             // console.log(res2);
                                             // 정상적으로 통신됐을때만 diff내용을 삭제한다.
-                                            removeDocs.forEach(target => {
-                                                clearDiffDocs(target);
-                                            });
-                                            callback('ok');
+                                            // removeDocs.forEach(target => {
+                                            //     clearDiffDocs(target);
+                                            // });
+                                            diff_db.destroy()
+                                                .then(response => {
+                                                    console.log('clear diff_db completed!', response);
+                                                    callback({ instnace: new PouchDB('diff_tabs'), error: false, message: null });
+                                                }).catch(err => {
+                                                    callback({ error: true, message: err });
+                                                    console.err('diff_db error', err);
+                                                });
                                         })
                                         .catch(err => {
-                                            console.log(err);
-                                            callback(err);
-                                            // console.error('push error', err);
+                                            console.error(err);
+                                            callback({ error: true, message: err });
                                         });
                                     // 서버 push
                                     // 완료후 pull, 충돌시?
@@ -255,8 +294,7 @@ class PouchStorage {
                                     //         // console.err('bulk update error', err);
                                     //     });
                                 } else {
-                                    console.log('new_push_docs.length zero..');
-                                    callback('ok');
+                                    callback({ error: false, message: 'diff nothing..' });
                                 }
                                 return;
                             }
@@ -264,8 +302,7 @@ class PouchStorage {
                     })
                     .catch(err => console.error(err));
             } else {
-                // console.log('diff nothing..');
-                callback();
+                callback({ error: false, message: 'diff nothing..' });
             }
         });
     }

@@ -394,15 +394,19 @@ function executeScriptNetflix(callback, activeUrl, tab, activeTab) {
 
 var synchronizing = false;
 function startSync() {
-    if (synchronizing) return;
     synchronizing = true;
-    console.log('start of synchronizing');
-    pounch.login(res => {
-        if (res == 'err') {
-            console.error('sync Error!!');
+    // console.log('start Sync, synchronizing > ',synchronizing);
+    pounch.sync(res => {
+        if (res.hasOwnProperty('instnace')) {
+            diff_tabs = res.instnace;
+        } else if(res.error) {
+            console.error(res);
+        } else {
+            //
         }
+
         synchronizing = false;
-        console.log('end of synchronizing', res);
+        // console.log('end Sync, synchronizing > ',synchronizing,res);
     })
 }
 
