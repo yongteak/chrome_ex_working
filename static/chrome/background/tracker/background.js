@@ -76,7 +76,7 @@ function updateSync() {
 
 function backgroundCheck() {
     // console.log('backgroundCheck isBackgroundUpdateStorage > ',isBackgroundUpdateStorage);
-    if (isBackgroundUpdateStorage) return;
+    // if (isBackgroundUpdateStorage) return;
     chrome.windows.getLastFocused({ populate: true }, function (currentWindow) {
         if (currentWindow && currentWindow.focused) {
             var activeTab = currentWindow.tabs.find(t => t.active === true);
@@ -417,40 +417,40 @@ var isBackgroundUpdateStorage = false;
 
 // save
 function backgroundUpdateStorage() {
-    console.log('backgroundUpdateStorage', isBackgroundUpdateStorage);
-    if (isBackgroundUpdateStorage) return;
+    // console.log('backgroundUpdateStorage', isBackgroundUpdateStorage);
+    // if (isBackgroundUpdateStorage) return;
     if (synchronizing || !tabs) return;
     // const diff = Math.round(Date.now() / 1000) - diff_second;
     const copy = JSON.parse(JSON.stringify(tabs));
-    isBackgroundUpdateStorage = copy.length > 0;
-    const clearDiffDocs = function (doc, new_doc) {
-        console.log('[clearDiffDocs] > ', doc._id, doc._rev);
-        const conflict = "Document update conflict|missing";
-        db.remove(doc)
-            .then(_r => {
-                db.get(doc._id)
-                    .then(doc1 => {
-                        return clearDiffDocs(doc1, new_doc);
-                    })
-                    .catch(err1 => {
-                        db.put({ '_id': new_doc.url, 'value': new_doc }).then(res => {
-                            isBackgroundUpdateStorage = false;
-                        }).catch(err => {
-                            isBackgroundUpdateStorage = err.message.indexOf(conflict) != -1;
-                            console.log(111, err);
-                        });
-                    });
-            })
-            .catch(err2 => {
-                db.put({ '_id': new_doc.url, 'value': new_doc }).then(res => {
-                    console.log('22 saved..', res);
-                    isBackgroundUpdateStorage = false;
-                }).catch(err => {
-                    isBackgroundUpdateStorage = err.message.indexOf(conflict) != -1;
-                    console.log(222, err);
-                });
-            });
-    }
+    // isBackgroundUpdateStorage = copy.length > 0;
+    // const clearDiffDocs = function (doc, new_doc) {
+    //     console.log('[clearDiffDocs] > ', doc._id, doc._rev);
+    //     const conflict = "Document update conflict|missing";
+    //     db.remove(doc)
+    //         .then(_r => {
+    //             db.get(doc._id)
+    //                 .then(doc1 => {
+    //                     return clearDiffDocs(doc1, new_doc);
+    //                 })
+    //                 .catch(err1 => {
+    //                     db.put({ '_id': new_doc.url, 'value': new_doc }).then(res => {
+    //                         isBackgroundUpdateStorage = false;
+    //                     }).catch(err => {
+    //                         isBackgroundUpdateStorage = err.message.indexOf(conflict) != -1;
+    //                         console.log(111, err);
+    //                     });
+    //                 });
+    //         })
+    //         .catch(err2 => {
+    //             db.put({ '_id': new_doc.url, 'value': new_doc }).then(res => {
+    //                 console.log('22 saved..', res);
+    //                 isBackgroundUpdateStorage = false;
+    //             }).catch(err => {
+    //                 isBackgroundUpdateStorage = err.message.indexOf(conflict) != -1;
+    //                 console.log(222, err);
+    //             });
+    //         });
+    // }
     // console.log('put ', copy);
     copy.forEach(tab => {
         var variable = tab;
@@ -465,6 +465,12 @@ function backgroundUpdateStorage() {
             //         console.log(err1);
             //     });
             // });
+            db.get(t.url).then(doc => {
+                return db.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true });
+            }).catch(err => {
+                console.error(err);
+                db.put({ '_id': t.url, 'value': t });
+            });
 
             // 변경분 저장
             diff_tabs.get(t.url).then(doc => {

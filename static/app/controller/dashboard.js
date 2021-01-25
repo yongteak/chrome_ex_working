@@ -356,7 +356,7 @@ angular.module('app.controller.dashboard', [])
                 yAxis: {
                     type: 'value',
                     axisLabel: {
-                        formatter: t => $filter(yAxisFormat)(t)
+                        formatter: t => $filter('secondToFormat')(t)
                     },
                     splitLine: {
                         show: false

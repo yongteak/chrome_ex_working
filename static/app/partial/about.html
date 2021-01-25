@@ -2,139 +2,191 @@
     * 지난주 대비 데이터 표기
 -->
 <div class="row">
-    <div class="col-lg-9 col-md-9 equel-grid">
-      <div class="grid">
-        <div class="grid-body py-3">
-          <div class="d-flex justify-content-between">
-            <span data-toggle="tooltip" data-placement="left" title="">
-              <em class="mdi mdi-information-outline text-muted"></em> 일별 사용량
-            </span>
-            <!-- <code class="dottedUnderline small_text text-gray">{{ model.sums.times | secondToFormat }}</code> -->
-            <!-- 날짜 필드 클릭시 주간 목록 팝업 띄우기 -->
-            <div class="item-wrapper">
-                <div class="demo-wrapper">
-                  <div class="btn-group mb-0" data-toggle="buttons">
-                    <label class="btn btn-xs btn-info">
-                      <input type="checkbox">
-                      <em class="mdi mdi-arrow-left"></em></label>
-                    <label class="btn btn-xs btn-info  active">
-                      <input type="checkbox" checked>1월 3주</label>
-                    <label class="btn btn-xs btn-info">
-                      <input type="checkbox">
-                      <em class="mdi mdi-arrow-right"></em></label>
-                  </div>
-                </div>
+  <div class="col-lg-5 col-md-5 equel-grid">
+    <div class="grid">
+      <div class="grid-body py-3">
+        <div class="d-flex justify-content-between">
+          <span data-toggle="tooltip" data-placement="left" title="">
+            <em class="mdi mdi-information-outline text-muted"></em> 일별 사용량
+          </span>
+          <div class="item-wrapper">
+            <div class="demo-wrapper">
+              <div class="btn-group mb-0" data-toggle="buttons">
+                <label class="btn btn-xs btn-info">
+                  <input type="checkbox">
+                  <em class="mdi mdi-arrow-left"></em></label>
+                <label class="btn btn-xs btn-info  active">
+                  <input type="checkbox" checked>1월 3주</label>
+                <label class="btn btn-xs btn-info">
+                  <input type="checkbox">
+                  <em class="mdi mdi-arrow-right"></em></label>
               </div>
+            </div>
           </div>
-        </div>
-        <div class="mt-auto">
-          <mw-chart style="width:100%;height:360px;top:0px;bottom:0px;left:0px;" ng-model="model.charts.by_category">
-          </mw-chart>
         </div>
       </div>
-    </div>
-    <div class="col-lg-3 col-md-3 equel-grid">
-      <!-- <div class="grid">
-        <div class="grid-body py-3">
-          <div class="d-flex justify-content-between">
-            <span data-toggle="tooltip" data-placement="left" title="">
-              <em class="mdi mdi-information-outline text-muted"></em> 카테고리 통계
-            </span>
-          </div>
-        </div> -->
-        <div class="grid table-responsive">
-          <table class="table table-hover table-sm">
-            <thead>
-              <tr class="solid-header">
-                <th>분류</th>
-                <th>사용량</th>
-                <!-- <th>접속</th> -->
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="row in model.top_rank.category">
-                <td>
-                  <span class="mb-n1 font-weight-medium">
-                    <span style="background-color: {{row.category | category_code_to_color }}"
-                      class="status-indicator rounded-indicator small"></span>
-                      {{row.category |category_code_to_name}}</span>
-                  <code class="small_text text-gray">사이트:{{ row.urls | num_comma }}개</code>
-                </td>
-                <td>
-                  <span class="mb-n1 font-weight-medium">{{ row.summary | secondToFormat }}</span>
-                  <code class="small_text text-gray">접속:{{ row.count | num_comma }}회</code>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- <div class="mt-auto"> -->
+        <div>
+          <p style="padding-left: 30px;font-size: 14px;color:#969696">2시간 23분 사용</p>
+          <p style="padding-left: 30px;font-size: 13px;color:#969696">4,3201회 접속</p>
+          <p style="padding-left: 30px;font-size: 15px;color:#969696">56.4MB 데이터 사용</p>
+          <!-- <p style="padding-left: 30px;font-size: 20px;color:#3d3c3c;font-weight:bolder">23시간 25분, 4,302회, 15.5MB</p> -->
         </div>
-        <!-- <a class="border-top px-3 py-2 d-block text-gray" href="#">
-          <small class="font-weight-medium"><i class="mdi mdi-chevron-down mr-2"></i>더 많은 데이터 보기</small>
-        </a>
-      </div> -->
+        <mw-chart style="width:100%;height:280px;top:0px;bottom:0px;left:0px;" ng-model="model.charts.weeks">
+        </mw-chart>
+      <!-- </div> -->
     </div>
 
-    <div class="col-md-12 equel-grid">
-      <div class="grid">
-        <!-- <div class="grid-body py-3">
-          <p class="card-title ml-n1">주간 누적 사용량 TOP 5</p>
-        </div> -->
-        <div class="grid-body py-3">
-          <div class="d-flex justify-content-between">
-            <span data-toggle="tooltip" data-placement="left" title="">
-              <em class="mdi mdi-information-outline text-muted"></em> 도메인 통계
-            </span>
-            <!-- <code class="text-danger">집계기간:1월1일 ~ 1월30일</code> -->
-          </div>
+  </div>
+  <div class="col-lg-4 col-md-4 col-sm-12 equel-grid">
+    <div class="grid">
+      <div class="grid-body py-3">
+        <div class="d-flex justify-content-between">
+          <span data-toggle="tooltip" data-placement="left" title="">
+            <em class="mdi mdi-information-outline text-muted"></em> 도메인별 사용성
+          </span>
         </div>
-        <div class="table-responsive">
-          <!-- {{ $scope.model.cumulative_sum }} -->
-          <table class="table table-hover table-sm">
-            <thead>
-              <tr class="solid-header">
-                <th>URL</th>
-                <th>시간</th>
-                <th>접속</th>
-                <th>데이터</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="row in model.cumulative_usage">
-                <td>
-                  <small class="text-black font-weight-medium d-block">{{ row.url }}</small>
-                  <span class="text-gray">
-                    <span style="background-color: {{row.category | category_code_to_color }}"
-                      class="status-indicator rounded-indicator small"></span>{{row.category | category_code_to_name
-                    }}</span>
-                </td>
-                <td>
-                  <div class="progress">
-                    <div class="progress-bar bg-primary progress-bar-striped" role="progressbar"
-                      style="width: {{ (row.summary/model.cumulative_sum.summary)*100 }}%" aria-valuemin="0"
-                      aria-valuemax="100">{{ row.summary | secondToFormat }}</div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr class="solid-header">
+              <th width="80">URL</th>
+              <th>
+                <div>
+                  <span class="badge badge-pill badge-primary">접속</span>
+                  <span class="badge badge-pill badge-success">사용시간</span>
+                  <span class="badge badge-pill badge-danger">데이터</span>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="row in model.usability">
+              <td>
+                <small class="text-black font-weight-medium d-block">{{row.url}}</small>
+                <span class="text-gray">
+                  <span style="background-color: {{row.category | category_code_to_color }}"
+                    class="status-indicator rounded-indicator small"></span>{{row.category |
+                  category_code_to_name}}</span>
+              </td>
+              <td>
+                <div class="progress">
+                  <div class="progress-bar bg-primary" role="progressbar" style="width: {{ row.rate[0] }}%"
+                    aria-valuenow="35" aria-valuemin="0" aria-valuemax="100">
+                    <div class="text-center" ng-if="row.rate[0] > 15">{{ row.rate[0] }}%</div>
                   </div>
-                </td>
-                <td>
-                  <div class="progress">
-                    <div class="progress-bar bg-success progress-bar-striped" role="progressbar"
-                      style="width: {{ (row.count/model.cumulative_sum.count)*100 }}%" aria-valuemin="0"
-                      aria-valuemax="100">{{ row.count | num_comma }}회</div>
+                  <div class="progress-bar bg-success" role="progressbar" style="width: {{ row.rate[1] }}%"
+                    aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">
+                    <div class="text-center" ng-if="row.rate[1] > 15">{{ row.rate[1] }}%</div>
                   </div>
-                </td>
-                <td>
-                  <div class="progress">
-                    <div class="progress-bar bg-danger progress-bar-striped" role="progressbar"
-                      style="width: {{ (row.dataUsage/model.cumulative_sum.dataUsage)*100 }}%" aria-valuemin="0"
-                      aria-valuemax="100">{{ row.dataUsage | dataSizeToUnit }}</div>
+                  <div class="progress-bar bg-danger" role="progressbar" style="width: {{ row.rate[2] }}%"
+                    aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+                    <div class="text-center" ng-if="row.rate[2] > 15">{{ row.rate[2] }}%</div>
                   </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <a class="border-top px-3 py-2 d-block text-gray" href="#">
-          <small class="font-weight-medium"><i class="mdi mdi-chevron-down mr-2"></i>더 많은 데이터 보기</small>
-        </a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
+  <div class="col-lg-3 col-md-3 equel-grid">
+    <div class="grid">
+      <div class="grid-body py-3">
+        <div class="d-flex justify-content-between">
+          <span data-toggle="tooltip" data-placement="left" title="">
+            <em class="mdi mdi-information-outline text-muted"></em> 카테고리 통계
+          </span>
+        </div>
+      </div>
+      <div class="grid table-responsive">
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr class="solid-header">
+              <th>분류</th>
+              <th>사용량</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="row in model.top_rank.category">
+              <td>
+                <span class="mb-n1 font-weight-medium">
+                  <span style="background-color: {{row.category | category_code_to_color }}"
+                    class="status-indicator rounded-indicator small"></span>
+                  {{row.category |category_code_to_name}}</span>
+                <code class="small_text text-gray">사이트:{{ row.urls | num_comma }}개</code>
+              </td>
+              <td>
+                <span class="mb-n1 font-weight-medium">{{ row.summary | secondToFormat }}</span>
+                <code class="small_text text-gray">접속:{{ row.count | num_comma }}회</code>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12 equel-grid">
+    <div class="grid">
+      <!-- <div class="grid-body py-3">
+          <p class="card-title ml-n1">주간 누적 사용량 TOP 5</p>
+        </div> -->
+      <div class="grid-body py-3">
+        <div class="d-flex justify-content-between">
+          <span data-toggle="tooltip" data-placement="left" title="">
+            <em class="mdi mdi-information-outline text-muted"></em> 도메인 통계
+          </span>
+          <!-- <code class="text-danger">집계기간:1월1일 ~ 1월30일</code> -->
+        </div>
+      </div>
+      <div class="table-responsive">
+        <!-- {{ $scope.model.cumulative_sum }} -->
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr class="solid-header">
+              <th>URL</th>
+              <th>시간</th>
+              <th>접속</th>
+              <th>데이터</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="row in model.cumulative_usage">
+              <td>
+                <small class="text-black font-weight-medium d-block">{{ row.url }}</small>
+                <span class="text-gray">
+                  <span style="background-color: {{row.category | category_code_to_color }}"
+                    class="status-indicator rounded-indicator small"></span>{{row.category | category_code_to_name
+                  }}</span>
+              </td>
+              <td>
+                <div class="progress">
+                  <div class="progress-bar bg-primary progress-bar-striped" role="progressbar"
+                    style="width: {{ (row.summary/model.cumulative_sum.summary)*100 }}%" aria-valuemin="0"
+                    aria-valuemax="100">{{ row.summary | secondToFormat }}</div>
+                </div>
+              </td>
+              <td>
+                <div class="progress">
+                  <div class="progress-bar bg-success progress-bar-striped" role="progressbar"
+                    style="width: {{ (row.count/model.cumulative_sum.count)*100 }}%" aria-valuemin="0"
+                    aria-valuemax="100">{{ row.count | num_comma }}회</div>
+                </div>
+              </td>
+              <td>
+                <div class="progress">
+                  <div class="progress-bar bg-danger progress-bar-striped" role="progressbar"
+                    style="width: {{ (row.dataUsage/model.cumulative_sum.dataUsage)*100 }}%" aria-valuemin="0"
+                    aria-valuemax="100">{{ row.dataUsage | dataSizeToUnit }}</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

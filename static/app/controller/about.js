@@ -8,11 +8,22 @@ angular.module('app.controller.about', [])
                 count: 0
             },
             top_rank: {
-                category:[],
-                url:[]
+                category: [],
+                url: []
             },
-            daytime_of_usaged:[]
+            daytime_of_usaged: {
+                cur: [],
+                pre: []
+            },
+            charts: {
+                weeks: []
+            },
+            compare: {
+                cur: [],
+                pre: []
+            }
         };
+        // $scope.model.charts.weeks = { 'option': chart(), 'click': null }
         $scope.run = {
             view: target => {
                 console.log(target);
@@ -60,70 +71,89 @@ angular.module('app.controller.about', [])
                 $scope.run.view($scope.model.rows[0]);
             },
             start1: args => {
+                console.log(args);
                 // 202101_3w_20210110_20210116
                 // 지난주 데이터 비교를위해 기간을 더 추가한다,
                 // 지난주 데이터가 indexer에 있는경우 기간을 추가할 필요는 없지만 그럴일은 거의 없을듯..
-                var days = '202101_3w_20210103_20210116'.split('_');
+                var days = '202101_3w_20210103_20210120'.split('_');
                 var sday = days[2];
                 var eday = days[3];
                 console.log('start!!');
 
                 $scope.model.days =
                     Array(14).fill(0).map((_e, idx) => idx).reduce((a, b) => {
-                        a.push(moment('' + sday).add(b, 'day').format("YYYYMMDD"));
+                        a.push(moment('' + eday).add(-b, 'day').format("YYYYMMDD"));
                         return a;
-                    }, []);
-                console.log($scope.model.days);
-                $scope.model.weeks = $scope.model.days.slice(0, 7).reverse();
+                    }, []).reverse();
+                console.log('days', $scope.model.days);
+                $scope.model.weeks = $scope.model.days.slice(0, 7);
                 var weeks = $scope.model.weeks;
+                var dsize = $scope.model.days.length;
                 var wsize = weeks.length;// - 1;
                 // 날짜에 데이터 넣기
                 var reduce =
                     args
-                        .filter(x => x.day >= sday && x.day <= eday)
+                        // .filter(x => x.day >= sday && x.day <= eday)
+                        .filter(x => x.day >= $scope.model.days[0] && x.day <= $scope.model.days[$scope.model.days.length - 1])
                         .reduce((a, b) => {
-                            var idx = weeks.indexOf('' + b.day);
+                            var idx = $scope.model.days.indexOf('' + b.day);
+                            // if (idx != -1) {
                             ['summary', 'dataUsage', 'counter']
                                 .forEach((val, index) => {
-                                    a[index].splice(idx, 1, b[val]);
+                                    if (idx != -1) {
+                                        a[index].splice(idx, 1, b[val]);
+                                    };
                                     $scope.model.sums[val] += b[val];
                                 });
+                            // }
                             a[3] = a[3].concat(b.url);
                             return a;
-                        }, [new Array(wsize).fill(0), // times
-                        new Array(wsize).fill(0), // traffic
-                        new Array(wsize).fill(0), // count
+                        }, [new Array(dsize).fill(0), // times
+                        new Array(dsize).fill(0), // traffic
+                        new Array(dsize).fill(0), // count
                         []]); // urls
-
+                // console.log(reduce[0]);
+                $scope.model.charts.weeks = { 'option': chart(weeks,$scope.run.series(reduce[0])), 'click': null };
+                console.log(weeks, $scope.run.series(reduce[0]));
                 $scope.model.reduce = reduce;
                 var domains = Array.from(new Set(reduce[3]));
-                var dotu = $scope.model.distribution_of_time_use;
                 var daytime_of_usaged = $scope.model.daytime_of_usaged;
-                console.log($filter('epoch')(),'getdocs');
+                var len = $scope.model.days.length;
+                // console.log($filter('epoch')(), 'getdocs');
                 pounch.getdocs(domains).then(docs => {
                     // console.log(docs);
-                    var reduce1 = docs.results.reduce(([acc, day_by_cat], doc) => {
+                    var reduce1 = docs.results.reduce(([acc_cur, acc_pre, cur, pre], doc) => {
                         var code = doc.docs[0]['ok'].value.category;
                         code = code || '000';
-                        var sum = { url: doc.id, category: code, count: 0, summary: 0, dataUsage: 0, rate: [0, 0, 0] };
-                        doc.docs[0]['ok'].value.days
-                            .filter(x => x.date >= sday && x.date <= eday)
-                            .forEach(e => {
+
+                        var cur_days = doc.docs[0]['ok'].value.days
+                            .filter(x => x.date >= $scope.model.days[0] && x.date <= $scope.model.days[len / 2]);
+                        var pre_days = doc.docs[0]['ok'].value.days
+                            .filter(x => x.date >= $scope.model.days[(len / 2) + 1] && x.date <= $scope.model.days[len - 1]);
+                        [cur_days, pre_days].forEach((x_days, i) => {
+                            var day_by_cat;
+                            var sum = { url: doc.id, category: code, count: 0, summary: 0, dataUsage: 0, rate: [0, 0, 0] };
+                            x_days.forEach(e => {
+                                var isCur = e.date > $scope.model.days[len / 2];
+                                // console.log(e.date, $scope.model.days[len / 2],e.date > $scope.model.days[len / 2])
+                                day_by_cat = isCur ? cur : pre;
+                                var dou = daytime_of_usaged[isCur ? 'cur' : 'pre'];
+                                // acc = e.date >= $scope.model.days[$scope.model.days.length / 2] ? acc_cur : acc_pre;
                                 // 도메인갯수 x 날짜
                                 e.hours.forEach((h, index) => {
                                     var daytime = '' + e.date + $filter('zeroAppend')(index);
-                                    var daytime_index = daytime_of_usaged.map(m => m.daytime).indexOf(daytime);
+                                    var daytime_index = dou.map(m => m.daytime).indexOf(daytime);
                                     if (daytime_index == -1) {
-                                        daytime_of_usaged.push({
+                                        dou.push({
                                             daytime: daytime,
                                             second: h.second,
                                             counter: h.counter,
                                             dataUsage: h.dataUsage
                                         })
                                     } else {
-                                        daytime_of_usaged[daytime_index].second += h.second;
-                                        daytime_of_usaged[daytime_index].counter += h.counter;
-                                        daytime_of_usaged[daytime_index].dataUsage += h.dataUsage;
+                                        dou[daytime_index].second += h.second;
+                                        dou[daytime_index].counter += h.counter;
+                                        dou[daytime_index].dataUsage += h.dataUsage;
                                     }
                                 })
                                 sum['dataUsage'] += e.dataUsage;
@@ -149,46 +179,48 @@ angular.module('app.controller.about', [])
                                         summary: e.summary
                                     }];
                                 }
-                            });
-                        // sum.rate = $filter('percent')(sum.count * 10, sum.summary, sum.dataUsage / 1000000);//.join(',');
-                        acc.push(sum);
-                        return [acc, day_by_cat];
-                    }, [[], {}]);
+                            }) // end of forEach
+                            if (i == 0) {
+                                sum.rate = $filter('percent')(sum.count * 10, sum.summary, sum.dataUsage / 1000000);//.join(',');
+                                acc_cur.push(sum);
+                            } else {
+                                acc_pre.push(sum);
+                            }
+                        });
+                        return [acc_cur, acc_pre, cur, pre];
+                    }, [[], [], {}, {}]);
                     // console.log('daytime_of_usaged', daytime_of_usaged);
                     const usability = reduce1[0];
+                    console.log(reduce1);
                     // cache..
                     $scope.model.usabilitys = usability;
+
+                    $scope.model.usability = usability
+                        .filter(a => a.count >= 1 && a.summary >= 60 && a.dataUsage >= 100)
+                        .sort((a, b) => { return b.dataUsage - a.dataUsage }).slice(0, 5);
                     // console.log(usability);
 
-                    // 카테고리 / 시간 / 데이터 <=> 과거 1주일전 데이터 비교
-                    var cat_url_rank = usability.reduce(([acc1, acc2], cur) => {
-                        var code = $filter('category_code_to_default')(cur.category);//cur.category || '000';
-                        var index = {
-                            cat: acc1.map(m => m.category).indexOf(code),
-                            url: acc2.map(m => m.url).indexOf(cur.url),
-                        };
-                        if (index.cat >= 0) {
-                            acc1[index.cat].count += cur.count;
-                            acc1[index.cat].dataUsage += cur.dataUsage;
-                            acc1[index.cat].summary += cur.summary;
-                            acc1[index.cat].urls++;
-                        } else {
-                            acc1.push({ category: code, urls: 1, summary: cur.summary, count: cur.count, dataUsage: cur.dataUsage })
+                    var cur_cat_rank = $scope.run.category_rank(reduce1[0]);
+                    var pre_cat_rank = $scope.run.category_rank(reduce1[1]);
+                    var cat_rank = cur_cat_rank[0].reduce((acc, cur) => {
+                        var pre = pre_cat_rank[0].find(x => x.category);
+                        if (pre) {
+                            // // 퍼센트로 보여주기엔 데이터 표본 오차가 너무 큼 [2021-01-26 05:11:18]
+                            // console.log(pre);
+                            for (var prop in pre) {
+                                if (prop != 'category') {
+                                    cur['p_' + prop] = pre[prop] - cur[prop];
+                                    // (pre[prop]/cur[prop]*100).toFixed(1);
+                                }
+                            }
+                            acc.push(cur);
+                            return acc;
                         }
-
-                        if (index.url >= 0) {
-                            acc2[index.url].count += cur.count;
-                                acc2[index.url].dataUsage += cur.dataUsage;
-                            acc2[index.url].summary += cur.summary;
-                        } else {
-                            acc2.push({ url: cur.url, category: code, summary: cur.summary, count: cur.count, dataUsage: cur.dataUsage })
-                        }
-                        return [acc1, acc2];
-                    }, [[], []]);
-                    // 시간, 접속횟수
-                    $scope.model.top_rank.category = cat_url_rank[0].sort((a, b) => { return b.summary - a.summary/* urls */ }).slice(0, 7);
+                    }, []);
+                    console.log(cat_rank);// 시간, 접속횟수
+                    $scope.model.top_rank.category = cur_cat_rank[0].sort((a, b) => { return b.summary - a.summary/* urls */ }).slice(0, 5);
                     // $scope.model.top_rank.url = cat_url_rank[1].sort((a, b) => { return b.summary - a.summary });//.slice(0, 5);
-                    console.log(cat_url_rank);
+                    console.log(cur_cat_rank);
                     return;
                     // console.log($scope.model.cumulative_usage,$scope.model.cumulative_sum);
                     // 시간대별 주간 누적 사용시간 분포
@@ -266,10 +298,107 @@ angular.module('app.controller.about', [])
                     }, JSON.parse(JSON.stringify($scope.model)));
                 });
             },
+            category_rank: arr => {
+                return arr.reduce(([acc1, acc2], cur) => {
+                    var code = $filter('category_code_to_default')(cur.category);//cur.category || '000';
+                    var index = {
+                        cat: acc1.map(m => m.category).indexOf(code),
+                        url: acc2.map(m => m.url).indexOf(cur.url),
+                    };
+                    if (index.cat >= 0) {
+                        acc1[index.cat].count += cur.count;
+                        acc1[index.cat].dataUsage += cur.dataUsage;
+                        acc1[index.cat].summary += cur.summary;
+                        acc1[index.cat].urls++;
+                    } else {
+                        acc1.push({ category: code, urls: 1, summary: cur.summary, count: cur.count, dataUsage: cur.dataUsage })
+                    }
+
+                    if (index.url >= 0) {
+                        acc2[index.url].count += cur.count;
+                        acc2[index.url].dataUsage += cur.dataUsage;
+                        acc2[index.url].summary += cur.summary;
+                    } else {
+                        acc2.push({ url: cur.url, category: code, summary: cur.summary, count: cur.count, dataUsage: cur.dataUsage })
+                    }
+                    return [acc1, acc2];
+                }, [[], []]);
+            },
+            series: arr => {
+                var len = arr.length;
+                return [
+                    {
+                        name: '1월2주',
+                        type: 'bar',
+                        emphasis: { focus: 'none' },
+                        itemStyle: { color: '#D4D4D4' },
+                        data: arr.slice(0, len / 2)
+                    },
+
+                    {
+                        name: '1월3주',
+                        type: 'bar',
+                        itemStyle: { color: '#5989FF' },
+                        emphasis: { focus: 'none' },
+                        data: arr.slice(len / 2, len)
+                    }]
+            },
             format: day_text => {
                 return '`' + day_text.slice(2, 4) + '년 ' + day_text.slice(4, 6) + '월 ' + day_text.slice(7, 8) + '주';
             }
         };
 
         $scope.run.init();
+
+
+        function chart(category, series) {
+            return {
+                legend: {
+                    data: ['1월2주', '1월3주']
+                },
+                xAxis: {
+                    type: 'category',
+                    data: category,
+                    splitLine: {
+                        show: false
+                    },
+                    axisLabel: {
+                        formatter: value => moment(value).format('ddd')
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: t => $filter('secondToFormat')(t)
+                    },
+                    splitLine: {
+                        show: true
+                    }
+                },
+                grid: {
+                    left: 8,
+                    // top: 35,
+                    right: 12,
+                    bottom: 20
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: _series => { return '' },
+                    axisPointer: {
+                        animation: false,
+                        type: 'cross',
+                        crossStyle: {
+                            color: '#999'
+                        },
+                        label: {
+                            formatter: e => {
+                                return e.axisDimension == 'x' ? $filter('formatDate')(e.value, 'MM월DD일')
+                                    : $filter('secondToFormat')(e.value)
+                            }
+                        }
+                    }
+                },
+                series: series
+            }
+        }
     })
