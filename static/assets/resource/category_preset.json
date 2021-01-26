@@ -12,7 +12,8 @@
         "outlook.com": "020",
         "clien.net": "029",
         "dcinside.com": "029",
-        "inven.com": "029"
+        "inven.com": "029",
+        "www.google.com":"028"
     },
     "pattern_start_to_dot": {
         "blog": "031",

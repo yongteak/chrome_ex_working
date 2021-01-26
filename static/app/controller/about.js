@@ -1,11 +1,12 @@
 angular.module('app.controller.about', [])
     .controller('aboutController', function ($scope, $filter, indexer, pounch, CONFIG) {
         $scope.model = {
+            isReady: false,
             rows: [],
             sums: {
-                times: 0,
-                traffic: 0,
-                count: 0
+                counter: 0,
+                summary: 0,
+                dataUsage: 0
             },
             top_rank: {
                 category: [],
@@ -75,7 +76,7 @@ angular.module('app.controller.about', [])
                 // 202101_3w_20210110_20210116
                 // 지난주 데이터 비교를위해 기간을 더 추가한다,
                 // 지난주 데이터가 indexer에 있는경우 기간을 추가할 필요는 없지만 그럴일은 거의 없을듯..
-                var days = '202101_3w_20210103_20210124'.split('_');
+                var days = '202101_3w_20210103_20210120'.split('_');
                 var sday = days[2];
                 var eday = days[3];
                 console.log('start!!');
@@ -100,10 +101,12 @@ angular.module('app.controller.about', [])
                             // if (idx != -1) {
                             ['summary', 'dataUsage', 'counter']
                                 .forEach((val, index) => {
+                                    var fixNum = isNaN(b[val]) ? 0 : b[val];
+                                    // console.log('fixNum',val,fixNum);
                                     if (idx != -1) {
-                                        a[index].splice(idx, 1, b[val]);
-                                    };
-                                    $scope.model.sums[val] += b[val];
+                                        a[index].splice(idx, 1, fixNum);
+                                    }
+                                    $scope.model.sums[val] += fixNum;
                                 });
                             // }
                             a[3] = a[3].concat(b.url);
@@ -112,8 +115,8 @@ angular.module('app.controller.about', [])
                         new Array(dsize).fill(0), // traffic
                         new Array(dsize).fill(0), // count
                         []]); // urls
-                // console.log(reduce[0]);
-                $scope.model.charts.weeks = { 'option': chart(weeks,$scope.run.series(reduce[0])), 'click': null };
+
+                $scope.model.charts.weeks = { 'option': chart(weeks, $scope.run.series(reduce[0])), 'click': null };
                 console.log(weeks, $scope.run.series(reduce[0]));
                 $scope.model.reduce = reduce;
                 var domains = Array.from(new Set(reduce[3]));
@@ -122,7 +125,7 @@ angular.module('app.controller.about', [])
                 // console.log($filter('epoch')(), 'getdocs');
                 pounch.getdocs(domains).then(docs => {
                     // console.log(docs);
-                    var reduce1 = docs.results.reduce(([acc_cur, acc_pre, cur, pre], doc) => {
+                    var reduce1 = docs.results.reduce(([acc_cur, acc_pre, cur, pre, pre_pivot], doc) => {
                         var code = doc.docs[0]['ok'].value.category;
                         code = code || '000';
 
@@ -130,7 +133,7 @@ angular.module('app.controller.about', [])
                             .filter(x => x.date >= $scope.model.days[0] && x.date <= $scope.model.days[len / 2]);
                         var pre_days = doc.docs[0]['ok'].value.days
                             .filter(x => x.date >= $scope.model.days[(len / 2) + 1] && x.date <= $scope.model.days[len - 1]);
-                        [cur_days, pre_days].forEach((x_days, i) => {
+                        [pre_days, cur_days].forEach((x_days, i) => {
                             var day_by_cat;
                             var sum = { url: doc.id, category: code, count: 0, summary: 0, dataUsage: 0, rate: [0, 0, 0] };
                             x_days.forEach(e => {
@@ -180,25 +183,38 @@ angular.module('app.controller.about', [])
                                     }];
                                 }
                             }) // end of forEach
+                            sum.rate = $filter('percent')(sum.count * 10, sum.summary, sum.dataUsage / 1000000);//.join(',');
+                            // pre데이터 우선 수집
                             if (i == 0) {
-                                sum.rate = $filter('percent')(sum.count * 10, sum.summary, sum.dataUsage / 1000000);//.join(',');
-                                acc_cur.push(sum);
-                            } else {
+                                pre_pivot[sum.url] = sum;
                                 acc_pre.push(sum);
+                            } else {
+                                var val = pre_pivot[sum.url];
+                                // var sum = { url: doc.id, category: code, count: 0, summary: 0, dataUsage: 0, rate: [0, 0, 0] };
+                                if (val) {
+                                    ['count', 'summary', 'dataUsage'].forEach(e => {
+                                        var val1 = (isNaN(val[e]) ? 0 : val[e]) - sum[e];
+                                        sum['state_'+e] = val1 == 0 ? 'same' : (val1 > 0 ? 'down' : 'up');
+                                        sum['p_' + e] = Math.abs(val1);
+                                    })
+                                } else {
+                                    sum['state_'+e] = 'new';
+                                    sum['p_' + e] = 0;
+                                }
+                                acc_cur.push(sum);
                             }
                         });
-                        return [acc_cur, acc_pre, cur, pre];
-                    }, [[], [], {}, {}]);
+                        return [acc_cur, acc_pre, cur, pre, pre_pivot];
+                    }, [[], [], {}, {}, {}]);
                     // console.log('daytime_of_usaged', daytime_of_usaged);
                     const usability = reduce1[0];
-                    console.log(reduce1);
                     // cache..
                     $scope.model.usabilitys = usability;
+                    console.log($scope.model.usabilitys);
 
                     $scope.model.usability = usability
                         .filter(a => a.count >= 1 && a.summary >= 60 && a.dataUsage >= 100)
                         .sort((a, b) => { return b.dataUsage - a.dataUsage }).slice(0, 5);
-                    // console.log(usability);
 
                     var cur_cat_rank = $scope.run.category_rank(reduce1[0]);
                     var pre_cat_rank = $scope.run.category_rank(reduce1[1]);
@@ -221,6 +237,7 @@ angular.module('app.controller.about', [])
                     $scope.model.top_rank.category = cur_cat_rank[0].sort((a, b) => { return b.summary - a.summary/* urls */ }).slice(0, 5);
                     // $scope.model.top_rank.url = cat_url_rank[1].sort((a, b) => { return b.summary - a.summary });//.slice(0, 5);
                     console.log(cur_cat_rank);
+                    $scope.model.isReady = true;
                     return;
                     // console.log($scope.model.cumulative_usage,$scope.model.cumulative_sum);
                     // 시간대별 주간 누적 사용시간 분포
@@ -331,7 +348,7 @@ angular.module('app.controller.about', [])
                         name: '1월2주',
                         type: 'bar',
                         emphasis: { focus: 'none' },
-                        itemStyle: { color: '#D4D4D4' },
+                        itemStyle: { color: '#C6D0FD' },
                         data: arr.slice(0, len / 2)
                     },
 
