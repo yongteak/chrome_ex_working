@@ -75,7 +75,7 @@ angular.module('app.controller.about', [])
                 // 202101_3w_20210110_20210116
                 // 지난주 데이터 비교를위해 기간을 더 추가한다,
                 // 지난주 데이터가 indexer에 있는경우 기간을 추가할 필요는 없지만 그럴일은 거의 없을듯..
-                var days = '202101_3w_20210103_20210120'.split('_');
+                var days = '202101_3w_20210103_20210124'.split('_');
                 var sday = days[2];
                 var eday = days[3];
                 console.log('start!!');
