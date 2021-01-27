@@ -1,3 +1,7 @@
+.center {
+  display: flex;
+  justify-content: center;
+}
 .pointer {  cursor: pointer; }
 .dottedUnderline { border-bottom: 1px dotted; }
 

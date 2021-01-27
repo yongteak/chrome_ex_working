@@ -22,8 +22,28 @@ angular.module('app.controller.about', [])
             compare: {
                 cur: [],
                 pre: []
+            },
+            paginate: {
+                currentPage: 1,
+                numPerPage: 8,
+                total: 0,
+                pageSize: 10, // 페이징 버튼 갯수
+                limit: 0,
+                offset: 0,
+                rows:[]
             }
         };
+
+        $scope.pageChanged = function () {
+            $scope.paginate($scope.model.usabilitys, $scope.model.paginate.currentPage)
+        };
+
+        $scope.paginate = (rows, page_number) => {
+            console.log('paginate', $scope.model.paginate.total, page_number)
+            $scope.model.paginate.rows = rows.slice((page_number - 1) * $scope.model.paginate.numPerPage,
+                page_number * $scope.model.paginate.numPerPage);
+            console.log($scope.model.paginate.rows);
+        }
         // $scope.model.charts.weeks = { 'option': chart(), 'click': null }
         $scope.run = {
             view: target => {
@@ -106,8 +126,10 @@ angular.module('app.controller.about', [])
                                     if (idx != -1) {
                                         a[index].splice(idx, 1, fixNum);
                                     }
-                                    $scope.model.sums[val] += fixNum;
-                                });
+                                    // [2021-01-27 13:38:59] 잘못된 데이터 제거 필요
+                                    if (val == 'summary')
+                                        fixNum = fixNum > 10000 ? 0 : fixNum;
+                                    $scope.model.sums[val] += fixNum;                      });
                             // }
                             a[3] = a[3].concat(b.url);
                             return a;
@@ -115,9 +137,9 @@ angular.module('app.controller.about', [])
                         new Array(dsize).fill(0), // traffic
                         new Array(dsize).fill(0), // count
                         []]); // urls
-
+                // console.log($scope.model.sums);
                 $scope.model.charts.weeks = { 'option': chart(weeks, $scope.run.series(reduce[0])), 'click': null };
-                console.log(weeks, $scope.run.series(reduce[0]));
+                // console.log(weeks, $scope.run.series(reduce[0]));
                 $scope.model.reduce = reduce;
                 var domains = Array.from(new Set(reduce[3]));
                 var daytime_of_usaged = $scope.model.daytime_of_usaged;
@@ -238,6 +260,12 @@ angular.module('app.controller.about', [])
                     // $scope.model.top_rank.url = cat_url_rank[1].sort((a, b) => { return b.summary - a.summary });//.slice(0, 5);
                     console.log(cur_cat_rank);
                     $scope.model.isReady = true;
+
+                    $scope.model.usabilitys.forEach((e, index) => {
+                        e.index = index+1
+                    });
+                    $scope.model.paginate.total = $scope.model.usabilitys.length;
+                    $scope.pageChanged();
                     return;
                     // console.log($scope.model.cumulative_usage,$scope.model.cumulative_sum);
                     // 시간대별 주간 누적 사용시간 분포

@@ -149,6 +149,7 @@
         <table class="table table-hover table-sm">
           <thead>
             <tr class="solid-header">
+              <th width="5">#</th>
               <th>URL</th>
               <th>시간</th>
               <th>접속</th>
@@ -156,7 +157,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="row in model.usabilitys">
+            <tr ng-repeat="row in model.paginate.rows">
+              <td class="text-gray">{{ row.index }}</td>
               <td>
                 <small class="text-black font-weight-medium d-block">{{ row.url }}</small>
                 <span class="text-gray">
@@ -203,6 +205,13 @@
             </tr>
           </tbody>
         </table>
+      </div>
+      <div class="center">
+        <ul uib-pagination ng-if="model.paginate.rows.length > 0" ng-model="$parent.model.paginate.currentPage"
+          total-items="model.paginate.total" max-size="model.paginate.pageSize"
+          items-per-page='model.paginate.numPerPage' boundary-links="true" ng-change="pageChanged()" previous-text="이전"
+          next-text="다음" first-text="처음" last-text="마지막">
+        </ul>
       </div>
     </div>
   </div>

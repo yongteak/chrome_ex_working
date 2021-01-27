@@ -218,7 +218,7 @@ angular.module('app.controller.dashboard', [])
                     // 주간 카테고리 Top 5
                     // 카테고리 / 시간 / 데이터 <=> 과거 1주일전 데이터 비교
                     var cat_url_rank = usability.reduce(([acc1, acc2], cur) => {
-                        var code = cur.category || '000';
+                        var code = $filter('category_code_to_default')(cur.category);//cur.category || '000';
                         var index = {
                             cat: acc1.map(m => m.category).indexOf(code),
                             url: acc2.map(m => m.url).indexOf(cur.url),
