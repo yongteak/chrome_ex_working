@@ -1,5 +1,12 @@
 angular.module('app.filter', [])
 
+    .filter('week_text', function () {
+        return function (str) {
+            // str = str.split('_');
+            return str.split('').slice(4,6).join('') +'월 ' + str.charAt(7)+'주';
+        };
+    })
+
     .filter('percent', function () {
         return function (count, times, usaged) {
             var sum = count + times + usaged;

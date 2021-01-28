@@ -9,18 +9,11 @@
           <span data-toggle="tooltip" data-placement="left" title="">
             <em class="mdi mdi-information-outline text-muted"></em> 주간 사용량
           </span>
-          <div class="item-wrapper">
-            <div class="demo-wrapper">
-              <div class="btn-group mb-0" data-toggle="buttons">
-                <label class="btn btn-xs btn-info">
-                  <input type="checkbox">
-                  <em class="mdi mdi-arrow-left"></em></label>
-                <label class="btn btn-xs btn-info  active">
-                  <input type="checkbox" checked>1월 3주</label>
-                <label class="btn btn-xs btn-info">
-                  <input type="checkbox">
-                  <em class="mdi mdi-arrow-right"></em></label>
-              </div>
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary btn-sm dropdown-toggle"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ model.wtext }} </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" ng-repeat="row in model.states" href ng-click="run.query(row)">{{ row | week_text }}</a>
             </div>
           </div>
         </div>

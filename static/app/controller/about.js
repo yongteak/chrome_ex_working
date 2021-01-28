@@ -1,8 +1,11 @@
 angular.module('app.controller.about', [])
     .controller('aboutController', function ($scope, $filter, indexer, pounch, CONFIG) {
         $scope.model = {
+            indexer:[],
             isReady: false,
-            rows: [],
+            wtext: '',
+            weeks: [],
+            states: [],
             sums: {
                 counter: 0,
                 summary: 0,
@@ -30,7 +33,7 @@ angular.module('app.controller.about', [])
                 pageSize: 10, // 페이징 버튼 갯수
                 limit: 0,
                 offset: 0,
-                rows:[]
+                rows: []
             }
         };
 
@@ -39,25 +42,35 @@ angular.module('app.controller.about', [])
         };
 
         $scope.paginate = (rows, page_number) => {
-            console.log('paginate', $scope.model.paginate.total, page_number)
+            // console.log('paginate', $scope.model.paginate.total, page_number)
             $scope.model.paginate.rows = rows.slice((page_number - 1) * $scope.model.paginate.numPerPage,
                 page_number * $scope.model.paginate.numPerPage);
-            console.log($scope.model.paginate.rows);
+            // console.log($scope.model.paginate.rows);
         }
         // $scope.model.charts.weeks = { 'option': chart(), 'click': null }
+
         $scope.run = {
-            view: target => {
-                console.log(target);
-                // $location.url($location.path() + '?target=' + target);
-                // console.log($location);
+            query: (week_text) => {
+                // $scope.model.wtext = $filter('week_text')(week_text);
+                ['summary', 'dataUsage', 'counter'].forEach(e => $scope.model.sums[e] = 0);
+                $scope.run.view($scope.model.indexer, week_text);
+
             },
+            // view: target => {
+            //     console.log(target);
+            //     // $location.url($location.path() + '?target=' + target);
+            //     // console.log($location);
+            // },
             init: () => {
+                console.log('init');
                 indexer.domain_by_day(build => {
                     var args = build.sort((a, b) => { return b.day - a.day })
-                    $scope.run.start1(args)
+                    $scope.run.start(args);
+                    $scope.model.indexer = args;
                 });
             },
             start: args => {
+                console.log('start');
                 console.log(args);
                 var eday = args[0].day;
                 var sday = args[args.length - 1].day;
@@ -84,23 +97,24 @@ angular.module('app.controller.about', [])
                     console.log(start_day_of_week, end_day_of_week);
                     if (next < '' + eday) {
                         key += '_' + week_of_month + 'w_' + start_day_of_week.slice(0, 8) + '_' + end_day_of_week.slice(0, 8);
-                        // res.push(key)
-                        $scope.model.rows.push(key);
-                        $scope.model.rows.reverse();
+                        $scope.model.states.push(key);
                     }
                 }
-                $scope.run.view($scope.model.rows[0]);
+                $scope.model.states.reverse();
+                $scope.run.view(args, $scope.model.states[0]);
             },
-            start1: args => {
+            view: (args, week_text) => {
+                console.log('view');
+                // var items = $scope.run.start(args);
                 console.log(args);
-                // 202101_3w_20210110_20210116
-                // 지난주 데이터 비교를위해 기간을 더 추가한다,
-                // 지난주 데이터가 indexer에 있는경우 기간을 추가할 필요는 없지만 그럴일은 거의 없을듯..
-                var days = '202101_3w_20210103_20210120'.split('_');
-                var sday = days[2];
-                var eday = days[3];
-                console.log('start!!');
+                var days = week_text.split('_');//'202101_3w_20210103_20210120'.split('_');
+                $scope.model.wtext = $filter('week_text')(week_text);
 
+                console.log('days?', days);
+                // var sday = days[2];
+                var eday = days[3];
+                // console.log('start!!');
+                // 기준일 대비 이전주 데이터까지 포함
                 $scope.model.days =
                     Array(14).fill(0).map((_e, idx) => idx).reduce((a, b) => {
                         a.push(moment('' + eday).add(-b, 'day').format("YYYYMMDD"));
@@ -129,7 +143,8 @@ angular.module('app.controller.about', [])
                                     // [2021-01-27 13:38:59] 잘못된 데이터 제거 필요
                                     if (val == 'summary')
                                         fixNum = fixNum > 10000 ? 0 : fixNum;
-                                    $scope.model.sums[val] += fixNum;                      });
+                                    $scope.model.sums[val] += fixNum;
+                                });
                             // }
                             a[3] = a[3].concat(b.url);
                             return a;
@@ -152,15 +167,15 @@ angular.module('app.controller.about', [])
                         code = code || '000';
 
                         var cur_days = doc.docs[0]['ok'].value.days
-                            .filter(x => x.date >= $scope.model.days[0] && x.date <= $scope.model.days[len / 2]);
-                        var pre_days = doc.docs[0]['ok'].value.days
                             .filter(x => x.date >= $scope.model.days[(len / 2) + 1] && x.date <= $scope.model.days[len - 1]);
+                        var pre_days = doc.docs[0]['ok'].value.days
+                            .filter(x => x.date >= $scope.model.days[0] && x.date <= $scope.model.days[len / 2]);
                         [pre_days, cur_days].forEach((x_days, i) => {
                             var day_by_cat;
                             var sum = { url: doc.id, category: code, count: 0, summary: 0, dataUsage: 0, rate: [0, 0, 0] };
                             x_days.forEach(e => {
                                 var isCur = e.date > $scope.model.days[len / 2];
-                                // console.log(e.date, $scope.model.days[len / 2],e.date > $scope.model.days[len / 2])
+                                // console.log(isCur,e.date, $scope.model.days[len / 2],e.date > $scope.model.days[len / 2])
                                 day_by_cat = isCur ? cur : pre;
                                 var dou = daytime_of_usaged[isCur ? 'cur' : 'pre'];
                                 // acc = e.date >= $scope.model.days[$scope.model.days.length / 2] ? acc_cur : acc_pre;
@@ -216,11 +231,11 @@ angular.module('app.controller.about', [])
                                 if (val) {
                                     ['count', 'summary', 'dataUsage'].forEach(e => {
                                         var val1 = (isNaN(val[e]) ? 0 : val[e]) - sum[e];
-                                        sum['state_'+e] = val1 == 0 ? 'same' : (val1 > 0 ? 'down' : 'up');
+                                        sum['state_' + e] = val1 == 0 ? 'same' : (val1 > 0 ? 'down' : 'up');
                                         sum['p_' + e] = Math.abs(val1);
                                     })
                                 } else {
-                                    sum['state_'+e] = 'new';
+                                    sum['state_' + e] = 'new';
                                     sum['p_' + e] = 0;
                                 }
                                 acc_cur.push(sum);
@@ -232,7 +247,7 @@ angular.module('app.controller.about', [])
                     const usability = reduce1[0];
                     // cache..
                     $scope.model.usabilitys = usability;
-                    console.log($scope.model.usabilitys);
+                    console.log('usabilitys', $scope.model.usabilitys);
 
                     $scope.model.usability = usability
                         .filter(a => a.count >= 1 && a.summary >= 60 && a.dataUsage >= 100)
@@ -261,8 +276,9 @@ angular.module('app.controller.about', [])
                     console.log(cur_cat_rank);
                     $scope.model.isReady = true;
 
+                    $scope.model.usabilitys.sort((a, b) => { return b.summary - a.summary });
                     $scope.model.usabilitys.forEach((e, index) => {
-                        e.index = index+1
+                        e.index = $scope.model.usabilitys.length - index;
                     });
                     $scope.model.paginate.total = $scope.model.usabilitys.length;
                     $scope.pageChanged();
