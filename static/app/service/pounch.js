@@ -83,15 +83,15 @@ angular.module('app.pounch', [])
                 //     })
                 // return deferred.promise;
             },
-            cleanbucket: () => {
-                var deferred = $q.defer();
-                var db = new PouchDB('tabs', { revs_limit: 10, auto_compaction: true });
-                db.get('bucket_$$$')
-                    .then(doc => {return db.remove(doc)})
-                    .then(deferred.resolve)
-                    .catch(deferred.reject);
-                return deferred.promise;
-            },
+            // cleanbucket: () => {
+            //     var deferred = $q.defer();
+            //     var db = new PouchDB('tabs', { revs_limit: 10, auto_compaction: true });
+            //     db.get('bucket_$$$')
+            //         .then(doc => db.remove(doc))
+            //         .then(deferred.resolve)
+            //         .catch(deferred.reject);
+            //     return deferred.promise;
+            // },
             getbucket: (key,name) => {
                 name = name || 'bucket_$$$';
                 console.log('getbucket',key,name)

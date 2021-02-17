@@ -399,7 +399,7 @@ function startSync() {
     pounch.sync(res => {
         if (res.hasOwnProperty('instnace')) {
             diff_tabs = res.instnace;
-        } else if(res.error) {
+        } else if (res.error) {
             console.error(res);
         } else {
             //
@@ -817,17 +817,42 @@ function reload(runSync) {
         db = new instance('tabs', { revs_limit: 10, sauto_compaction: true });
         diff_tabs = new instance('diff_tabs', { revs_limit: 10, sauto_compaction: true });
         tabs = [];
+        // check bucket_$$$
 
-        loadPermissions();
-        addListener();
-        loadAddDataFromStorage();
-        updateSummaryTime();
-        updateStorage();
-        if (runSync) {
-            startSync();
-            updateSync();
-        }
+        // var deferred = $q.defer();
+        // var db = new PouchDB('tabs', { revs_limit: 1, auto_compaction: true });
+        db.get('bucket_$$$')
+            .then( _ => init(runSync) )
+            .catch(e => {
+                console.log('created bucket!');
+                db.put({
+                    _id: 'bucket_$$$',
+                    "setting_view_time_in_badge": null,
+                    "black_list": [],
+                    "restriction_list": [],
+                    "restriction_access_list": [],
+                    "alarm_list": [],
+                    "sync_history": [],
+                    "notification_list": []
+                }, { force: false }).then(_ => init(runSync))
+            });
+
+
+
     });
+}
+
+function init(runSync) {
+    loadPermissions();
+    addListener();
+    loadAddDataFromStorage();
+    updateSummaryTime();
+    updateStorage();
+
+    if (runSync) {
+        startSync();
+        updateSync();
+    }
 }
 // sync이벤트 완료후 flag
 reload(true);
