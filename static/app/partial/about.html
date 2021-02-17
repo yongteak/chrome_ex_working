@@ -161,38 +161,40 @@
               </td>
               <td>
                 {{ row.summary | secondToFormat }}
-                <span ng-if="row.state_summary == 'up'" class="small_text text-danger">
-                  {{ row.p_summary | secondToFormat }} <em class="mdi mdi-arrow-up"></em>
+                <span ng-if="row.summary == row.p_summary" class="small_text text-primary">
+                  <!-- - -->
                 </span>
-                <span ng-if="row.state_summary == 'down'" class="font-weight-bolder small_text text-primary">
-                  {{ row.p_summary | secondToFormat }} <em class="mdi mdi-arrow-down"></em>
+                <span ng-if="row.summary > row.p_summary" class="small_text text-danger">
+                  {{ row.summary - row.p_summary | secondToFormat }} <em class="mdi mdi-arrow-up"></em>
                 </span>
-                <span ng-if="row.state_summary == 'same'" class="small_text text-primary">
-                  -
+                <span ng-if="row.summary < row.p_summary" class="small_text text-primary">
+                  {{ row.p_summary - row.summary | secondToFormat }} <em class="mdi mdi-arrow-down"></em>
                 </span>
               </td>
+
               <td>
                 {{ row.count | num_comma }}회
-                <span ng-if="row.state_count == 'up'" class="small_text text-danger">
-                  {{ row.p_count | num_comma }}회 <em class="mdi mdi-arrow-up"></em>
+                <span ng-if="row.count == row.p_count" class="small_text text-primary">
+                  <!-- - -->
                 </span>
-                <span ng-if="row.state_count == 'down'" class="font-weight-bolder small_text text-primary">
-                  {{ row.p_count | num_comma }}회 <em class="mdi mdi-arrow-down"></em>
+                <span ng-if="row.count > row.p_count" class="small_text text-danger">
+                  {{ row.count - row.p_count | num_comma }}회 <em class="mdi mdi-arrow-up"></em>
                 </span>
-                <span ng-if="row.state_count == 'same'" class="small_text text-gray">
-                  -
+                <span ng-if="row.count < row.p_count" class="small_text text-primary">
+                  {{ row.p_count - row.count | num_comma }}회 <em class="mdi mdi-arrow-down"></em>
                 </span>
               </td>
+
               <td>
                 {{ row.dataUsage | dataSizeToUnit }}
-                <span ng-if="row.state_dataUsage == 'up'" class="small_text text-danger">
-                  {{ row.p_dataUsage | dataSizeToUnit }} <em class="mdi mdi-arrow-up"></em>
+                <span ng-if="row.dataUsage == row.p_dataUsage" class="small_text text-primary">
+                  <!-- - -->
                 </span>
-                <span ng-if="row.state_dataUsage == 'down'" class="font-weight-bolder small_text text-primary">
-                  {{ row.p_dataUsage | dataSizeToUnit }} <em class="mdi mdi-arrow-down"></em>
+                <span ng-if="row.dataUsage > row.p_dataUsage" class="small_text text-danger">
+                  {{ row.dataUsage - row.p_dataUsage | dataSizeToUnit }} <em class="mdi mdi-arrow-up"></em>
                 </span>
-                <span ng-if="row.state_dataUsage == 'same'" class="small_text text-gray">
-                  -
+                <span ng-if="row.dataUsage < row.p_dataUsage" class="small_text text-primary">
+                  {{ row.p_dataUsage - row.dataUsage | dataSizeToUnit }} <em class="mdi mdi-arrow-down"></em>
                 </span>
               </td>
             </tr>

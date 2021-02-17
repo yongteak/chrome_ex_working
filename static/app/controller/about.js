@@ -1,11 +1,12 @@
 angular.module('app.controller.about', [])
     .controller('aboutController', function ($scope, $filter, indexer, pounch, CONFIG) {
         $scope.model = {
-            indexer:[],
+            indexer: [],
             isReady: false,
             wtext: '',
             weeks: [],
             states: [],
+            week_ranges: [null, null], // 차트에서 지난주, 이번주 날짜 표기용
             sums: {
                 counter: 0,
                 summary: 0,
@@ -43,6 +44,7 @@ angular.module('app.controller.about', [])
 
         $scope.paginate = (rows, page_number) => {
             // console.log('paginate', $scope.model.paginate.total, page_number)
+            console.log('rows', rows);
             $scope.model.paginate.rows = rows.slice((page_number - 1) * $scope.model.paginate.numPerPage,
                 page_number * $scope.model.paginate.numPerPage);
             // console.log($scope.model.paginate.rows);
@@ -109,8 +111,17 @@ angular.module('app.controller.about', [])
                 console.log(args);
                 var days = week_text.split('_');//'202101_3w_20210103_20210120'.split('_');
                 $scope.model.wtext = $filter('week_text')(week_text);
+                if ($scope.model.states) {
+                    var idx_week = $scope.model.states.indexOf(week_text);
+                    if (idx_week == $scope.model.states) {
+                        $scope.model.week_ranges = [null, $scope.model.states[idx_week]]
+                    } else {
+                        $scope.model.week_ranges = [$scope.model.states[idx_week + 1], $scope.model.states[idx_week]]
+                    }
+                }
 
-                console.log('days?', days);
+                // console.log('days?', days);
+                // $scope.model.states
                 // var sday = days[2];
                 var eday = days[3];
                 // console.log('start!!');
@@ -229,6 +240,8 @@ angular.module('app.controller.about', [])
                                 var val = pre_pivot[sum.url];
                                 // var sum = { url: doc.id, category: code, count: 0, summary: 0, dataUsage: 0, rate: [0, 0, 0] };
                                 if (val) {
+                                    // TODO
+                                    // [2021-02-17 13:25:51] UI에서 처리하고 해당 코드 제거 필요
                                     ['count', 'summary', 'dataUsage'].forEach(e => {
                                         var val1 = (isNaN(val[e]) ? 0 : val[e]) - sum[e];
                                         sum['state_' + e] = val1 == 0 ? 'same' : (val1 > 0 ? 'down' : 'up');
@@ -387,22 +400,27 @@ angular.module('app.controller.about', [])
             },
             series: arr => {
                 var len = arr.length;
-                return [
-                    {
-                        name: '1월2주',
+                var series = [];
+                // console.log('len', arr, $scope.model.week_ranges);
+                // [지난주, 이번주]
+                if ($scope.model.week_ranges[0] != null) {
+                    series.push({
+                        name: $filter('week_text')($scope.model.week_ranges[0]),
                         type: 'bar',
                         emphasis: { focus: 'none' },
                         itemStyle: { color: '#C6D0FD' },
                         data: arr.slice(0, len / 2)
-                    },
+                    });
+                };
 
-                    {
-                        name: '1월3주',
-                        type: 'bar',
-                        itemStyle: { color: '#5989FF' },
-                        emphasis: { focus: 'none' },
-                        data: arr.slice(len / 2, len)
-                    }]
+                series.push({
+                    name: $filter('week_text')($scope.model.week_ranges[1]),
+                    type: 'bar',
+                    emphasis: { focus: 'none' },
+                    itemStyle: { color: '#5989FF' },
+                    data: arr.slice(len / 2, len)
+                });
+                return series;
             },
             format: day_text => {
                 return '`' + day_text.slice(2, 4) + '년 ' + day_text.slice(4, 6) + '월 ' + day_text.slice(7, 8) + '주';
@@ -413,9 +431,10 @@ angular.module('app.controller.about', [])
 
 
         function chart(category, series) {
+            console.log('xxx', series);
             return {
                 legend: {
-                    data: ['1월2주', '1월3주']
+                    data: series.length == 1 ? [series[0].name] : [series[0].name, series[1].name] //['1월2주', '1월3주']
                 },
                 xAxis: {
                     type: 'category',
