@@ -84,22 +84,21 @@ class PouchStorage {
             })
     }
     async sync(callback) {
-        if (performance.measureMemory) {
-            try {
-                const result = await performance.measureMemory();
-                // console.log('measureMemory', result);
-            } catch (err) {
-                // console.error('measureMemory', err);
-            }
-        }
+        // if (performance.measureMemory) {
+        //     try {
+        //         const result = await performance.measureMemory();
+        //         // console.log('measureMemory', result);
+        //     } catch (err) {
+        //         // console.error('measureMemory', err);
+        //     }
+        // }
 
-        if (typeof process != 'undefined') {
-            console.log(`Node: ${process.memoryUsage().heapUsed / Math.pow(1000, 2)} MB`);
-        } else if (performance) {
-            console.log(`Browser: ${performance.memory.usedJSHeapSize / Math.pow(1000, 2)} MB`);
-        } else {
-            // throw ('Where d-heck are you trying to run me?');
-        }
+        // if (typeof process != 'undefined') {
+        //     console.log(`Node: ${process.memoryUsage().heapUsed / Math.pow(1000, 2)} MB`);
+        // } else if (performance) {
+        //     console.log(`Browser: ${performance.memory.usedJSHeapSize / Math.pow(1000, 2)} MB`);
+        // } else {
+        // }
         // console.log('sync..classification > ', classification);
         // diff_tabs
         // console.log('1111', new Date().valueOf());

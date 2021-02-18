@@ -32,14 +32,15 @@ angular.module('app.controller.setting', [])
             // activity_detected, badge_icon_info,
             options: {
                 activity_detected:
-                    [{ name: '사용량', id: 'bandwith_today' },
-                    { name: '사용시간', id: 'time_today' },
-                    { name: '도메인 사용량', id: 'bandwith_today_by_domain' },
-                    { name: '도메인 사용시간', id: 'time_today_by_domain' },
-                    { name: '표시하지 않음', id: 'none' }]
+                    [{ name: '데이터 사용량', id: 'bandwith_today' },
+                    { name: '사용 시간', id: 'time_today' },
+                    // { name: '도메인 사용량', id: 'bandwith_today_by_domain' },
+                    // { name: '도메인 사용시간', id: 'time_today_by_domain' },
+                    // { name: '표시하지 않음', id: 'none' }
+                ]
             },
             // select: { activity_detected: 'time_today_by_domain' },
-            default: { epoch: 0, name: "activity_detected", updated: 0, value: "time_today_by_domain" }
+            default: { epoch: 0, name: "activity_detected", updated: 0, value: "time_today" }
         };
         $scope.run = {
             getSetting: () => {
@@ -91,6 +92,7 @@ angular.module('app.controller.setting', [])
                 pounch.setbucket(CONFIG.STORAGE_SETTINGS_VIEW_TIME_IN_BADGE, [item])
                     .then(res => {
                         $scope.run.getSetting();
+                        chrome.extension.getBackgroundPage().loadViewBadge();
                     }).catch(console.error)
             },
             // clear: () => {

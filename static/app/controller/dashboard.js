@@ -15,8 +15,8 @@ angular.module('app.controller.dashboard', [])
                 by_category: {},
                 radar: {}
             },
-            reduce:[],
-            daytime_of_usaged:[],
+            reduce: [],
+            daytime_of_usaged: [],
             series: {
 
             },
@@ -25,7 +25,7 @@ angular.module('app.controller.dashboard', [])
                 category: [],
                 url: []
             },
-            weeks:[],
+            weeks: [],
             week_of_days: [],
             domain_by_day: [],
             usabilitys: [],
@@ -64,11 +64,12 @@ angular.module('app.controller.dashboard', [])
                         data: $scope.model.reduce[idx], type: 'line', symbolSize: 0, smooth: true,
                         lineStyle: { width: 3, color: '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6) }
                     }];
-                    // $scope.model.charts[e[0]] = { 'option': chart($scope.model.weeks, series, e[1]), 'click': null };
+                    $scope.model.charts[e[0]] = { 'option': chart($scope.model.weeks, series, e[1]), 'click': null };
                 });
+                // console.log('radar', $scope.model.radarReduce);
                 $scope.model.charts.radar = { 'option': chart2($scope.model.radarReduce, $scope.model.series['radarSeries']), 'click': null };
-                // $scope.model.charts.by_category = { 'option': chart($scope.model.weeks, $scope.model.series['catSeries']), 'click': null };
-                // $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
+                $scope.model.charts.by_category = { 'option': chart($scope.model.weeks, $scope.model.series['catSeries']), 'click': null };
+                $scope.model.charts.scatter = { 'option': chart3($scope.model.distribution_of_time_use), 'click': null };
             },
             start: (args, baccess) => {
                 console.log('start!!');
@@ -296,7 +297,11 @@ angular.module('app.controller.dashboard', [])
                             }
                             return acc;
                         }, [[], []]);
-                        $scope.model.radarReduce = radarReduce[1];
+                    $scope.model.radarReduce = radarReduce[1];
+                    $scope.model.series['radarSeries'] = [{
+                            type: 'radar',
+                            data: [{ value: radarReduce[0] }]
+                        }];
 
                     // Series Data
                     $scope.model.series['catSeries'] = [];
@@ -474,11 +479,11 @@ angular.module('app.controller.dashboard', [])
                     splitLine: {
                         show: false
                     },
-                    scale: true,
+                    // scale: true,
                 },
 
                 xAxis: {
-                    scale: true,
+                    // scale: true,
                     max: 23,
                     axisLabel: {
                         formatter: '{value}시'
@@ -487,11 +492,9 @@ angular.module('app.controller.dashboard', [])
                 series:
                     [
                         {
-                            type: 'effectScatter',
-                            symbolSize: 5,
-                            data: data
-                        },
-                        {
+                            // type: 'effectScatter',
+                            symbolSize: 8,
+                            data: data,
                             type: 'scatter'
                         }]
             }

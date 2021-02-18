@@ -27,7 +27,7 @@ var TypeListEnum = {
     ByDays: 3,
 };
 var COUCHDB_REMOTE_URI = 'http://34.83.116.28:5984';
-var USER_ID = null;
+var USER_ID = false;
 var STORAGE_BUCKET = 'bucket_$$$';
 var STORAGE_SETTINGS_VIEW_TIME_IN_BADGE = 'setting_view_time_in_badge';
 var STORAGE_TABS = 'tabs';
@@ -266,7 +266,7 @@ function daysBetween(startDate, endDate) {
 }
 
 function bytesToSize(bytes) {
-    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    var sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     if (bytes == 0) return { size: 0, unit: sizes[0] };
     var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
     return { size: Math.round(bytes / Math.pow(1024, i), 2), unit: sizes[i] };

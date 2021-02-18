@@ -51,6 +51,7 @@ var setting_restriction_list;
 var setting_restriction_access_list
 var setting_interval_sync_upload;
 var setting_interval_inactivity;
+// badge 표기정보
 var setting_view_in_badge;
 
 var setting_notification_list;
@@ -221,13 +222,24 @@ function backgroundCheck2(tab, activeUrl, activeTab) {
                 var day = tab ? tab.days.find(s => s.date === today) : tab//undefined;
                 // tab생성과 summary호출 간격이 짧으면 오류 발생함
                 if (day !== undefined) {
-                    var summary = day.summary;
-                    // console.log('summary view > ',summary,day);
+                    // let summary = day.summary;
+                    let badgetText;
+                    // console.log('summary view > ',summary,day,'setting_view_in_badge > ',setting_view_in_badge);
+                    // dataUsage
+                    // 'time_today'; // bandwith_today
+                    // dataUsage
+                    console.log('setting_view_in_badge',setting_view_in_badge);
+                    if (setting_view_in_badge == 'time_today') {
+                        badgetText = String(convertSummaryTimeToBadgeString(day.summary));
+                    }  else {
+                        var conv = bytesToSize(day.dataUsage);
+                        badgetText = conv.size + '' + conv.unit;
+                    }
+
                     chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
                     chrome.browserAction.setBadgeText({
                         tabId: activeTab.id,
-                        // text: data.size + "" + data.unit
-                        text: String(convertSummaryTimeToBadgeString(summary))
+                        text: badgetText
                     });
                 } else {
                     // console.error('day not found!', day);
@@ -611,13 +623,28 @@ function prevTab(tab) {
     tab1.incCounter();
     return tab1;
 }
-
+function loadViewBadge() {
+    if (synchronizing) {
+        setTimeout(() => loadViewBadge(), 3000);
+        return;
+    } else {
+        db.get(STORAGE_BUCKET)
+        .then(rows => {
+            setting_view_in_badge = rows['setting_view_time_in_badge'][0].value;
+        })
+        .catch( e => {
+            console.error(e);
+            setting_view_in_badge = 'time_today';
+        });
+    }
+}
 // 추적 금지
 function loadBlackList(isReload) {
     if (synchronizing) {
         setTimeout(() => loadBlackList(isReload), 3000);
         return;
     }
+    // setting_view_time_in_badge
     if (isReload) updateEvent('update_black_list', 'update_black_list');
     db.get(STORAGE_BUCKET)
         .then(rows => {
@@ -630,8 +657,8 @@ function loadBlackList(isReload) {
                     }
                 }
             } else {
-                for (var p in MATCHS) {
-                    setting_black_list.push(MATCHS[p]);
+                for (var p1 in MATCHS) {
+                    setting_black_list.push(MATCHS[p1]);
                 }
             }
             rows[STORAGE_BLACK_LIST].forEach(e => {
@@ -692,8 +719,8 @@ function loadNotificationMessage() {
 }
 
 function loadSettings() {
-    storage.getValue(SETTINGS_INTERVAL_INACTIVITY, item => { setting_interval_inactivity = item; });
-    storage.getValue(SETTINGS_VIEW_TIME_IN_BADGE, item => { setting_view_in_badge = item; });
+    // storage.getValue(SETTINGS_INTERVAL_INACTIVITY, item => { setting_interval_inactivity = item; });
+    // storage.getValue(SETTINGS_VIEW_TIME_IN_BADGE, item => { setting_view_in_badge = item; });
 }
 
 function loadAddDataFromStorage() {
@@ -709,6 +736,7 @@ function loadAddDataFromStorage() {
     loadNotificationList();
     loadNotificationMessage();
     loadSettings();
+    loadViewBadge();
 }
 
 function loadPermissions() {
