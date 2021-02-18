@@ -1,4 +1,4 @@
-<div class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false" role="dialog" id="domainModal">
+<div  ng-controller="modal" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false" role="dialog" id="domainModal">
     <div class="modal-dialog modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary">
@@ -137,12 +137,22 @@
                                         <table class="table">
                                             <tbody>
                                                 <tr>
-                                                    <td>추적금지</td>
-                                                    <td>yn</td>
+                                                    <td width="150">추적금지 도메인 등록</td>
+                                                    <td>
+                                                        <!-- <div class="custom-control custom-switch">
+                                                            <input type="checkbox" class="custom-control-input" id="switch{{ $index }}"
+                                                             ng-change="run.enabledChange(row)">
+                                                            <label class="custom-control-label" for="switch{{ $index }}"></label>
+                                                        </div> -->
+                                                    </td>
                                                 </tr>
                                                 <tr>
-                                                    <td>사용제한</td>
-                                                    <td>time to</td>
+                                                    <td>카테고리 변경<br>[미분류]..
+                                                    <td>
+                                                        <select class="custom-select"
+                                                        ng-change="run.selected(row,model.select[row.index])" ng-model='model.select[row.index]'
+                                                            ng-options="item.code as item.ko for item in model.options.category"></select>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -155,8 +165,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" ng-click="run.modify_category()" class="btn btn-danger  btn-sm">사용자 정의 분류
-                    변경하기</button>
+                <button type="submit" ng-click="run.modify_category()" class="btn btn-danger  btn-sm">추적 금지및 통계 삭제</button>
                 <button type="submit" ng-click="run.modalClose()" class="btn btn-primary btn-sm">닫기</button>
             </div>
         </div>

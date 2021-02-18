@@ -27,6 +27,7 @@ var TypeListEnum = {
     ByDays: 3,
 };
 var COUCHDB_REMOTE_URI = 'http://34.83.116.28:5984';
+var USER_ID = null;
 var STORAGE_BUCKET = 'bucket_$$$';
 var STORAGE_SETTINGS_VIEW_TIME_IN_BADGE = 'setting_view_time_in_badge';
 var STORAGE_TABS = 'tabs';

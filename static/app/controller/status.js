@@ -1,5 +1,5 @@
 angular.module('app.controller.status', [])
-    .controller('statusController', function ($scope, $filter, $timeout, $http, moment, storage, indexer,pounch, CONFIG) {
+    .controller('statusController', function ($rootScope,$scope, $filter, $timeout, $http, moment, storage, indexer,pounch, CONFIG) {
         // Array.prototype.sum = function () { return [].reduce.call(this, (a, i) => a + i.value, 0); }
         // console.log(moment().format('LL').split(' ').slice(1).join(' '));
         // [2020-12-25 03:09:52]
@@ -18,7 +18,8 @@ angular.module('app.controller.status', [])
             times: { today: null, hours: [], weeks: [] },
             show_full_list: true,
             show_limit_list: false,
-            modal: {}
+            modal: {},
+
         };
         $scope.param = null;
         $scope.param1 = null;
@@ -73,6 +74,8 @@ angular.module('app.controller.status', [])
                 });
             },
             setup: () => {
+                console.log('model', $scope.model.options);
+
                 console.log("^setup");
                 const copy = JSON.parse(JSON.stringify($scope.model.interval_summary));
                 $scope.model.charts.day.series = [];
@@ -194,9 +197,7 @@ angular.module('app.controller.status', [])
 
                 $scope.today(day);
             },
-            modalClose: () => {
-                $('#domainModal').modal("hide");
-            },
+
             info: row => {
                 $http({
                     url: CONFIG.URI + '/analytics/data?domain=' + row.url,

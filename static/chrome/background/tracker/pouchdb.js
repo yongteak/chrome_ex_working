@@ -66,7 +66,8 @@ class PouchStorage {
             });
     }
     login(callback) {
-        var url = 'http://34.83.116.28:5984' + '/g114916629141904173371';
+        // var url = 'http://34.83.116.28:5984' + '/g114916629141904173371';
+        var url = COUCHDB_REMOTE_URI + '/g' + USER_ID;
         var remote = new PouchDB(url);
         console.log('db login');
         var id = '114916629141904173371';
@@ -86,9 +87,9 @@ class PouchStorage {
         if (performance.measureMemory) {
             try {
                 const result = await performance.measureMemory();
-                console.log('measureMemory', result);
+                // console.log('measureMemory', result);
             } catch (err) {
-                console.error('measureMemory', err);
+                // console.error('measureMemory', err);
             }
         }
 
@@ -97,14 +98,14 @@ class PouchStorage {
         } else if (performance) {
             console.log(`Browser: ${performance.memory.usedJSHeapSize / Math.pow(1000, 2)} MB`);
         } else {
-            throw ('Where d-heck are you trying to run me?');
+            // throw ('Where d-heck are you trying to run me?');
         }
         // console.log('sync..classification > ', classification);
         // diff_tabs
-        console.log('1111', new Date().valueOf());
+        // console.log('1111', new Date().valueOf());
         var db = new PouchDB('tabs');
-        var url = 'http://34.83.116.28:5984' + '/g114916629141904173371';
-        console.log('start sync!', url);
+        var url = COUCHDB_REMOTE_URI + '/g' + USER_ID;
+        // console.log('start sync!', url);
         // var opts = { live: false, retry: true };
         db.replicate.from(url).on('complete', info => {
             console.log('from sync ok', info);

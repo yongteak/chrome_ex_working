@@ -9,30 +9,8 @@ var app = angular.module('app', [
 	'app.services', 'app.pounch', 'app.indexer', 'app.filter'
 ]);
 
+
 app.run(function ($rootScope, identity, pounch, storage, CONFIG) {
-	// new PouchDB('tabs', { revs_limit: 1, auto_compaction: true }).allDocs({
-	// }).then(e => {
-	// 	console.log('alldocs > ', e);
-	// });
-
-	// fetch(chrome.extension.getURL('static/assets/resource/user.json'))
-	// 	.then(resp => resp.json())
-	// 	.then(docs => {
-	// 		// console.log(docs);
-	// 		pounch.setTabs(null, docs, true)
-	// 			.then(e => {
-	// 				console.log(e)
-	// 			})
-	// 			.catch(err => { console.log(err) });
-	// 	}).catch(e => console.error(e))
-	// 혹시 몰라
-	// pounch.create_bucket()
-	// 	.then(console.log)
-	// 	.catch(console.error);
-	// pounch.cleanbucket()
-	// 	.then(console.log)
-	// 	.catch(console.error);
-
 	fetch(chrome.extension.getURL('static/assets/resource/iso-3166-countries-with-regional-codes.json'))
 		.then(res => res.json())
 		.then(res => $rootScope['countries'] = res);

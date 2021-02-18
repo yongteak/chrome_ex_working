@@ -8,6 +8,33 @@ angular.module('app.controllers', [])
             return $location.path().indexOf(path) != -1;
         };
     })
+    .controller('modal', ($scope, $rootScope, identity, storage, CONFIG) => {
+        $scope.model = {
+            options: {
+                category: []
+            }
+        };
+
+        // 도메인 정보 모달 팝업용
+        setTimeout(function () {
+            $scope.model.options.category = $rootScope['category'];
+            $scope.model.kv = $rootScope['category_kv'];
+
+            $scope.$apply();
+            console.log($scope.model);
+        }, 500);
+
+        $scope.run = {
+            selected: (row, code) => {
+                console.log(row,code);
+            },
+            modalClose: () => {
+                $('#domainModal').modal("hide");
+            },
+        }
+
+
+    })
     .controller('top', ($rootScope, $scope, $location) => {
         $scope.title = '';
         $rootScope.$on("$locationChangeStart", function (_e, newVal, _old) {

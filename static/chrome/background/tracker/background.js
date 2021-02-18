@@ -417,54 +417,11 @@ var isBackgroundUpdateStorage = false;
 
 // save
 function backgroundUpdateStorage() {
-    // console.log('backgroundUpdateStorage', isBackgroundUpdateStorage);
-    // if (isBackgroundUpdateStorage) return;
     if (synchronizing || !tabs) return;
-    // const diff = Math.round(Date.now() / 1000) - diff_second;
     const copy = JSON.parse(JSON.stringify(tabs));
-    // isBackgroundUpdateStorage = copy.length > 0;
-    // const clearDiffDocs = function (doc, new_doc) {
-    //     console.log('[clearDiffDocs] > ', doc._id, doc._rev);
-    //     const conflict = "Document update conflict|missing";
-    //     db.remove(doc)
-    //         .then(_r => {
-    //             db.get(doc._id)
-    //                 .then(doc1 => {
-    //                     return clearDiffDocs(doc1, new_doc);
-    //                 })
-    //                 .catch(err1 => {
-    //                     db.put({ '_id': new_doc.url, 'value': new_doc }).then(res => {
-    //                         isBackgroundUpdateStorage = false;
-    //                     }).catch(err => {
-    //                         isBackgroundUpdateStorage = err.message.indexOf(conflict) != -1;
-    //                         console.log(111, err);
-    //                     });
-    //                 });
-    //         })
-    //         .catch(err2 => {
-    //             db.put({ '_id': new_doc.url, 'value': new_doc }).then(res => {
-    //                 console.log('22 saved..', res);
-    //                 isBackgroundUpdateStorage = false;
-    //             }).catch(err => {
-    //                 isBackgroundUpdateStorage = err.message.indexOf(conflict) != -1;
-    //                 console.log(222, err);
-    //             });
-    //         });
-    // }
-    // console.log('put ', copy);
     copy.forEach(tab => {
         var variable = tab;
         (function (t) {
-            // db.get(t.url).then(doc => {
-            //     clearDiffDocs(doc, t);
-            // }).catch(err => {
-            //     isBackgroundUpdateStorage = false;
-            //     console.log(err);
-            //     db.put({ '_id': t.url, 'value': t }).then(res => {
-            //     }).catch(err1 => {
-            //         console.log(err1);
-            //     });
-            // });
             db.get(t.url).then(doc => {
                 return db.put({ _id: doc._id, _rev: doc._rev, value: t }, { force: true });
             }).catch(err => {
@@ -486,14 +443,6 @@ function backgroundUpdateStorage() {
                     } else {
                         reload();
                     }
-                    // docId: "www.oschina.net"
-                    // error: true
-                    // id: "www.oschina.net"
-                    // message: "Document update conflict"
-                    // name: "conflict"
-                    // status: 409
-
-                    //
                 });
             });
 
@@ -855,7 +804,17 @@ function init(runSync) {
     }
 }
 // sync이벤트 완료후 flag
-reload(true);
+var chromeAccount;
+// 정기적으로 계정 상태를 체크하여 계정 정보가 변경되면 모든 데이터 초기화후 sync 진행
+chrome.identity.getProfileUserInfo(function (user) {
+    if (user.hasOwnProperty('email') && user.hasOwnProperty('id')) {
+        chromeAccount = user;
+        USER_ID = user.id;
+        console.log('userInfo > ', chromeAccount);
+        reload(true);
+    }
+});
+
 // startSync();
 // start!
-updateEvent('start_application', browser);
+// updateEvent('start_application', browser);

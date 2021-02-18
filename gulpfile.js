@@ -56,7 +56,7 @@ gulp.task('main-bower-files', function () {
         .pipe(minifyCSS())
         .pipe(filterCSS.restore)
 
-        .pipe(gulp.dest('dist/bower_components'));
+        .pipe(gulp.dest('dist/vendor'));
         // .pipe(filter('*.js'))
         // // .pipe(filter(['*', '!**/*.min.js'], { 'restore': true }))
         // .pipe(uglify())
